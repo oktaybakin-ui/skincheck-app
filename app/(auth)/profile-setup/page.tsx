@@ -4,8 +4,10 @@ import { useState } from "react";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { SKIN_TYPES, SPECIAL_CONDITIONS, COMMON_ALLERGENS } from "@/lib/constants";
+import { SKIN_TYPE_ICONS } from "@/lib/constants/icons";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/lib/context/AuthContext";
+import { CheckCircle } from "lucide-react";
 
 const STEPS = ["Cilt Tipi", "Özel Durum", "Alerjiler", "Tamamla"];
 
@@ -47,15 +49,18 @@ export default function ProfileSetupPage() {
           <div className="space-y-4">
             <h2 className="text-xl font-bold text-center">Cilt tipini seç</h2>
             <div className="grid grid-cols-2 gap-3">
-              {SKIN_TYPES.map((type) => (
-                <Card key={type.value} selected={skinType === type.value} onClick={() => setSkinType(type.value)}>
-                  <div className="text-center">
-                    <span className="text-3xl">{type.icon}</span>
-                    <p className="font-semibold text-sm mt-2">{type.label}</p>
-                    <p className="text-xs text-muted mt-1">{type.description}</p>
-                  </div>
-                </Card>
-              ))}
+              {SKIN_TYPES.map((type) => {
+                const Icon = SKIN_TYPE_ICONS[type.value];
+                return (
+                  <Card key={type.value} selected={skinType === type.value} onClick={() => setSkinType(type.value)}>
+                    <div className="text-center">
+                      {Icon && <Icon size={28} className={skinType === type.value ? "text-primary mx-auto" : "text-muted mx-auto"} />}
+                      <p className="font-semibold text-sm mt-2">{type.label}</p>
+                      <p className="text-xs text-muted mt-1">{type.description}</p>
+                    </div>
+                  </Card>
+                );
+              })}
             </div>
           </div>
         )}
@@ -132,8 +137,10 @@ export default function ProfileSetupPage() {
         {/* Step 3: Complete */}
         {step === 3 && (
           <div className="text-center space-y-6">
-            <div className="text-6xl">🎉</div>
-            <h2 className="text-xl font-bold">Harika! SkinCheck&apos;e hoş geldin!</h2>
+            <div className="w-16 h-16 mx-auto bg-safe/10 rounded-full flex items-center justify-center">
+              <CheckCircle size={40} className="text-safe" />
+            </div>
+            <h2 className="text-xl font-bold">Harika! SkinCheck&apos;e hos geldin!</h2>
             <Card>
               <div className="text-left space-y-2 text-sm">
                 <p><span className="text-muted">Cilt tipi:</span> <strong>{SKIN_TYPES.find((t) => t.value === skinType)?.label}</strong></p>

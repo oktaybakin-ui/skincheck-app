@@ -9,6 +9,7 @@ import { useCabinet, CabinetItem } from "@/lib/hooks/useCabinet";
 import { useAuthContext } from "@/lib/context/AuthContext";
 import { useState } from "react";
 import Link from "next/link";
+import { Heart, FlaskConical, AlertTriangle, Clock, Lock, Archive } from "lucide-react";
 
 type FilterType = "all" | "active" | "expiring" | "wishlist" | "favorites";
 
@@ -42,7 +43,7 @@ function CabinetItemCard({ item, onToggleFav, onRemove, onEdit }: {
           {product?.image_url ? (
             <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
           ) : (
-            <span className="text-2xl">{item.status === "wishlist" ? "💝" : "🧴"}</span>
+            <span className="text-2xl">{item.status === "wishlist" ? <Heart className="w-6 h-6 text-pink-500" /> : <FlaskConical className="w-6 h-6 text-gray-400" />}</span>
           )}
         </div>
 
@@ -53,7 +54,7 @@ function CabinetItemCard({ item, onToggleFav, onRemove, onEdit }: {
               {product?.brand && <p className="text-xs text-muted">{product.brand}</p>}
             </div>
             <button onClick={onToggleFav} className="text-lg shrink-0">
-              {item.is_favorite ? "❤️" : "🤍"}
+              {item.is_favorite ? <Heart className="w-5 h-5 text-red-500" fill="currentColor" /> : <Heart className="w-5 h-5 text-gray-300" />}
             </button>
           </div>
 
@@ -140,7 +141,7 @@ export default function CabinetPage() {
       <>
         <Header title="Dolabım" />
         <main className="px-4 py-12 text-center">
-          <span className="text-5xl">🔒</span>
+          <Lock className="w-12 h-12 text-gray-400 mx-auto" />
           <p className="font-semibold mt-4">Giriş yapmalısın</p>
           <p className="text-sm text-muted mt-1">Dolabını kullanmak için giriş yap</p>
           <Link href="/login">
@@ -175,7 +176,7 @@ export default function CabinetPage() {
         {expired.length > 0 && (
           <Card className="border-danger/30 bg-danger/5">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-lg">⚠️</span>
+              <AlertTriangle className="w-5 h-5 text-danger" />
               <p className="font-bold text-sm text-danger">{expired.length} ürünün süresi doldu!</p>
             </div>
             <div className="space-y-1">
@@ -189,7 +190,7 @@ export default function CabinetPage() {
         {expiringSoon.length > 0 && (
           <Card className="border-warning/30 bg-warning/5">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-lg">⏰</span>
+              <Clock className="w-5 h-5 text-warning" />
               <p className="font-bold text-sm text-warning">{expiringSoon.length} ürünün süresi yaklaşıyor</p>
             </div>
             <div className="space-y-1">
@@ -229,7 +230,7 @@ export default function CabinetPage() {
           </div>
         ) : filteredItems.length === 0 ? (
           <div className="text-center py-12">
-            <span className="text-5xl">{filter === "wishlist" ? "💝" : filter === "favorites" ? "❤️" : "🗄️"}</span>
+            {filter === "wishlist" ? <Heart className="w-12 h-12 text-pink-500 mx-auto" /> : filter === "favorites" ? <Heart className="w-12 h-12 text-red-500 mx-auto" fill="currentColor" /> : <Archive className="w-12 h-12 text-gray-400 mx-auto" />}
             <p className="font-semibold mt-4">
               {filter === "all" ? "Dolabın boş" : `${filters.find(f => f.key === filter)?.label} kategorisinde ürün yok`}
             </p>

@@ -5,6 +5,7 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import { useState } from "react";
+import { Leaf, Snowflake, Flower, LucideIcon } from "lucide-react";
 
 const questions = [
   {
@@ -51,7 +52,7 @@ const questions = [
 interface ToneResult {
   tone: string;
   season: string;
-  emoji: string;
+  icon: LucideIcon;
   colors: string[];
   colorNames: string[];
   lipColors: { name: string; hex: string }[];
@@ -66,7 +67,7 @@ const RESULTS: Record<string, ToneResult> = {
   warm: {
     tone: "Sıcak",
     season: "Sonbahar",
-    emoji: "🍂",
+    icon: Leaf,
     colors: ["#C2185B", "#E65100", "#F57F17", "#558B2F", "#795548", "#FF8F00", "#BF360C"],
     colorNames: ["Bordo", "Turuncu", "Hardal", "Zeytin Yeşili", "Kahve", "Amber", "Kızıl"],
     lipColors: [
@@ -93,7 +94,7 @@ const RESULTS: Record<string, ToneResult> = {
   cool: {
     tone: "Soğuk",
     season: "Kış",
-    emoji: "❄️",
+    icon: Snowflake,
     colors: ["#AD1457", "#4A148C", "#1565C0", "#00695C", "#37474F", "#880E4F", "#283593"],
     colorNames: ["Fuşya", "Mor", "Kobalt Mavi", "Deniz Mavisi", "Antrasit", "Berry", "Lacivert"],
     lipColors: [
@@ -120,7 +121,7 @@ const RESULTS: Record<string, ToneResult> = {
   neutral: {
     tone: "Nötr",
     season: "İlkbahar",
-    emoji: "🌸",
+    icon: Flower,
     colors: ["#D81B60", "#8E24AA", "#1E88E5", "#43A047", "#6D4C41", "#00897B", "#F4511E"],
     colorNames: ["Pembe", "Mor", "Mavi", "Yeşil", "Kahve", "Teal", "Mercan"],
     lipColors: [
@@ -179,7 +180,7 @@ export default function UndertonePage() {
         <main className="px-4 py-6 space-y-6 pb-28">
           {/* Hero */}
           <div className="text-center">
-            <div className="text-6xl">{result.emoji}</div>
+            <result.icon size={56} className="mx-auto text-primary" />
             <h2 className="text-2xl font-bold mt-2">
               Sen <span className="text-primary">{result.tone} {result.season}</span> tonlusun!
             </h2>

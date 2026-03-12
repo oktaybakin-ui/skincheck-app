@@ -1,19 +1,19 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-primary: #E91E8C;
-  --color-primary-light: #F472B6;
-  --color-primary-dark: #BE185D;
-  --color-secondary: #7C3AED;
-  --color-secondary-light: #A78BFA;
-  --color-background: #FFF5F9;
+  --color-primary: #D4627A;
+  --color-primary-light: #E8899E;
+  --color-primary-dark: #B5405A;
+  --color-secondary: #8B7EC8;
+  --color-secondary-light: #AEA3D6;
+  --color-background: #FAFAFA;
   --color-surface: #FFFFFF;
-  --color-danger: #EF4444;
-  --color-warning: #F59E0B;
-  --color-safe: #22C55E;
-  --color-info: #3B82F6;
-  --color-foreground: #1F2937;
-  --color-muted: #6B7280;
+  --color-danger: #E05252;
+  --color-warning: #E5A030;
+  --color-safe: #3EAF6E;
+  --color-info: #5B8BD4;
+  --color-foreground: #1A1D23;
+  --color-muted: #7C818A;
   --font-sans: "Inter", sans-serif;
 }
 
@@ -21,6 +21,44 @@ body {
   background: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
+}
+
+/* Typography hierarchy */
+h1 { letter-spacing: -0.025em; }
+h2 { letter-spacing: -0.02em; }
+h3 { letter-spacing: -0.01em; }
+
+/* Focus states for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Slide up animation for modals */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+/* Fade in animation */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
 }
 
 /* Hide scrollbar for bottom nav spacing */

@@ -1,11 +1,12 @@
 import Header from "@/components/layout/Header";
 import Card from "@/components/ui/Card";
 import Link from "next/link";
+import { Palette, Sparkles, Youtube, ChevronRight, LucideIcon } from "lucide-react";
 
-const sections = [
-  { href: "/makeup/undertone", icon: "🎨", title: "Alt Ton Analizi", desc: "Sıcak, soğuk veya nötr tonunu öğren" },
-  { href: "/makeup/solutions", icon: "✨", title: "Sorunlara Çözümler", desc: "Göz altı, akne, gözenek ve daha fazlası" },
-  { href: "/makeup/youtube", icon: "📺", title: "YouTube Önerileri", desc: "En iyi makyaj kanalları ve videolar" },
+const sections: { href: string; icon: LucideIcon; title: string; desc: string }[] = [
+  { href: "/makeup/undertone", icon: Palette, title: "Alt Ton Analizi", desc: "Sıcak, soğuk veya nötr tonunu öğren" },
+  { href: "/makeup/solutions", icon: Sparkles, title: "Sorunlara Çözümler", desc: "Göz altı, akne, gözenek ve daha fazlası" },
+  { href: "/makeup/youtube", icon: Youtube, title: "YouTube Önerileri", desc: "En iyi makyaj kanalları ve videolar" },
 ];
 
 export default function MakeupPage() {
@@ -19,18 +20,21 @@ export default function MakeupPage() {
         </div>
 
         <div className="space-y-3">
-          {sections.map((s) => (
-            <Link key={s.href} href={s.href}>
-              <Card hoverable className="flex items-center gap-4 mb-3">
-                <span className="text-3xl">{s.icon}</span>
-                <div>
-                  <p className="font-semibold">{s.title}</p>
-                  <p className="text-sm text-muted">{s.desc}</p>
-                </div>
-                <span className="ml-auto text-muted">→</span>
-              </Card>
-            </Link>
-          ))}
+          {sections.map((s) => {
+            const Icon = s.icon;
+            return (
+              <Link key={s.href} href={s.href}>
+                <Card hoverable className="flex items-center gap-4 mb-3">
+                  <Icon size={28} className="text-primary shrink-0" />
+                  <div>
+                    <p className="font-semibold">{s.title}</p>
+                    <p className="text-sm text-muted">{s.desc}</p>
+                  </div>
+                  <ChevronRight size={20} className="ml-auto text-muted" />
+                </Card>
+              </Link>
+            );
+          })}
         </div>
       </main>
     </>

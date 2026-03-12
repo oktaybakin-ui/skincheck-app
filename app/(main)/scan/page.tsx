@@ -7,6 +7,7 @@ import BarcodeScanner from "@/components/scan/BarcodeScanner";
 import OCRScanner from "@/components/scan/OCRScanner";
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { SearchX } from "lucide-react";
 import { searchByBarcode, parseIngredients } from "@/lib/api/openBeautyFacts";
 import { supabase } from "@/lib/supabase";
 
@@ -153,7 +154,7 @@ export default function ScanPage() {
         {/* Not Found */}
         {notFound && (
           <div className="text-center py-12 space-y-4">
-            <span className="text-5xl">🔍</span>
+            <SearchX size={48} className="text-muted mx-auto" />
             <h3 className="font-bold text-lg">Ürün bulunamadı</h3>
             <p className="text-sm text-muted">Barkod: {scannedBarcode}</p>
             <div className="space-y-3">

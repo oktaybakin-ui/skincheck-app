@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Camera } from "lucide-react";
 
 interface BarcodeScannerProps {
   onScan: (barcode: string) => void;
@@ -58,7 +59,7 @@ export default function BarcodeScanner({ onScan, active }: BarcodeScannerProps) 
     return (
       <div className="aspect-[3/4] bg-gray-900 rounded-2xl flex items-center justify-center p-6">
         <div className="text-center">
-          <span className="text-4xl">📷</span>
+          <Camera size={40} className="text-white/80" />
           <p className="text-white/80 text-sm mt-3">{error}</p>
           <p className="text-white/50 text-xs mt-2">Tarayıcı ayarlarından kamera iznini kontrol edin</p>
         </div>

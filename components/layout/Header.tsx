@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowLeft, Settings } from "lucide-react";
 
 interface HeaderProps {
   title?: string;
@@ -14,15 +15,15 @@ export default function Header({ title = "SkinCheck", showBack = false, showSett
       <div className="flex items-center justify-between h-14 px-4 max-w-lg mx-auto">
         <div className="flex items-center gap-3">
           {showBack && (
-            <button onClick={() => window.history.back()} className="text-foreground p-1">
-              ←
+            <button onClick={() => window.history.back()} className="text-foreground p-1 rounded-lg hover:bg-gray-100 transition-colors">
+              <ArrowLeft size={20} />
             </button>
           )}
           <h1 className="text-lg font-bold text-primary">{title}</h1>
         </div>
         {showSettings && (
-          <Link href="/settings" className="text-muted hover:text-primary transition-colors">
-            ⚙️
+          <Link href="/settings" className="text-muted hover:text-primary transition-colors p-1 rounded-lg hover:bg-gray-100">
+            <Settings size={20} />
           </Link>
         )}
       </div>

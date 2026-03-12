@@ -5,10 +5,12 @@ import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
+import StarRating from "@/components/ui/StarRating";
 import { useCommunity, Review } from "@/lib/hooks/useCommunity";
 import { useAuthContext } from "@/lib/context/AuthContext";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { FlaskConical, ThumbsUp, MessageCircle, PenLine, Users, Star } from "lucide-react";
 
 type Tab = "discover" | "following" | "similar";
 
@@ -21,16 +23,6 @@ function timeAgo(dateStr: string): string {
   if (diff < 86400) return `${Math.floor(diff / 3600)} saat önce`;
   if (diff < 604800) return `${Math.floor(diff / 86400)} gün önce`;
   return `${Math.floor(diff / 604800)} hafta önce`;
-}
-
-function Stars({ rating }: { rating: number }) {
-  return (
-    <div className="flex gap-0.5">
-      {[1, 2, 3, 4, 5].map((s) => (
-        <span key={s} className={`text-sm ${s <= rating ? "text-warning" : "text-gray-300"}`}>★</span>
-      ))}
-    </div>
-  );
 }
 
 function ReviewCard({ review }: { review: Review }) {
@@ -65,7 +57,7 @@ function ReviewCard({ review }: { review: Review }) {
             {product.image_url ? (
               <img src={product.image_url} alt="" className="w-8 h-8 rounded object-cover" />
             ) : (
-              <span className="text-lg">🧴</span>
+              <FlaskConical size={20} className="text-muted" />
             )}
             <div className="min-w-0">
               <p className="text-sm font-medium truncate">{product.name}</p>
@@ -75,7 +67,7 @@ function ReviewCard({ review }: { review: Review }) {
         </Link>
       )}
 
-      <Stars rating={review.rating} />
+      <StarRating rating={review.rating} />
 
       {review.comment && (
         <p className="text-sm text-muted mt-2 line-clamp-3">{review.comment}</p>
@@ -99,11 +91,11 @@ function ReviewCard({ review }: { review: Review }) {
       )}
 
       <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100">
-        <button className="text-xs text-muted flex items-center gap-1">
-          👍 {review.helpful_count > 0 ? review.helpful_count : ""} Faydalı
+        <button className="text-xs text-muted flex items-center gap-1 hover:text-primary transition-colors">
+          <ThumbsUp size={14} /> {review.helpful_count > 0 ? review.helpful_count : ""} Faydalı
         </button>
-        <button className="text-xs text-muted flex items-center gap-1">
-          💬 Yorum Yap
+        <button className="text-xs text-muted flex items-center gap-1 hover:text-primary transition-colors">
+          <MessageCircle size={14} /> Yorum Yap
         </button>
       </div>
     </Card>
@@ -165,7 +157,7 @@ export default function CommunityPage() {
         {/* Write Review Button */}
         {user && (
           <Button variant="outline" fullWidth onClick={() => setShowWriteReview(true)}>
-            ✍️ Yorum Yaz
+            <span className="flex items-center justify-center gap-2"><PenLine size={16} /> Yorum Yaz</span>
           </Button>
         )}
 
@@ -176,7 +168,7 @@ export default function CommunityPage() {
           </div>
         ) : reviews.length === 0 ? (
           <div className="text-center py-12">
-            <span className="text-5xl">👥</span>
+            <Users size={48} className="text-muted mx-auto" />
             <p className="font-semibold mt-4">
               {tab === "following" ? "Takip ettiklerinin yorumları burada görünecek" :
                tab === "similar" ? "Benzer cilt tipindeki yorumlar burada görünecek" :
@@ -203,9 +195,13 @@ export default function CommunityPage() {
                 <button
                   key={s}
                   onClick={() => setReviewForm({ ...reviewForm, rating: s })}
-                  className={`text-2xl ${s <= reviewForm.rating ? "text-warning" : "text-gray-300"}`}
+                  className="transition-colors"
                 >
-                  ★
+                  <Star
+                    size={24}
+                    className={s <= reviewForm.rating ? "text-warning fill-warning" : "text-gray-300"}
+                    strokeWidth={1.5}
+                  />
                 </button>
               ))}
             </div>

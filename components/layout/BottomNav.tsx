@@ -2,13 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Home, ScanLine, Sparkles, Users, Tag, LucideIcon } from "lucide-react";
 
-const tabs = [
-  { href: "/", label: "Ana Sayfa", icon: "🏠" },
-  { href: "/scan", label: "Tara", icon: "📷" },
-  { href: "/makeup", label: "Makyaj", icon: "💄" },
-  { href: "/community", label: "Topluluk", icon: "👥" },
-  { href: "/deals", label: "Fırsatlar", icon: "🏷️" },
+interface Tab {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+}
+
+const tabs: Tab[] = [
+  { href: "/", label: "Ana Sayfa", icon: Home },
+  { href: "/scan", label: "Tara", icon: ScanLine },
+  { href: "/makeup", label: "Makyaj", icon: Sparkles },
+  { href: "/community", label: "Topluluk", icon: Users },
+  { href: "/deals", label: "Fırsatlar", icon: Tag },
 ];
 
 export default function BottomNav() {
@@ -26,6 +33,7 @@ export default function BottomNav() {
           const isActive = tab.href === "/"
             ? pathname === "/"
             : pathname?.startsWith(tab.href);
+          const Icon = tab.icon;
 
           return (
             <Link
@@ -37,7 +45,7 @@ export default function BottomNav() {
                   : "text-muted hover:text-primary-light"
               }`}
             >
-              <span className="text-xl">{tab.icon}</span>
+              <Icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />
               <span className="text-[10px] mt-0.5 font-medium">{tab.label}</span>
             </Link>
           );

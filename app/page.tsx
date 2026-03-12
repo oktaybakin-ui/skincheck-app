@@ -3,18 +3,20 @@
 import Header from "@/components/layout/Header";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
+import StarRating from "@/components/ui/StarRating";
 import Link from "next/link";
 import { useAuthContext } from "@/lib/context/AuthContext";
 import { useCabinet } from "@/lib/hooks/useCabinet";
 import { useCommunity, Review } from "@/lib/hooks/useCommunity";
 import { useEffect, useState } from "react";
 import { SKIN_TYPES } from "@/lib/constants";
+import { ScanLine, Archive, Palette, Sparkles, AlertTriangle, Clock, CheckCircle, Target, type LucideIcon } from "lucide-react";
 
-const quickActions = [
-  { href: "/scan", icon: "📷", label: "Ürün Tara", desc: "Barkod veya INCI oku" },
-  { href: "/cabinet", icon: "🗄️", label: "Dolabım", desc: "Ürünlerini yönet" },
-  { href: "/makeup/undertone", icon: "🎨", label: "Alt Ton Analizi", desc: "Renk tonunu keşfet" },
-  { href: "/makeup/solutions", icon: "✨", label: "Makyaj Çözümleri", desc: "Sorunlara öneriler" },
+const quickActions: { href: string; icon: LucideIcon; label: string; desc: string }[] = [
+  { href: "/scan", icon: ScanLine, label: "Ürün Tara", desc: "Barkod veya INCI oku" },
+  { href: "/cabinet", icon: Archive, label: "Dolabım", desc: "Ürünlerini yönet" },
+  { href: "/makeup/undertone", icon: Palette, label: "Alt Ton Analizi", desc: "Renk tonunu keşfet" },
+  { href: "/makeup/solutions", icon: Sparkles, label: "Makyaj Çözümleri", desc: "Sorunlara öneriler" },
 ];
 
 function timeAgo(dateStr: string): string {
@@ -55,7 +57,7 @@ export default function HomePage() {
         {/* Hero */}
         <div className="bg-gradient-to-br from-primary to-secondary rounded-3xl p-6 text-white">
           <h2 className="text-2xl font-bold mb-1">
-            {greeting()}! {user ? "👋" : ""}
+            {greeting()}!
           </h2>
           {profile?.full_name && <p className="text-white/90 text-sm font-medium">{profile.full_name}</p>}
           <p className="text-white/70 text-sm mt-1">
@@ -76,7 +78,7 @@ export default function HomePage() {
           <Link href="/profile-setup">
             <Card className="border-primary/30 bg-primary/5">
               <div className="flex items-center gap-3">
-                <span className="text-2xl">🎯</span>
+                <Target size={24} className="text-primary" />
                 <div>
                   <p className="text-sm font-bold text-primary">Profilini Tamamla</p>
                   <p className="text-xs text-muted">Kişiselleştirilmiş öneriler için cilt tipini belirle</p>
@@ -91,15 +93,18 @@ export default function HomePage() {
         <section>
           <h3 className="text-lg font-bold mb-3">Hızlı İşlemler</h3>
           <div className="grid grid-cols-2 gap-3">
-            {quickActions.map((action) => (
+            {quickActions.map((action) => {
+              const Icon = action.icon;
+              return (
               <Link key={action.href} href={action.href}>
                 <Card hoverable className="text-center">
-                  <span className="text-3xl">{action.icon}</span>
+                  <Icon size={28} className="text-primary mx-auto" />
                   <p className="font-semibold mt-2 text-sm">{action.label}</p>
                   <p className="text-xs text-muted mt-0.5">{action.desc}</p>
                 </Card>
               </Link>
-            ))}
+              );
+            })}
           </div>
         </section>
 
@@ -112,7 +117,7 @@ export default function HomePage() {
                 <Link href="/cabinet">
                   <Card className="border-danger/30 bg-danger/5 mb-2">
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">⚠️</span>
+                      <AlertTriangle size={24} className="text-danger" />
                       <div>
                         <p className="text-sm font-bold text-danger">{expired.length} ürünün süresi doldu!</p>
                         <p className="text-xs text-muted">Dolabını kontrol et</p>
@@ -125,7 +130,7 @@ export default function HomePage() {
                 <Link href="/cabinet">
                   <Card className="border-warning/30 bg-warning/5 mb-2">
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">⏰</span>
+                      <Clock size={24} className="text-warning" />
                       <div>
                         <p className="text-sm font-medium">{expiringSoon.length} ürünün süresi yaklaşıyor</p>
                         <p className="text-xs text-muted">30 gün içinde dolacak</p>
@@ -137,7 +142,7 @@ export default function HomePage() {
               {totalActive > 0 && expired.length === 0 && expiringSoon.length === 0 && (
                 <Card className="border-safe/30 bg-safe/5">
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">✅</span>
+                    <CheckCircle size={24} className="text-safe" />
                     <div>
                       <p className="text-sm font-medium">{totalActive} aktif ürün</p>
                       <p className="text-xs text-muted">Tüm ürünlerin güvende</p>
@@ -153,7 +158,7 @@ export default function HomePage() {
           <section>
             <Card className="border-warning/30 bg-warning/5">
               <div className="flex items-center gap-3">
-                <span className="text-2xl">⏰</span>
+                <Clock size={24} className="text-warning" />
                 <div>
                   <p className="text-sm font-medium">Ürün sürelerini takip et</p>
                   <p className="text-xs text-muted">Dolabına ürün ekleyerek SKT takibi yap</p>
@@ -192,11 +197,7 @@ export default function HomePage() {
                   {review.product && (
                     <p className="text-xs font-medium">{review.product.brand} - {review.product.name}</p>
                   )}
-                  <div className="flex gap-0.5 mt-1">
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <span key={s} className={`text-xs ${s <= review.rating ? "text-warning" : "text-gray-300"}`}>★</span>
-                    ))}
-                  </div>
+                  <StarRating rating={review.rating} size={12} className="mt-1" />
                   {review.comment && <p className="text-xs text-muted mt-1 line-clamp-2">{review.comment}</p>}
                 </Card>
               ))}

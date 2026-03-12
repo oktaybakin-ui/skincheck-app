@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode, useEffect } from "react";
+import { X } from "lucide-react";
 
 interface ModalProps {
   isOpen: boolean;
@@ -28,7 +29,9 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
         {title && (
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold">{title}</h2>
-            <button onClick={onClose} className="text-muted hover:text-foreground text-xl p-1">✕</button>
+            <button onClick={onClose} className="text-muted hover:text-foreground p-1 rounded-lg hover:bg-gray-100 transition-colors">
+              <X size={18} />
+            </button>
           </div>
         )}
         {children}

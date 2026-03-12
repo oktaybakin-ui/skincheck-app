@@ -5,6 +5,7 @@ import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { Tag, Sparkles, FlaskConical, Scissors, Flower, Sun, Monitor, Store, ShoppingCart, Ticket, LucideIcon, ChevronRight } from "lucide-react";
 
 interface Deal {
   id: string;
@@ -27,14 +28,19 @@ interface Deal {
   };
 }
 
-const CATEGORIES = [
-  { label: "Tümü", icon: "🏷️", value: null },
-  { label: "Makyaj", icon: "💄", value: "makyaj" },
-  { label: "Cilt Bakımı", icon: "🧴", value: "cilt bakımı" },
-  { label: "Saç Bakımı", icon: "💇", value: "saç bakımı" },
-  { label: "Parfüm", icon: "🌸", value: "parfüm" },
-  { label: "Güneş", icon: "☀️", value: "güneş" },
+const CATEGORIES: { label: string; icon: LucideIcon; value: string | null }[] = [
+  { label: "Tümü", icon: Tag, value: null },
+  { label: "Makyaj", icon: Sparkles, value: "makyaj" },
+  { label: "Cilt Bakımı", icon: FlaskConical, value: "cilt bakımı" },
+  { label: "Saç Bakımı", icon: Scissors, value: "saç bakımı" },
+  { label: "Parfüm", icon: Flower, value: "parfüm" },
+  { label: "Güneş", icon: Sun, value: "güneş" },
 ];
+
+const STORE_ICONS: Record<string, LucideIcon> = {
+  online: Monitor,
+  physical: Store,
+};
 
 export default function DealsPage() {
   const [deals, setDeals] = useState<Deal[]>([]);
@@ -80,19 +86,22 @@ export default function DealsPage() {
       <main className="px-4 py-4 space-y-4 pb-28">
         {/* Categories */}
         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-          {CATEGORIES.map((c) => (
-            <button
-              key={c.label}
-              onClick={() => setActiveCategory(c.value)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors flex items-center gap-1 ${
-                activeCategory === c.value
-                  ? "bg-primary text-white"
-                  : "bg-gray-100 text-muted hover:bg-gray-200"
-              }`}
-            >
-              {c.icon} {c.label}
-            </button>
-          ))}
+          {CATEGORIES.map((c) => {
+            const Icon = c.icon;
+            return (
+              <button
+                key={c.label}
+                onClick={() => setActiveCategory(c.value)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors flex items-center gap-1.5 ${
+                  activeCategory === c.value
+                    ? "bg-primary text-white"
+                    : "bg-gray-100 text-muted hover:bg-gray-200"
+                }`}
+              >
+                <Icon size={14} /> {c.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Deals */}
@@ -102,72 +111,75 @@ export default function DealsPage() {
           </div>
         ) : deals.length === 0 ? (
           <div className="text-center py-12">
-            <span className="text-5xl">🏷️</span>
+            <Tag size={48} className="text-muted mx-auto" />
             <p className="font-semibold mt-4">Henüz fırsat yok</p>
             <p className="text-sm text-muted mt-1">Kozmetik indirimleri burada listelenecek</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {deals.map((deal) => (
-              <Card key={deal.id} hoverable>
-                <div className="flex gap-3">
-                  <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
-                    {deal.product?.image_url ? (
-                      <img src={deal.product.image_url} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-2xl">🧴</span>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    {deal.product?.brand && <p className="text-xs text-muted">{deal.product.brand}</p>}
-                    <p className="font-semibold text-sm truncate">{deal.product?.name || "Ürün"}</p>
-
-                    <div className="flex items-center gap-2 mt-1">
-                      {deal.original_price && (
-                        <span className="text-xs text-muted line-through">₺{deal.original_price}</span>
-                      )}
-                      {deal.sale_price && (
-                        <span className="text-lg font-bold text-danger">₺{deal.sale_price}</span>
-                      )}
-                      {deal.discount_percent && (
-                        <Badge variant="danger" size="sm">%{deal.discount_percent}</Badge>
+            {deals.map((deal) => {
+              const StoreIcon = STORE_ICONS[deal.store_type || ""] || ShoppingCart;
+              return (
+                <Card key={deal.id} hoverable>
+                  <div className="flex gap-3">
+                    <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
+                      {deal.product?.image_url ? (
+                        <img src={deal.product.image_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <FlaskConical size={24} className="text-muted" />
                       )}
                     </div>
+                    <div className="flex-1 min-w-0">
+                      {deal.product?.brand && <p className="text-xs text-muted">{deal.product.brand}</p>}
+                      <p className="font-semibold text-sm truncate">{deal.product?.name || "Ürün"}</p>
 
-                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs">{deal.store_type === "online" ? "💻" : deal.store_type === "physical" ? "🏪" : "🛒"}</span>
-                        <span className="text-xs text-muted">{deal.store_name}</span>
+                      <div className="flex items-center gap-2 mt-1">
+                        {deal.original_price && (
+                          <span className="text-xs text-muted line-through">₺{deal.original_price}</span>
+                        )}
+                        {deal.sale_price && (
+                          <span className="text-lg font-bold text-danger">₺{deal.sale_price}</span>
+                        )}
+                        {deal.discount_percent && (
+                          <Badge variant="danger" size="sm">%{deal.discount_percent}</Badge>
+                        )}
                       </div>
-                      {deal.is_verified && <Badge variant="safe" size="sm">Doğrulanmış</Badge>}
-                      {deal.valid_until && daysLeft(deal.valid_until) && (
-                        <Badge variant="warning" size="sm">{daysLeft(deal.valid_until)} gün kaldı</Badge>
+
+                      <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                        <div className="flex items-center gap-1">
+                          <StoreIcon size={12} className="text-muted" />
+                          <span className="text-xs text-muted">{deal.store_name}</span>
+                        </div>
+                        {deal.is_verified && <Badge variant="safe" size="sm">Doğrulanmış</Badge>}
+                        {deal.valid_until && daysLeft(deal.valid_until) && (
+                          <Badge variant="warning" size="sm">{daysLeft(deal.valid_until)} gün kaldı</Badge>
+                        )}
+                      </div>
+
+                      {deal.coupon_code && (
+                        <button
+                          onClick={() => copyCode(deal.coupon_code!)}
+                          className="mt-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-lg text-xs font-mono text-primary flex items-center gap-1.5"
+                        >
+                          {copiedCode === deal.coupon_code ? "Kopyalandı ✓" : <><Ticket size={12} /> {deal.coupon_code}</>}
+                        </button>
+                      )}
+
+                      {deal.url && (
+                        <a
+                          href={deal.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-2 text-xs text-primary font-medium flex items-center gap-1"
+                        >
+                          Fırsata Git <ChevronRight size={14} />
+                        </a>
                       )}
                     </div>
-
-                    {deal.coupon_code && (
-                      <button
-                        onClick={() => copyCode(deal.coupon_code!)}
-                        className="mt-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-lg text-xs font-mono text-primary"
-                      >
-                        {copiedCode === deal.coupon_code ? "Kopyalandı ✓" : `🎫 ${deal.coupon_code}`}
-                      </button>
-                    )}
-
-                    {deal.url && (
-                      <a
-                        href={deal.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block mt-2 text-xs text-primary font-medium"
-                      >
-                        Fırsata Git →
-                      </a>
-                    )}
                   </div>
-                </div>
-              </Card>
-            ))}
+                </Card>
+              );
+            })}
           </div>
         )}
       </main>

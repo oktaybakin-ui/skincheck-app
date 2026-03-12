@@ -4,6 +4,7 @@ import Header from "@/components/layout/Header";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import { useState } from "react";
+import { SearchX, ExternalLink } from "lucide-react";
 
 const channels = [
   { name: "Duygu Özaslan", subs: "3.5M", desc: "Cilt bakımı ve günlük makyaj", tags: ["Türkçe", "Başlangıç", "Cilt Bakımı"], url: "https://youtube.com/@duyguozaslan" },
@@ -62,7 +63,7 @@ export default function YoutubePage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="font-semibold truncate">{ch.name}</p>
-                      <span className="text-muted text-xs">↗</span>
+                      <ExternalLink size={14} className="text-muted shrink-0" />
                     </div>
                     <p className="text-xs text-muted">{ch.subs} abone</p>
                     <p className="text-sm text-muted mt-1">{ch.desc}</p>
@@ -80,7 +81,7 @@ export default function YoutubePage() {
 
         {filtered.length === 0 && (
           <div className="text-center py-8">
-            <span className="text-4xl">🔍</span>
+            <SearchX size={40} className="mx-auto text-muted" />
             <p className="text-muted text-sm mt-2">Bu filtreye uygun kanal bulunamadı</p>
           </div>
         )}

@@ -12,8 +12,8 @@ export default function Card({ children, className = "", onClick, selected, hove
   return (
     <div
       onClick={onClick}
-      className={`bg-surface rounded-2xl p-4 shadow-sm border-2 transition-all duration-150 ${
-        selected ? "border-primary shadow-primary/20 shadow-md" : "border-transparent"
+      className={`bg-surface rounded-xl p-4 shadow-[0_1px_3px_0_rgba(0,0,0,0.06)] border transition-all duration-150 ${
+        selected ? "border-primary shadow-md" : "border-gray-100"
       } ${hoverable || onClick ? "cursor-pointer hover:shadow-md hover:border-primary/30 active:scale-[0.98]" : ""} ${className}`}
     >
       {children}

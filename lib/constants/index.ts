@@ -34,8 +34,8 @@ export const RISK_LEVELS = {
 } as const;
 
 export const SAFETY_SCORE_RANGES = [
-  { min: 80, max: 100, label: "Güvenli", color: "text-safe", bg: "bg-safe", emoji: "🟢" },
-  { min: 60, max: 79, label: "Dikkatli Ol", color: "text-warning", bg: "bg-warning", emoji: "🟡" },
-  { min: 40, max: 59, label: "Riskli İçerikler Var", color: "text-orange-500", bg: "bg-orange-500", emoji: "🟠" },
-  { min: 0, max: 39, label: "Önerilmez", color: "text-danger", bg: "bg-danger", emoji: "🔴" },
+  { min: 80, max: 100, label: "Güvenli", color: "text-safe", bg: "bg-safe", emoji: "safe" },
+  { min: 60, max: 79, label: "Dikkatli Ol", color: "text-warning", bg: "bg-warning", emoji: "warning" },
+  { min: 40, max: 59, label: "Riskli İçerikler Var", color: "text-orange-500", bg: "bg-orange-500", emoji: "orange" },
+  { min: 0, max: 39, label: "Önerilmez", color: "text-danger", bg: "bg-danger", emoji: "danger" },
 ] as const;

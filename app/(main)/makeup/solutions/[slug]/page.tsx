@@ -4,8 +4,10 @@ import Header from "@/components/layout/Header";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import { MAKEUP_SOLUTIONS } from "@/lib/constants/makeup-solutions";
+import { SOLUTION_ICONS } from "@/lib/constants/icons";
 import { useParams } from "next/navigation";
 import { useState } from "react";
+import { Sparkles, Lightbulb, Clock } from "lucide-react";
 
 export default function SolutionDetailPage() {
   const { slug } = useParams();
@@ -29,14 +31,14 @@ export default function SolutionDetailPage() {
       <main className="px-4 py-4 space-y-5 pb-28">
         {/* Hero */}
         <div className="bg-gradient-to-br from-secondary/10 to-primary/10 rounded-2xl p-5 text-center">
-          <span className="text-5xl">{solution.icon}</span>
+          {(() => { const Icon = SOLUTION_ICONS[solution.slug] || Sparkles; return <Icon size={48} className="mx-auto text-primary" />; })()}
           <h2 className="text-lg font-bold mt-2">{solution.title}</h2>
           <p className="text-sm text-muted mt-1">{solution.desc}</p>
           <div className="flex justify-center gap-2 mt-3">
             <Badge variant={solution.difficulty === "Kolay" ? "safe" : solution.difficulty === "Orta" ? "warning" : "danger"}>
               {solution.difficulty}
             </Badge>
-            <Badge variant="info">⏱ {solution.duration}</Badge>
+            <Badge variant="info"><Clock size={12} className="inline -mt-0.5 mr-1" />{solution.duration}</Badge>
           </div>
         </div>
 
@@ -88,7 +90,7 @@ export default function SolutionDetailPage() {
             <ul className="space-y-2">
               {solution.tips.map((tip, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm">
-                  <span className="text-primary mt-0.5">💡</span>
+                  <Lightbulb size={16} className="text-primary mt-0.5 shrink-0" />
                   <span>{tip}</span>
                 </li>
               ))}

@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Button from "@/components/ui/Button";
+import { Camera } from "lucide-react";
 
 interface OCRScannerProps {
   onResult: (text: string) => void;
@@ -39,7 +40,7 @@ export default function OCRScanner({ onResult }: OCRScannerProps) {
           onClick={() => fileInputRef.current?.click()}
           className="aspect-[3/4] bg-gray-900 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-800 transition-colors"
         >
-          <span className="text-5xl mb-3">📸</span>
+          <Camera size={48} className="text-white/80 mb-3" />
           <p className="text-white/80 text-sm">INCI listesinin fotoğrafını çek</p>
           <p className="text-white/50 text-xs mt-1">veya galeriden seç</p>
           <input

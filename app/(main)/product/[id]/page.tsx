@@ -10,6 +10,7 @@ import Modal from "@/components/ui/Modal";
 import { supabase } from "@/lib/supabase";
 import { useAuthContext } from "@/lib/context/AuthContext";
 import { SAFETY_SCORE_RANGES, RISK_LEVELS } from "@/lib/constants";
+import { FlaskConical, CheckCircle, AlertTriangle, XCircle, HelpCircle, ChevronUp, ChevronDown } from "lucide-react";
 
 interface Product {
   id: string;
@@ -175,7 +176,9 @@ export default function ProductDetailPage() {
             {product.image_url ? (
               <img src={product.image_url} alt={product.name} className="w-20 h-20 rounded-xl object-cover" />
             ) : (
-              <div className="w-20 h-20 bg-gray-100 rounded-xl flex items-center justify-center text-3xl">🧴</div>
+              <div className="w-20 h-20 bg-gray-100 rounded-xl flex items-center justify-center">
+                <FlaskConical className="w-8 h-8 text-gray-400" />
+              </div>
             )}
             <div className="flex-1">
               {product.brand && <p className="text-xs text-muted">{product.brand}</p>}
@@ -192,7 +195,10 @@ export default function ProductDetailPage() {
           <div className={`w-24 h-24 mx-auto rounded-full border-4 ${borderColor} flex items-center justify-center`}>
             <span className={`text-3xl font-bold ${textColor}`}>{safetyScore}</span>
           </div>
-          <p className={`${textColor} font-semibold mt-2`}>{scoreInfo.emoji} {scoreInfo.label}</p>
+          <p className={`${textColor} font-semibold mt-2 flex items-center justify-center gap-1.5`}>
+            <span className={`w-3 h-3 rounded-full inline-block ${scoreInfo.emoji === "safe" ? "bg-safe" : scoreInfo.emoji === "warning" ? "bg-warning" : scoreInfo.emoji === "orange" ? "bg-orange-500" : "bg-danger"}`} />
+            {scoreInfo.label}
+          </p>
         </Card>
 
         {/* Personal Fit */}
@@ -244,7 +250,7 @@ export default function ProductDetailPage() {
                           <span className="ml-2">{getRiskBadge(analysis.risk_assessment?.general)}</span>
                         )}
                       </div>
-                      <span className="text-muted text-xs">{isExpanded ? "▲" : "▼"}</span>
+                      <span className="text-muted">{isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}</span>
                     </button>
 
                     {isExpanded && (
@@ -276,10 +282,10 @@ export default function ProductDetailPage() {
                               {analysis.risk_assessment?.pregnancy && (
                                 <div>
                                   <span className="text-muted">Hamilelik:</span>
-                                  <p className="font-medium">
-                                    {analysis.risk_assessment.pregnancy === "safe" ? "✅ Güvenli" :
-                                     analysis.risk_assessment.pregnancy === "caution" ? "⚠️ Dikkat" :
-                                     analysis.risk_assessment.pregnancy === "avoid" ? "❌ Kaçın" : "❓ Bilinmiyor"}
+                                  <p className="font-medium flex items-center gap-1">
+                                    {analysis.risk_assessment.pregnancy === "safe" ? <><CheckCircle className="w-4 h-4 text-safe inline" /> Güvenli</> :
+                                     analysis.risk_assessment.pregnancy === "caution" ? <><AlertTriangle className="w-4 h-4 text-warning inline" /> Dikkat</> :
+                                     analysis.risk_assessment.pregnancy === "avoid" ? <><XCircle className="w-4 h-4 text-danger inline" /> Kaçın</> : <><HelpCircle className="w-4 h-4 text-muted inline" /> Bilinmiyor</>}
                                   </p>
                                 </div>
                               )}

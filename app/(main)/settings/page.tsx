@@ -5,6 +5,7 @@ import Card from "@/components/ui/Card";
 import { useAuthContext } from "@/lib/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { User, FlaskConical, Palette, Bell, Globe, Lock, Info, LogOut, ChevronRight, LucideIcon } from "lucide-react";
 
 export default function SettingsPage() {
   const { user, profile, signOut } = useAuthContext();
@@ -15,14 +16,14 @@ export default function SettingsPage() {
     router.push("/login");
   };
 
-  const menuItems = [
-    { icon: "👤", label: "Profil Düzenle", href: "/profile-setup" },
-    { icon: "🧴", label: "Cilt Tipim", href: "/profile-setup", value: profile?.skin_type || "Belirtilmemiş" },
-    { icon: "🎨", label: "Alt Tonum", href: "/makeup/undertone", value: profile?.undertone || "Belirtilmemiş" },
-    { icon: "🔔", label: "Bildirimler", href: "#" },
-    { icon: "🌐", label: "Dil", href: "#", value: "Türkçe" },
-    { icon: "🔒", label: "Gizlilik", href: "#" },
-    { icon: "ℹ️", label: "Hakkında", href: "#" },
+  const menuItems: { icon: LucideIcon; label: string; href: string; value?: string }[] = [
+    { icon: User, label: "Profil Düzenle", href: "/profile-setup" },
+    { icon: FlaskConical, label: "Cilt Tipim", href: "/profile-setup", value: profile?.skin_type || "Belirtilmemiş" },
+    { icon: Palette, label: "Alt Tonum", href: "/makeup/undertone", value: profile?.undertone || "Belirtilmemiş" },
+    { icon: Bell, label: "Bildirimler", href: "#" },
+    { icon: Globe, label: "Dil", href: "#", value: "Türkçe" },
+    { icon: Lock, label: "Gizlilik", href: "#" },
+    { icon: Info, label: "Hakkında", href: "#" },
   ];
 
   return (
@@ -43,19 +44,25 @@ export default function SettingsPage() {
 
         {/* Menu Items */}
         <Card className="divide-y divide-gray-50">
-          {menuItems.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className="flex items-center justify-between py-3.5"
-            >
-              <div className="flex items-center gap-3">
-                <span>{item.icon}</span>
-                <span className="text-sm font-medium">{item.label}</span>
-              </div>
-              <span className="text-sm text-muted">{item.value || "→"}</span>
-            </Link>
-          ))}
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                className="flex items-center justify-between py-3.5"
+              >
+                <div className="flex items-center gap-3">
+                  <Icon size={18} className="text-muted" />
+                  <span className="text-sm font-medium">{item.label}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  {item.value && <span className="text-sm text-muted">{item.value}</span>}
+                  <ChevronRight size={16} className="text-muted" />
+                </div>
+              </Link>
+            );
+          })}
         </Card>
 
         {/* Sign Out */}
@@ -65,7 +72,7 @@ export default function SettingsPage() {
               onClick={handleSignOut}
               className="flex items-center gap-3 w-full py-1 text-danger"
             >
-              <span>🚪</span>
+              <LogOut size={18} />
               <span className="text-sm font-medium">Çıkış Yap</span>
             </button>
           </Card>

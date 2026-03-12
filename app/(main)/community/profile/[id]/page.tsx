@@ -6,21 +6,13 @@ import Header from "@/components/layout/Header";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
+import StarRating from "@/components/ui/StarRating";
 import { supabase, Profile } from "@/lib/supabase";
 import { useAuthContext } from "@/lib/context/AuthContext";
 import { useCommunity, Review } from "@/lib/hooks/useCommunity";
 import Link from "next/link";
 import { SKIN_TYPES } from "@/lib/constants";
-
-function Stars({ rating }: { rating: number }) {
-  return (
-    <div className="flex gap-0.5">
-      {[1, 2, 3, 4, 5].map((s) => (
-        <span key={s} className={`text-sm ${s <= rating ? "text-warning" : "text-gray-300"}`}>★</span>
-      ))}
-    </div>
-  );
-}
+import { FlaskConical } from "lucide-react";
 
 export default function UserProfilePage() {
   const { id } = useParams();
@@ -165,7 +157,7 @@ export default function UserProfilePage() {
                         {review.product.image_url ? (
                           <img src={review.product.image_url} alt="" className="w-8 h-8 rounded object-cover" />
                         ) : (
-                          <span className="text-lg">🧴</span>
+                          <FlaskConical size={20} className="text-muted" />
                         )}
                         <div className="min-w-0">
                           <p className="text-sm font-medium truncate">{review.product.name}</p>
@@ -174,7 +166,7 @@ export default function UserProfilePage() {
                       </div>
                     </Link>
                   )}
-                  <Stars rating={review.rating} />
+                  <StarRating rating={review.rating} />
                   {review.comment && <p className="text-sm text-muted mt-2">{review.comment}</p>}
                   {(review.pros || review.cons) && (
                     <div className="flex gap-4 mt-2 text-xs">
