@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, ScanLine, Sparkles, Users, Tag, LucideIcon } from "lucide-react";
+import { Home, ScanLine, Sparkles, Users, UserCircle, LucideIcon } from "lucide-react";
 
 interface Tab {
   href: string;
@@ -15,7 +15,7 @@ const tabs: Tab[] = [
   { href: "/scan", label: "Tara", icon: ScanLine },
   { href: "/makeup", label: "Makyaj", icon: Sparkles },
   { href: "/community", label: "Topluluk", icon: Users },
-  { href: "/deals", label: "Fırsatlar", icon: Tag },
+  { href: "/settings", label: "Profilim", icon: UserCircle },
 ];
 
 export default function BottomNav() {
