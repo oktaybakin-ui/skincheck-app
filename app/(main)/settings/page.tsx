@@ -6,6 +6,7 @@ import { useAuthContext } from "@/lib/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { User, FlaskConical, Palette, Bell, Globe, Lock, Info, LogOut, ChevronRight, LucideIcon } from "lucide-react";
+import Badge from "@/components/ui/Badge";
 
 export default function SettingsPage() {
   const { user, profile, signOut } = useAuthContext();
@@ -16,14 +17,14 @@ export default function SettingsPage() {
     router.push("/login");
   };
 
-  const menuItems: { icon: LucideIcon; label: string; href: string; value?: string }[] = [
+  const menuItems: { icon: LucideIcon; label: string; href: string | null; value?: string }[] = [
     { icon: User, label: "Profil Düzenle", href: "/profile-setup" },
     { icon: FlaskConical, label: "Cilt Tipim", href: "/profile-setup", value: profile?.skin_type || "Belirtilmemiş" },
     { icon: Palette, label: "Alt Tonum", href: "/makeup/undertone", value: profile?.undertone || "Belirtilmemiş" },
-    { icon: Bell, label: "Bildirimler", href: "#" },
-    { icon: Globe, label: "Dil", href: "#", value: "Türkçe" },
-    { icon: Lock, label: "Gizlilik", href: "#" },
-    { icon: Info, label: "Hakkında", href: "#" },
+    { icon: Bell, label: "Bildirimler", href: null },
+    { icon: Globe, label: "Dil", href: null, value: "Türkçe" },
+    { icon: Lock, label: "Gizlilik", href: null },
+    { icon: Info, label: "Hakkında", href: null },
   ];
 
   return (
@@ -46,22 +47,24 @@ export default function SettingsPage() {
         <Card className="divide-y divide-gray-50">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            return (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="flex items-center justify-between py-3.5"
-              >
+            const content = (
+              <div className="flex items-center justify-between py-3.5">
                 <div className="flex items-center gap-3">
                   <Icon size={18} className="text-muted" />
                   <span className="text-sm font-medium">{item.label}</span>
                 </div>
                 <div className="flex items-center gap-1">
+                  {!item.href && <Badge variant="muted" size="sm">Yakinda</Badge>}
                   {item.value && <span className="text-sm text-muted">{item.value}</span>}
-                  <ChevronRight size={16} className="text-muted" />
+                  {item.href && <ChevronRight size={16} className="text-muted" />}
                 </div>
-              </Link>
+              </div>
             );
+
+            if (item.href) {
+              return <Link key={item.label} href={item.href}>{content}</Link>;
+            }
+            return <div key={item.label} className="opacity-60 cursor-default">{content}</div>;
           })}
         </Card>
 
