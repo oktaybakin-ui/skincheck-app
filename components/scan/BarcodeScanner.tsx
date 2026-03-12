@@ -18,10 +18,12 @@ export default function BarcodeScanner({ onScan, active }: BarcodeScannerProps) 
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let scanner: any = null;
+    let unmounted = false;
 
     const startScanner = async () => {
       try {
         const { Html5Qrcode } = await import("html5-qrcode");
+        if (unmounted) return;
         const html5Qrcode = new Html5Qrcode("barcode-reader");
         html5QrcodeRef.current = html5Qrcode;
         scanner = html5Qrcode;
@@ -34,6 +36,7 @@ export default function BarcodeScanner({ onScan, active }: BarcodeScannerProps) 
             aspectRatio: 0.75,
           },
           (decodedText: string) => {
+            if (unmounted) return;
             if (navigator.vibrate) navigator.vibrate(100);
             onScan(decodedText);
             html5Qrcode.stop().catch(() => {});
@@ -41,16 +44,22 @@ export default function BarcodeScanner({ onScan, active }: BarcodeScannerProps) 
           () => {}
         );
       } catch (err) {
-        setError("Kamera erişimi reddedildi veya kamera bulunamadı.");
-        console.error(err);
+        if (!unmounted) {
+          setError("Kamera erişimi reddedildi veya kamera bulunamadı.");
+        }
       }
     };
 
     startScanner();
 
     return () => {
+      unmounted = true;
       if (scanner) {
-        scanner.clear().catch(() => {});
+        try {
+          scanner.stop().catch(() => {});
+        } catch {
+          // scanner may already be stopped
+        }
       }
     };
   }, [active, onScan]);
