@@ -1,0 +1,38 @@
+{
+  "name": "SkinCheck - Kozmetik Ürün Dedektifi",
+  "short_name": "SkinCheck",
+  "description": "Kozmetik ürün içerik analizi, hamilelikte güvenli mi kontrolü ve kişiselleştirilmiş cilt bakım rehberi",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#E91E8C",
+  "background_color": "#FFF5F9",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Ürün Tara",
+      "url": "/scan",
+      "description": "Barkod veya INCI tara"
+    },
+    {
+      "name": "Dolabım",
+      "url": "/cabinet",
+      "description": "Ürün dolabını görüntüle"
+    }
+  ],
+  "categories": ["health", "beauty", "lifestyle"]
+}

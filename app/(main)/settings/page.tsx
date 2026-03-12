@@ -1,0 +1,82 @@
+"use client";
+
+import Header from "@/components/layout/Header";
+import Card from "@/components/ui/Card";
+import { useAuthContext } from "@/lib/context/AuthContext";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+
+export default function SettingsPage() {
+  const { user, profile, signOut } = useAuthContext();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push("/login");
+  };
+
+  const menuItems = [
+    { icon: "👤", label: "Profil Düzenle", href: "/profile-setup" },
+    { icon: "🧴", label: "Cilt Tipim", href: "/profile-setup", value: profile?.skin_type || "Belirtilmemiş" },
+    { icon: "🎨", label: "Alt Tonum", href: "/makeup/undertone", value: profile?.undertone || "Belirtilmemiş" },
+    { icon: "🔔", label: "Bildirimler", href: "#" },
+    { icon: "🌐", label: "Dil", href: "#", value: "Türkçe" },
+    { icon: "🔒", label: "Gizlilik", href: "#" },
+    { icon: "ℹ️", label: "Hakkında", href: "#" },
+  ];
+
+  return (
+    <>
+      <Header title="Ayarlar" showBack />
+      <main className="px-4 py-4 space-y-4 pb-28">
+        {/* Profile Summary */}
+        {user && (
+          <Card className="text-center">
+            <div className="w-16 h-16 mx-auto bg-primary/20 rounded-full flex items-center justify-center text-primary text-2xl font-bold">
+              {profile?.full_name?.[0] || profile?.username?.[0] || "?"}
+            </div>
+            <p className="font-bold mt-2">{profile?.full_name || "Kullanıcı"}</p>
+            {profile?.username && <p className="text-xs text-muted">@{profile.username}</p>}
+            <p className="text-xs text-muted mt-1">{user.email}</p>
+          </Card>
+        )}
+
+        {/* Menu Items */}
+        <Card className="divide-y divide-gray-50">
+          {menuItems.map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              className="flex items-center justify-between py-3.5"
+            >
+              <div className="flex items-center gap-3">
+                <span>{item.icon}</span>
+                <span className="text-sm font-medium">{item.label}</span>
+              </div>
+              <span className="text-sm text-muted">{item.value || "→"}</span>
+            </Link>
+          ))}
+        </Card>
+
+        {/* Sign Out */}
+        {user && (
+          <Card>
+            <button
+              onClick={handleSignOut}
+              className="flex items-center gap-3 w-full py-1 text-danger"
+            >
+              <span>🚪</span>
+              <span className="text-sm font-medium">Çıkış Yap</span>
+            </button>
+          </Card>
+        )}
+
+        {/* App Info */}
+        <div className="text-center text-xs text-muted pt-4">
+          <p>SkinCheck v1.0.0</p>
+          <p className="mt-1">Kozmetik Ürün Dedektifi</p>
+        </div>
+      </main>
+    </>
+  );
+}
