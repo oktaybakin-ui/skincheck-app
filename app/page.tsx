@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useAuthContext } from "@/lib/context/AuthContext";
 import { useCabinet } from "@/lib/hooks/useCabinet";
 import { useCommunity, Review } from "@/lib/hooks/useCommunity";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { SKIN_TYPES } from "@/lib/constants";
 import { ScanLine, Archive, Palette, Sparkles, AlertTriangle, Clock, CheckCircle, Target, Play, ChevronRight, type LucideIcon } from "lucide-react";
 
@@ -42,6 +42,7 @@ export default function HomePage() {
   const { expiringSoon, expired, totalActive } = useCabinet();
   const { reviews, fetchReviews } = useCommunity();
   const [latestReviews, setLatestReviews] = useState<Review[]>([]);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const skinTypeLabel = SKIN_TYPES.find((t) => t.value === profile?.skin_type)?.label;
 
@@ -52,6 +53,40 @@ export default function HomePage() {
   useEffect(() => {
     setLatestReviews(reviews.slice(0, 3));
   }, [reviews]);
+
+  // Auto-scroll YouTube channels
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    let paused = false;
+    let raf: number;
+    const speed = 0.5; // px per frame
+
+    const step = () => {
+      if (!paused && el) {
+        el.scrollLeft += speed;
+        // Reset to start when reaching end
+        if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 1) {
+          el.scrollLeft = 0;
+        }
+      }
+      raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+
+    const pause = () => { paused = true; };
+    const resume = () => { paused = false; };
+    el.addEventListener("pointerdown", pause);
+    el.addEventListener("pointerup", resume);
+    el.addEventListener("pointerleave", resume);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      el.removeEventListener("pointerdown", pause);
+      el.removeEventListener("pointerup", resume);
+      el.removeEventListener("pointerleave", resume);
+    };
+  }, []);
 
   const greeting = () => {
     const hour = new Date().getHours();
@@ -189,7 +224,7 @@ export default function HomePage() {
               Tümü <ChevronRight size={14} />
             </Link>
           </div>
-          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4">
+          <div ref={scrollRef} className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4">
             {youtubeChannels.map((ch) => (
               <a
                 key={ch.name}
