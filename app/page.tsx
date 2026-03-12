@@ -4,19 +4,29 @@ import Header from "@/components/layout/Header";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import StarRating from "@/components/ui/StarRating";
+import PeriodTracker from "@/components/period/PeriodTracker";
 import Link from "next/link";
 import { useAuthContext } from "@/lib/context/AuthContext";
 import { useCabinet } from "@/lib/hooks/useCabinet";
 import { useCommunity, Review } from "@/lib/hooks/useCommunity";
 import { useEffect, useState } from "react";
 import { SKIN_TYPES } from "@/lib/constants";
-import { ScanLine, Archive, Palette, Sparkles, AlertTriangle, Clock, CheckCircle, Target, type LucideIcon } from "lucide-react";
+import { ScanLine, Archive, Palette, Sparkles, AlertTriangle, Clock, CheckCircle, Target, Play, ChevronRight, type LucideIcon } from "lucide-react";
 
 const quickActions: { href: string; icon: LucideIcon; label: string; desc: string }[] = [
   { href: "/scan", icon: ScanLine, label: "Ürün Tara", desc: "Barkod veya INCI oku" },
   { href: "/cabinet", icon: Archive, label: "Dolabım", desc: "Ürünlerini yönet" },
   { href: "/makeup/undertone", icon: Palette, label: "Alt Ton Analizi", desc: "Renk tonunu keşfet" },
   { href: "/makeup/solutions", icon: Sparkles, label: "Makyaj Çözümleri", desc: "Sorunlara öneriler" },
+];
+
+const youtubeChannels = [
+  { name: "Duygu Özaslan", subs: "3.5M", img: "/images/channels/duygu-ozaslan.jpg", url: "https://youtube.com/@duyguozaslan" },
+  { name: "Danla Bilic", subs: "4.2M", img: "/images/channels/danla-bilic.jpg", url: "https://youtube.com/@DanlaBilic" },
+  { name: "Hyram", subs: "4.5M", img: "/images/channels/hyram.jpg", url: "https://youtube.com/@Hyram" },
+  { name: "Merve Özkaynak", subs: "1.8M", img: "/images/channels/merve-ozkaynak.jpg", url: "https://youtube.com/@MerveOzkaynak" },
+  { name: "Robert Welsh", subs: "2.1M", img: "/images/channels/robert-welsh.jpg", url: "https://youtube.com/@RobertWelsh" },
+  { name: "Doctorly", subs: "1.9M", img: "/images/channels/doctorly.jpg", url: "https://youtube.com/@Doctorly" },
 ];
 
 function timeAgo(dateStr: string): string {
@@ -167,6 +177,44 @@ export default function HomePage() {
             </Card>
           </section>
         )}
+
+        {/* Period Tracker */}
+        <PeriodTracker />
+
+        {/* YouTube Channels */}
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-bold">Güzellik Kanalları</h3>
+            <Link href="/makeup/youtube" className="text-primary text-sm font-medium flex items-center gap-0.5">
+              Tümü <ChevronRight size={14} />
+            </Link>
+          </div>
+          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4">
+            {youtubeChannels.map((ch) => (
+              <a
+                key={ch.name}
+                href={ch.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 w-36"
+              >
+                <Card hoverable className="!p-3 text-center">
+                  <img
+                    src={ch.img}
+                    alt={ch.name}
+                    className="w-14 h-14 mx-auto rounded-full object-cover shadow-md ring-2 ring-white"
+                  />
+                  <p className="font-semibold text-xs mt-2 truncate">{ch.name}</p>
+                  <p className="text-[10px] text-muted">{ch.subs} abone</p>
+                  <div className="flex items-center justify-center gap-1 mt-1.5">
+                    <Play size={10} className="text-danger" fill="currentColor" />
+                    <span className="text-[10px] text-muted">YouTube</span>
+                  </div>
+                </Card>
+              </a>
+            ))}
+          </div>
+        </section>
 
         {/* Community */}
         <section>

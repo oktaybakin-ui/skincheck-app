@@ -19,6 +19,11 @@
 
 body {
   background: var(--color-background);
+  background-image: url('/images/bg-botanical.svg');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--color-foreground);
   font-family: var(--font-sans);
 }
