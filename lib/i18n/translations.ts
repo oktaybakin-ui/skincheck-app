@@ -135,6 +135,7 @@ export const translations = {
     anonymous: "Anonim",
     experts_title: "Uzmanlar Ne Diyor?",
     experts_desc: "Dermatolog ve eczacılardan cilt bakım önerileri",
+    experts_source: "Kaynak: PubMed / National Library of Medicine",
 
     // Compatibility
     compatibility_title: "Ürün Uyumluluk",
@@ -376,6 +377,7 @@ export const translations = {
     anonymous: "Anonymous",
     experts_title: "What Do Experts Say?",
     experts_desc: "Skincare tips from dermatologists and pharmacists",
+    experts_source: "Source: PubMed / National Library of Medicine",
 
     compatibility_title: "Product Compatibility",
     compatibility_info: "Check Product Compatibility",
@@ -610,6 +612,7 @@ export const translations = {
     anonymous: "مجهول",
     experts_title: "ماذا يقول الخبراء؟",
     experts_desc: "نصائح العناية بالبشرة من أطباء الجلد والصيادلة",
+    experts_source: "المصدر: PubMed / المكتبة الوطنية للطب",
 
     compatibility_title: "توافق المنتج",
     compatibility_info: "تحقق من توافق المنتج",
@@ -844,6 +847,7 @@ export const translations = {
     anonymous: "Anonym",
     experts_title: "Was sagen die Experten?",
     experts_desc: "Hautpflegetipps von Dermatologen und Apothekern",
+    experts_source: "Quelle: PubMed / National Library of Medicine",
 
     compatibility_title: "Produktverträglichkeit",
     compatibility_info: "Produktverträglichkeit prüfen",
@@ -1078,6 +1082,7 @@ export const translations = {
     anonymous: "Anonyme",
     experts_title: "Que disent les experts ?",
     experts_desc: "Conseils soins de la peau de dermatologues et pharmaciens",
+    experts_source: "Source : PubMed / National Library of Medicine",
 
     compatibility_title: "Compatibilité produit",
     compatibility_info: "Vérifier la compatibilité",

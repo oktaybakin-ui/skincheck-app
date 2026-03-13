@@ -11,7 +11,7 @@ import { useAuthContext } from "@/lib/context/AuthContext";
 import { useI18n } from "@/lib/i18n/I18nContext";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FlaskConical, ThumbsUp, MessageCircle, PenLine, Users, Star, GraduationCap, Quote } from "lucide-react";
+import { FlaskConical, ThumbsUp, MessageCircle, PenLine, Users, Star, GraduationCap, Quote, ExternalLink, RefreshCw } from "lucide-react";
 
 type Tab = "discover" | "following" | "similar" | "experts";
 
@@ -104,77 +104,53 @@ function ReviewCard({ review }: { review: Review }) {
   );
 }
 
-const EXPERT_TIPS = [
-  {
-    id: 1,
-    expert: "Dr. Elif Benar",
-    title: "Dermatolog",
-    avatar: null,
-    topic: "Retinol Kullanımı",
-    content: "Retinol'e yeni başlıyorsanız haftada 2 gece, düşük konsantrasyonla başlayın (0.25%). Cildiniz alıştıkça kademeli artırın. Her zaman SPF kullanın.",
-    tags: ["Retinol", "Anti-Aging", "Başlangıç"],
-  },
-  {
-    id: 2,
-    expert: "Ecz. Ayşe Kılıç",
-    title: "Kozmetik Eczacı",
-    avatar: null,
-    topic: "C Vitamini Seçimi",
-    content: "L-Ascorbic Acid en etkili form ama en hassas olanı. Hassas ciltler için Sodium Ascorbyl Phosphate veya Ascorbyl Glucoside tercih edin. pH 3.5 altı en etkili.",
-    tags: ["C Vitamini", "Antioksidan", "Hassas Cilt"],
-  },
-  {
-    id: 3,
-    expert: "Dr. Mehmet Öz",
-    title: "Dermatolog",
-    avatar: null,
-    topic: "SPF Efsaneleri",
-    content: "SPF 30 güneş ışınlarının %97'sini, SPF 50 ise %98'ini engeller. SPF 100 ile SPF 50 arasındaki fark minimumdur. Önemli olan yeterli miktarda ve düzenli yeniden sürmek.",
-    tags: ["SPF", "Güneş Koruma", "Bilimsel"],
-  },
-  {
-    id: 4,
-    expert: "Ecz. Zeynep Demir",
-    title: "Dermokozmetik Uzmanı",
-    avatar: null,
-    topic: "Niasinamid Kullanımı",
-    content: "Niasinamid (B3 Vitamini) neredeyse tüm cilt tipleri için uygundur. Gözenek küçültür, sebum dengeler, leke açar. %5 konsantrasyon çoğu kişi için yeterli.",
-    tags: ["Niasinamid", "Gözenek", "Her Cilt"],
-  },
-  {
-    id: 5,
-    expert: "Dr. Selin Aksoy",
-    title: "Dermatolog",
-    avatar: null,
-    topic: "Cilt Bariyeri",
-    content: "Cilt bariyeri bozulduysa tüm aktif içerikleri bırakın. Sadece nazik temizleyici + ceramide içeren nemlendirici + SPF kullanın. 2-4 haftada düzelir.",
-    tags: ["Cilt Bariyeri", "Ceramide", "Onarım"],
-  },
-  {
-    id: 6,
-    expert: "Dr. Can Yılmaz",
-    title: "Estetik Dermatolog",
-    avatar: null,
-    topic: "AHA vs BHA",
-    content: "AHA (glikolik, laktik asit) kuru ve normal ciltler için ideal - yüzeyi pürüzsüzleştirir. BHA (salisilik asit) yağlı ve akneli ciltler için - gözeneklerin derinliğine iner.",
-    tags: ["AHA", "BHA", "Peeling"],
-  },
-];
+interface ExpertTip {
+  id: string;
+  expert: string;
+  title: string;
+  topic: string;
+  content: string;
+  tags: string[];
+  pubmed_id?: string;
+}
 
 export default function CommunityPage() {
   const { user, profile } = useAuthContext();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { reviews, loading, fetchReviews, addReview } = useCommunity();
   const [tab, setTab] = useState<Tab>("discover");
   const [showWriteReview, setShowWriteReview] = useState(false);
   const [reviewForm, setReviewForm] = useState({ product_id: "", rating: 5, comment: "", pros: "", cons: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [expertTips, setExpertTips] = useState<ExpertTip[]>([]);
+  const [expertLoading, setExpertLoading] = useState(false);
 
   useEffect(() => {
     if (tab !== "experts") {
       fetchReviews(tab, profile?.skin_type);
     }
   }, [tab, fetchReviews, profile?.skin_type]);
+
+  const fetchExpertTips = async () => {
+    setExpertLoading(true);
+    try {
+      const res = await fetch(`/api/expert-tips?locale=${locale}`);
+      const data = await res.json();
+      if (data.tips && data.tips.length > 0) {
+        setExpertTips(data.tips);
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setExpertLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (tab === "experts" && expertTips.length === 0) {
+      fetchExpertTips();
+    }
+  }, [tab]);
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "discover", label: t.discover },
@@ -230,22 +206,40 @@ export default function CommunityPage() {
             <Card className="bg-secondary/5 border-secondary/20">
               <div className="flex gap-3">
                 <GraduationCap size={24} className="text-secondary shrink-0" />
-                <div>
+                <div className="flex-1">
                   <p className="text-sm font-semibold">{t.experts_title}</p>
                   <p className="text-xs text-muted">{t.experts_desc}</p>
+                  <p className="text-[10px] text-muted mt-1">{t.experts_source}</p>
                 </div>
+                <button onClick={fetchExpertTips} disabled={expertLoading} className="text-secondary hover:text-secondary-dark transition-colors">
+                  <RefreshCw size={18} className={expertLoading ? "animate-spin" : ""} />
+                </button>
               </div>
             </Card>
-            {EXPERT_TIPS.map((tip) => (
+            {expertLoading && expertTips.length === 0 ? (
+              <div className="flex justify-center py-12">
+                <div className="w-8 h-8 border-3 border-secondary/30 border-t-secondary rounded-full animate-spin" />
+              </div>
+            ) : expertTips.map((tip) => (
               <Card key={tip.id}>
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 bg-secondary/20 rounded-full flex items-center justify-center text-secondary font-bold shrink-0">
-                    {tip.expert[0]}
+                    {tip.expert?.[0] || "?"}
                   </div>
-                  <div>
-                    <p className="font-semibold text-sm">{tip.expert}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm truncate">{tip.expert}</p>
                     <p className="text-xs text-muted">{tip.title}</p>
                   </div>
+                  {tip.pubmed_id && (
+                    <a
+                      href={`https://pubmed.ncbi.nlm.nih.gov/${tip.pubmed_id}/`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted hover:text-secondary transition-colors"
+                    >
+                      <ExternalLink size={14} />
+                    </a>
+                  )}
                 </div>
                 <div className="bg-gray-50 rounded-xl p-3 mb-2">
                   <div className="flex gap-2">
@@ -257,7 +251,7 @@ export default function CommunityPage() {
                   </div>
                 </div>
                 <div className="flex gap-1.5 flex-wrap">
-                  {tip.tags.map((tagItem) => (
+                  {tip.tags?.map((tagItem) => (
                     <Badge key={tagItem} variant="secondary" size="sm">{tagItem}</Badge>
                   ))}
                 </div>
