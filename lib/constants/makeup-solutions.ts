@@ -5,6 +5,7 @@ export interface MakeupSolution {
   desc: string;
   difficulty: "Kolay" | "Orta" | "İleri";
   duration: string;
+  skinTypes?: string[];
   tools: string[];
   steps: { title: string; detail: string }[];
   tips: string[];
@@ -19,6 +20,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Renk düzeltme ve kapatıcı teknikleri",
     difficulty: "Orta",
     duration: "5-10 dk",
+    skinTypes: ["Tüm Ciltler"],
     tools: ["Kapatıcı fırçası", "Güzellik süngeri", "Şeffaf pudra"],
     steps: [
       { title: "Göz altını nemlendirin", detail: "Göz kremi ile göz altını besleyin. Kuruluk kapatıcının çatlamasına neden olur." },
@@ -41,6 +43,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Sivilceleri doğal şekilde gizle",
     difficulty: "Orta",
     duration: "5-8 dk",
+    skinTypes: ["Yağlı", "Karma"],
     tools: ["İnce kapatıcı fırçası", "Güzellik süngeri", "Sabitleyici sprey"],
     steps: [
       { title: "Cildi hazırlayın", detail: "Temiz cilde nemlendirici ve primer uygulayın. Sivilce üzerinde salisilik asit bazlı ürün kullanabilirsiniz." },
@@ -63,6 +66,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Gözenekleri minimize etme yolları",
     difficulty: "Kolay",
     duration: "3-5 dk",
+    skinTypes: ["Yağlı", "Karma"],
     tools: ["Primer", "Güzellik süngeri", "Sabitleyici sprey"],
     steps: [
       { title: "Cildi temizleyip nemlendirin", detail: "Yağsız nemlendirici ile cildi hazırlayın. Yağlı formüller gözenekleri daha belirgin yapar." },
@@ -84,6 +88,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Kızarıklığı dengeleyen teknikler",
     difficulty: "Orta",
     duration: "8-12 dk",
+    skinTypes: ["Hassas", "Kuru"],
     tools: ["Yumuşak fırça", "Güzellik süngeri", "Sabitleyici sprey"],
     steps: [
       { title: "Yatıştırıcı primer uygulayın", detail: "Yeşil tonlu veya yatıştırıcı primer kızarık bölgelere uygulayın. Hassas ciltler için parfümsüz ürün seçin." },
@@ -106,6 +111,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Kontur ve aydınlatıcı rehberi",
     difficulty: "İleri",
     duration: "10-15 dk",
+    skinTypes: ["Tüm Ciltler"],
     tools: ["Kontur fırçası", "Fan fırça", "Güzellik süngeri", "Aydınlatıcı"],
     steps: [
       { title: "Yüz şeklinizi belirleyin", detail: "Oval, yuvarlak, kare, kalp veya uzun: her yüz şeklinin farklı kontur haritası vardır." },
@@ -128,6 +134,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Gençleştiren makyaj ipuçları",
     difficulty: "Orta",
     duration: "10-15 dk",
+    skinTypes: ["Kuru", "Olgun"],
     tools: ["Nemli sünger", "Yumuşak fırçalar", "Aydınlatıcı"],
     steps: [
       { title: "İyi nemlendirin", detail: "Hyaluronik asit içeren serum + nemlendirici ile cildi dolgunlaştırın. Kuru cilt kırışıklıkları vurgular." },
@@ -150,6 +157,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Ton eşitleme teknikleri",
     difficulty: "Orta",
     duration: "8-10 dk",
+    skinTypes: ["Tüm Ciltler"],
     tools: ["Güzellik süngeri", "Renk düzeltici", "Fondöten"],
     steps: [
       { title: "Renk haritası çıkarın", detail: "Yüzünüzdeki farklı tonları belirleyin: kızarık, sarımsı, koyu lekeler gibi." },
@@ -172,6 +180,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Dudakları dolgun gösterme",
     difficulty: "Kolay",
     duration: "3-5 dk",
+    skinTypes: ["Tüm Ciltler"],
     tools: ["Dudak kalemi", "Ruj", "Lip gloss"],
     steps: [
       { title: "Dudakları nemlendirin", detail: "Dudak peelingi veya balm ile dudakları yumuşatın. Pürüzsüz dudaklar dolgun görünür." },
@@ -195,6 +204,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Klasik dumanlı göz makyajı",
     difficulty: "İleri",
     duration: "15-20 dk",
+    skinTypes: ["Tüm Ciltler"],
     tools: ["Far paleti", "Yedirme fırçası", "Göz kalemi", "Maskara"],
     steps: [
       { title: "Göz kapağına primer uygulayın", detail: "Göz farı primeri makyajın kalıcılığını artırır ve renklerin canlı görünmesini sağlar." },
@@ -218,6 +228,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Doğal ama bakımlı görünüm",
     difficulty: "Kolay",
     duration: "5-8 dk",
+    skinTypes: ["Tüm Ciltler"],
     tools: ["BB krem", "Kaş jeli", "Dudak balm", "Maskara"],
     steps: [
       { title: "Cildi iyi nemlendirin", detail: "İyi nemlenen cilt doğal makyajın temelidir. Serum + nemlendirici uygulayın." },
@@ -241,6 +252,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Yüzü çerçeveleyen kaş teknikleri",
     difficulty: "Orta",
     duration: "5-10 dk",
+    skinTypes: ["Tüm Ciltler"],
     tools: ["Kaş kalemi", "Kaş fırçası", "Kaş jeli", "Kapatıcı"],
     steps: [
       { title: "Doğal kaş şeklinizi analiz edin", detail: "Burun kenarından düz çekilen çizgi kaşın başlangıcını, burun kenarından göz bebeği üzerinden çekilen çizgi tepesini, burun kenarından göz dış köşesinden çekilen çizgi bitişini belirler." },
@@ -263,6 +275,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Mükemmel eyeliner teknikleri",
     difficulty: "İleri",
     duration: "5-10 dk",
+    skinTypes: ["Tüm Ciltler"],
     tools: ["Likit eyeliner", "Kalem eyeliner", "Bant", "Misel su"],
     steps: [
       { title: "Göz şeklinizi belirleyin", detail: "Badem, yuvarlak, kapak düşüklüğü, tek kapak: her göz şekline farklı eyeliner tekniği uyar." },
@@ -285,6 +298,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Yüz şekline göre allık teknikleri",
     difficulty: "Kolay",
     duration: "2-5 dk",
+    skinTypes: ["Tüm Ciltler"],
     tools: ["Allık fırçası", "Allık", "Güzellik süngeri"],
     steps: [
       { title: "Yüz şeklinizi belirleyin", detail: "Yuvarlak yüz: elmacık kemikleri boyunca yukarı. Uzun yüz: yanaklara yatay. Kalp yüz: elmacıkların altına." },
@@ -306,6 +320,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Temel göz farı uygulama rehberi",
     difficulty: "Kolay",
     duration: "5-10 dk",
+    skinTypes: ["Tüm Ciltler"],
     tools: ["Far paleti", "Düz fırça", "Yedirme fırçası", "Far primeri"],
     steps: [
       { title: "Far primeri uygulayın", detail: "Göz kapağına ince bir tabaka primer sürün. Farın kalıcılığını 2-3 kat artırır." },
@@ -328,6 +343,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Güneşten öpülmüş doğal görünüm",
     difficulty: "Kolay",
     duration: "5-8 dk",
+    skinTypes: ["Tüm Ciltler"],
     tools: ["Bronzer", "Büyük fırça", "Highlighter"],
     steps: [
       { title: "Doğru bronzer tonu seçin", detail: "Cildinizden 1-2 ton koyu, sıcak tonlu bronzer seçin. Çok koyu bronzer çamurlu görünür." },
@@ -349,6 +365,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Hacimli ve uzun kirpik sırları",
     difficulty: "Kolay",
     duration: "3-5 dk",
+    skinTypes: ["Tüm Ciltler"],
     tools: ["Maskara", "Kirpik kıvırıcı", "Kirpik primeri"],
     steps: [
       { title: "Kirpikleri kıvırın", detail: "Kirpik kıvırıcı ile kök, orta ve uç olmak üzere 3 noktada bastırın. Maskaradan ÖNCE kıvırın." },
@@ -370,6 +387,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Gün boyu mat kalma teknikleri",
     difficulty: "Kolay",
     duration: "5-8 dk",
+    skinTypes: ["Yağlı", "Karma"],
     tools: ["Matlaştırıcı primer", "Pudra", "Yağ emici kağıt"],
     steps: [
       { title: "Cildi hafif nemlendirin", detail: "Yağsız, jel formlu nemlendirici kullanın. Nemlendirilmeyen yağlı cilt daha çok yağ üretir." },
@@ -392,6 +410,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Uzun süre dayanan özel gün makyajı",
     difficulty: "İleri",
     duration: "30-45 dk",
+    skinTypes: ["Tüm Ciltler"],
     tools: ["Tam fırça seti", "Güzellik süngeri", "Sabitleyici sprey", "Takma kirpik"],
     steps: [
       { title: "Cildi önceden hazırlayın", detail: "Düğünden 1 hafta önce peeling, 1 gün önce nemlendirici maske yapın." },
@@ -415,6 +434,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Doğru fondöten tonu bulma rehberi",
     difficulty: "Kolay",
     duration: "5-10 dk",
+    skinTypes: ["Tüm Ciltler"],
     tools: ["Fondöten örnekleri", "Doğal ışık"],
     steps: [
       { title: "Alt tonunuzu belirleyin", detail: "Bileklerinizin iç kısmına bakın: mavi damarlar = soğuk, yeşil damarlar = sıcak, karışık = nötr alt ton." },
@@ -437,6 +457,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Kalıcı ve güzel dudak makyajı",
     difficulty: "Kolay",
     duration: "3-5 dk",
+    skinTypes: ["Tüm Ciltler"],
     tools: ["Dudak peeling", "Dudak kalemi", "Ruj", "Kağıt mendil"],
     steps: [
       { title: "Dudakları peelinleyin", detail: "Şeker + bal karışımı veya dudak scrub ile ölü derileri temizleyin." },
@@ -459,6 +480,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Tahriş etmeyen makyaj seçimleri",
     difficulty: "Orta",
     duration: "10-15 dk",
+    skinTypes: ["Hassas"],
     tools: ["Mineral makyaj ürünleri", "Yumuşak fırçalar", "Termal su"],
     steps: [
       { title: "Cildi yatıştırın", detail: "Centella veya aloe vera içeren nemlendirici uygulayın. Tahriş eden aktiflerden kaçının." },
@@ -481,6 +503,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "Kapak düşüklüğüne uygun göz makyajı",
     difficulty: "Orta",
     duration: "8-12 dk",
+    skinTypes: ["Tüm Ciltler"],
     tools: ["Far paleti", "Eyeliner", "Kirpik kıvırıcı", "Maskara"],
     steps: [
       { title: "Kapağı katlayarak çalışın", detail: "Gözler açıkken göz çukuru çizgisinin üstüne renk koyun. Kapalı gözde yapılan makyaj kapak arkasında kaybolur." },
@@ -503,6 +526,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
     desc: "12+ saat kalıcı makyaj teknikleri",
     difficulty: "Kolay",
     duration: "3-5 dk",
+    skinTypes: ["Yağlı", "Karma"],
     tools: ["Primer", "Sabitleyici pudra", "Sabitleyici sprey"],
     steps: [
       { title: "Doğru primer seçin", detail: "Yağlı cilt: matlaştırıcı primer. Kuru cilt: nemlendirici primer. Primer fondötenin tutunmasını sağlar." },

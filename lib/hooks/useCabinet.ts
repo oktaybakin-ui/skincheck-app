@@ -15,6 +15,8 @@ export interface CabinetItem {
   notes: string | null;
   is_favorite: boolean;
   routine_time: "morning" | "evening" | "both" | "none" | null;
+  target_price: number | null;
+  purchase_url: string | null;
   created_at: string;
   product?: {
     id: string;
@@ -59,6 +61,8 @@ export function useCabinet() {
         notes: opts?.notes || null,
         is_favorite: opts?.is_favorite || false,
         routine_time: opts?.routine_time || "none",
+        target_price: opts?.target_price || null,
+        purchase_url: opts?.purchase_url || null,
       })
       .select("*, product:products(*)")
       .single();
@@ -100,6 +104,9 @@ export function useCabinet() {
   const totalActive = items.filter((i) => i.status === "active").length;
   const totalWishlist = items.filter((i) => i.status === "wishlist").length;
   const totalFavorite = items.filter((i) => i.is_favorite).length;
+  const totalWishlistPrice = items
+    .filter((i) => i.status === "wishlist" && i.target_price)
+    .reduce((sum, i) => sum + (i.target_price || 0), 0);
 
   const now = new Date();
   const expiringSoon = items.filter((i) => {
@@ -117,7 +124,7 @@ export function useCabinet() {
   return {
     items, loading, fetchItems,
     addItem, updateItem, removeItem, toggleFavorite,
-    totalActive, totalWishlist, totalFavorite,
+    totalActive, totalWishlist, totalFavorite, totalWishlistPrice,
     expiringSoon, expired,
   };
 }

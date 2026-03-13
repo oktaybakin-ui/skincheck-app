@@ -4,6 +4,7 @@ import Header from "@/components/layout/Header";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
+import PinterestButton from "@/components/ui/PinterestButton";
 import { useState } from "react";
 import { Leaf, Snowflake, Flower, LucideIcon } from "lucide-react";
 
@@ -11,43 +12,74 @@ const questions = [
   {
     q: "Bileklerindeki damarlar hangi renk?",
     options: [
-      { label: "Yeşil", value: "warm", desc: "Sıcak ton" },
-      { label: "Mavi-Mor", value: "cool", desc: "Soğuk ton" },
-      { label: "İkisi de", value: "neutral", desc: "Nötr ton" },
+      { label: "Yeşil", value: "warm", desc: "Sıcak ton göstergesi" },
+      { label: "Mavi-Mor", value: "cool", desc: "Soğuk ton göstergesi" },
+      { label: "İkisi de", value: "neutral", desc: "Nötr ton göstergesi" },
     ],
   },
   {
     q: "Güneşte cildin ne yapar?",
     options: [
-      { label: "Bronzlaşırım", value: "warm" },
-      { label: "Kızarırım", value: "cool" },
-      { label: "İkisi de olur", value: "neutral" },
+      { label: "Kolayca bronzlaşırım", value: "warm" },
+      { label: "Kızarırım / yanarım", value: "cool" },
+      { label: "Önce kızarır sonra bronzlaşır", value: "neutral" },
     ],
   },
   {
     q: "Altın mı gümüş mü daha çok yakışır?",
     options: [
-      { label: "Altın", value: "warm" },
-      { label: "Gümüş", value: "cool" },
-      { label: "İkisi de", value: "neutral" },
+      { label: "Altın takılar", value: "warm" },
+      { label: "Gümüş takılar", value: "cool" },
+      { label: "İkisi de eşit yakışır", value: "neutral" },
     ],
   },
   {
-    q: "Göz rengin?",
+    q: "Göz rengin hangisine yakın?",
     options: [
-      { label: "Kahve / Yeşil / Bal", value: "warm" },
-      { label: "Mavi / Gri / Siyah", value: "cool" },
+      { label: "Kahverengi / Yeşil / Bal rengi", value: "warm" },
+      { label: "Mavi / Gri / Koyu siyah", value: "cool" },
+      { label: "Ela / Yeşil-gri karışık", value: "neutral" },
     ],
   },
   {
     q: "Krem beyaz mı saf beyaz mı yakışır?",
     options: [
-      { label: "Krem beyaz", value: "warm" },
-      { label: "Saf beyaz", value: "cool" },
-      { label: "Fark yok", value: "neutral" },
+      { label: "Krem beyaz / Ekru", value: "warm" },
+      { label: "Saf beyaz / Kar beyazı", value: "cool" },
+      { label: "İkisi de fark etmez", value: "neutral" },
+    ],
+  },
+  {
+    q: "Saç rengin doğal haliyle ne?",
+    options: [
+      { label: "Sıcak kahve / Kızıl / Karamel", value: "warm" },
+      { label: "Koyu siyah / Kül kahverengi / Platin", value: "cool" },
+      { label: "Orta kahverengi / Kumral", value: "neutral" },
+    ],
+  },
+  {
+    q: "Turuncu mu pembe mi daha çok yakışır?",
+    options: [
+      { label: "Turuncu ve şeftali tonları", value: "warm" },
+      { label: "Pembe ve fuşya tonları", value: "cool" },
+      { label: "İkisi de yakışır", value: "neutral" },
+    ],
+  },
+  {
+    q: "Yeşil mi mavi mı seni daha iyi gösterir?",
+    options: [
+      { label: "Zeytin yeşili / Hardal", value: "warm" },
+      { label: "Deniz mavisi / Lavanta", value: "cool" },
+      { label: "Orman yeşili / Teal", value: "neutral" },
     ],
   },
 ];
+
+interface BrandProduct {
+  brand: string;
+  product: string;
+  shade: string;
+}
 
 interface ToneResult {
   tone: string;
@@ -61,6 +93,10 @@ interface ToneResult {
   avoid: string[];
   foundationTip: string;
   jewelryTip: string;
+  brandExamples: {
+    foundation: BrandProduct[];
+    lipstick: BrandProduct[];
+  };
 }
 
 const RESULTS: Record<string, ToneResult> = {
@@ -90,6 +126,19 @@ const RESULTS: Record<string, ToneResult> = {
     avoid: ["Gümüş tonları", "Mavi bazlı pembeler", "Siyah-beyaz kontrast", "Fuşya"],
     foundationTip: "Sarımsı veya altın bazlı fondötenler seç. 'Warm', 'Golden', 'Honey' alt tonlu ürünler sana uyar.",
     jewelryTip: "Altın, rose gold ve bakır tonlu takılar cildinle uyum sağlar.",
+    brandExamples: {
+      foundation: [
+        { brand: "MAC", product: "Studio Fix", shade: "NC serisi (NC15, NC25, NC35)" },
+        { brand: "Maybelline", product: "Fit Me", shade: "Warm Nude (128), Warm Honey (322)" },
+        { brand: "L'Oréal", product: "True Match", shade: "Golden (W) serisi" },
+        { brand: "Flormar", product: "Perfect Coverage", shade: "Warm tonlar (121, 131)" },
+      ],
+      lipstick: [
+        { brand: "MAC", product: "Lipstick", shade: "Marrakesh, Velvet Teddy" },
+        { brand: "Maybelline", product: "SuperStay", shade: "Caramel, Chai Genius" },
+        { brand: "Golden Rose", product: "Velvet Matte", shade: "07 (Terracotta), 31 (Nude)" },
+      ],
+    },
   },
   cool: {
     tone: "Soğuk",
@@ -117,6 +166,19 @@ const RESULTS: Record<string, ToneResult> = {
     avoid: ["Turuncu", "Sarı-altın tonları", "Sıcak kahverengiler", "Hardal"],
     foundationTip: "Pembe veya kırmızı bazlı fondötenler seç. 'Cool', 'Pink', 'Porcelain' alt tonlu ürünler sana uyar.",
     jewelryTip: "Gümüş, beyaz altın ve platin takılar cildinle uyum sağlar.",
+    brandExamples: {
+      foundation: [
+        { brand: "MAC", product: "Studio Fix", shade: "NW serisi (NW15, NW25, NW35)" },
+        { brand: "Maybelline", product: "Fit Me", shade: "Porcelain (110), Cool Ivory (115)" },
+        { brand: "L'Oréal", product: "True Match", shade: "Cool (C) serisi" },
+        { brand: "Flormar", product: "Perfect Coverage", shade: "Cool tonlar (101, 102)" },
+      ],
+      lipstick: [
+        { brand: "MAC", product: "Lipstick", shade: "Ruby Woo, Diva" },
+        { brand: "Maybelline", product: "SuperStay", shade: "Pioneer, Lover" },
+        { brand: "Golden Rose", product: "Velvet Matte", shade: "12 (Berry), 18 (Mauve)" },
+      ],
+    },
   },
   neutral: {
     tone: "Nötr",
@@ -141,9 +203,22 @@ const RESULTS: Record<string, ToneResult> = {
       { name: "Şeftali Pembe", hex: "#FFAB91" },
       { name: "Soft Mercan", hex: "#FF8A65" },
     ],
-    avoid: ["Çok neon renkler", "Çok soğuk gümüşler (yüksek kontrastlı)", "Çok sıcak sarılar"],
+    avoid: ["Çok neon renkler", "Çok soğuk gümüşler", "Çok sıcak sarılar"],
     foundationTip: "Nötr alt tonlu fondötenler seç. 'Neutral', 'Natural', 'Beige' etiketli ürünler sana uyar. Hem sıcak hem soğuk tonları taşıyabilirsin!",
     jewelryTip: "Rose gold, hem altın hem gümüş yakışır. En şanslı tondasın!",
+    brandExamples: {
+      foundation: [
+        { brand: "MAC", product: "Studio Fix", shade: "N serisi (N4, N6, N8)" },
+        { brand: "Maybelline", product: "Fit Me", shade: "Natural Beige (220), Natural Buff (230)" },
+        { brand: "L'Oréal", product: "True Match", shade: "Neutral (N) serisi" },
+        { brand: "Flormar", product: "Perfect Coverage", shade: "Neutral tonlar (111, 115)" },
+      ],
+      lipstick: [
+        { brand: "MAC", product: "Lipstick", shade: "Twig, Mehr" },
+        { brand: "Maybelline", product: "SuperStay", shade: "Seductress, Amazonian" },
+        { brand: "Golden Rose", product: "Velvet Matte", shade: "01 (Dusty Rose), 27 (Nude)" },
+      ],
+    },
   },
 };
 
@@ -238,12 +313,40 @@ export default function UndertonePage() {
             </div>
           </Card>
 
-          {/* Tips */}
+          {/* Brand Examples - Foundation */}
           <Card>
-            <h3 className="font-bold mb-3">Fondöten İpucu</h3>
-            <p className="text-sm text-muted leading-relaxed">{result.foundationTip}</p>
+            <h3 className="font-bold mb-3">Fondöten Önerileri (Marka Bazlı)</h3>
+            <div className="space-y-3">
+              {result.brandExamples.foundation.map((f) => (
+                <div key={f.brand} className="flex items-start gap-2">
+                  <Badge variant="primary" size="sm">{f.brand}</Badge>
+                  <div>
+                    <p className="text-sm font-medium">{f.product}</p>
+                    <p className="text-xs text-muted">{f.shade}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-muted mt-3 leading-relaxed">{result.foundationTip}</p>
           </Card>
 
+          {/* Brand Examples - Lipstick */}
+          <Card>
+            <h3 className="font-bold mb-3">Ruj Önerileri (Marka Bazlı)</h3>
+            <div className="space-y-3">
+              {result.brandExamples.lipstick.map((l) => (
+                <div key={l.brand} className="flex items-start gap-2">
+                  <Badge variant="secondary" size="sm">{l.brand}</Badge>
+                  <div>
+                    <p className="text-sm font-medium">{l.product}</p>
+                    <p className="text-xs text-muted">{l.shade}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Tips */}
           <Card>
             <h3 className="font-bold mb-3">Takı Önerisi</h3>
             <p className="text-sm text-muted leading-relaxed">{result.jewelryTip}</p>
@@ -258,6 +361,8 @@ export default function UndertonePage() {
               ))}
             </div>
           </Card>
+
+          <PinterestButton query={`${result.tone} undertone makeup looks ${result.season}`} className="w-full" />
 
           <Button onClick={() => { setShowResult(false); setCurrentQ(0); setAnswers([]); }} variant="outline" fullWidth>
             Tekrar Dene

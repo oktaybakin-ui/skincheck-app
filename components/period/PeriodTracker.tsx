@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Card from "@/components/ui/Card";
-import { CalendarHeart, Droplets, ChevronLeft, ChevronRight, Egg, CalendarDays } from "lucide-react";
+import Link from "next/link";
+import { CalendarHeart, Droplets, ChevronLeft, ChevronRight, Egg, CalendarDays, Sparkles } from "lucide-react";
 import { useI18n } from "@/lib/i18n/I18nContext";
 
 const CYCLE_KEY = "skincheck_period_data";
@@ -268,6 +269,10 @@ export default function PeriodTracker() {
               </p>
             </div>
           </div>
+          <Link href="/cycle-skin" className="mt-3 flex items-center justify-center gap-2 bg-primary/10 text-primary text-xs font-medium py-2 rounded-xl hover:bg-primary/20 transition-colors">
+            <Sparkles size={14} />
+            Döngüne Özel Cilt Bakım Rehberi
+          </Link>
         </Card>
       )}
 

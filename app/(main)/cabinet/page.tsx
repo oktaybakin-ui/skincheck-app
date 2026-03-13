@@ -9,7 +9,7 @@ import { useCabinet, CabinetItem } from "@/lib/hooks/useCabinet";
 import { useAuthContext } from "@/lib/context/AuthContext";
 import { useState } from "react";
 import Link from "next/link";
-import { Heart, FlaskConical, AlertTriangle, Clock, Lock, Archive } from "lucide-react";
+import { Heart, FlaskConical, AlertTriangle, Clock, Lock, Archive, ExternalLink, ShoppingCart, CalendarDays } from "lucide-react";
 
 type FilterType = "all" | "active" | "expiring" | "wishlist" | "favorites";
 
@@ -68,7 +68,16 @@ function CabinetItemCard({ item, onToggleFav, onRemove, onEdit }: {
                 {item.routine_time === "morning" ? "Sabah" : item.routine_time === "evening" ? "Akşam" : "Sabah+Akşam"}
               </Badge>
             )}
+            {item.status === "wishlist" && item.target_price && (
+              <Badge variant="warning" size="sm">₺{item.target_price}</Badge>
+            )}
           </div>
+
+          {item.status === "wishlist" && item.purchase_url && (
+            <a href={item.purchase_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1">
+              <ExternalLink size={12} /> Satın Al
+            </a>
+          )}
 
           <div className="flex gap-2 mt-2">
             <Link href={`/product/${item.product_id}`} className="text-xs text-primary font-medium">
@@ -85,10 +94,10 @@ function CabinetItemCard({ item, onToggleFav, onRemove, onEdit }: {
 
 export default function CabinetPage() {
   const { user } = useAuthContext();
-  const { items, loading, totalActive, totalWishlist, totalFavorite, expiringSoon, expired, toggleFavorite, removeItem, updateItem } = useCabinet();
+  const { items, loading, totalActive, totalWishlist, totalFavorite, totalWishlistPrice, expiringSoon, expired, toggleFavorite, removeItem, updateItem } = useCabinet();
   const [filter, setFilter] = useState<FilterType>("all");
   const [editItem, setEditItem] = useState<CabinetItem | null>(null);
-  const [editForm, setEditForm] = useState({ status: "", expiry_date: "", opened_date: "", pao_months: "", routine_time: "", notes: "" });
+  const [editForm, setEditForm] = useState({ status: "", expiry_date: "", opened_date: "", pao_months: "", routine_time: "", notes: "", target_price: "", purchase_url: "" });
 
   const filters: { key: FilterType; label: string; count?: number }[] = [
     { key: "all", label: "Tümü", count: items.length },
@@ -120,6 +129,8 @@ export default function CabinetPage() {
       pao_months: item.pao_months?.toString() || "",
       routine_time: item.routine_time || "none",
       notes: item.notes || "",
+      target_price: item.target_price?.toString() || "",
+      purchase_url: item.purchase_url || "",
     });
   };
 
@@ -132,6 +143,8 @@ export default function CabinetPage() {
       pao_months: editForm.pao_months ? parseInt(editForm.pao_months) : null,
       routine_time: (editForm.routine_time || "none") as CabinetItem["routine_time"],
       notes: editForm.notes || null,
+      target_price: editForm.target_price ? parseFloat(editForm.target_price) : null,
+      purchase_url: editForm.purchase_url || null,
     });
     setEditItem(null);
   };
@@ -171,6 +184,19 @@ export default function CabinetPage() {
             <p className="text-xs text-muted">Favori</p>
           </Card>
         </div>
+
+        {/* Routine Link */}
+        <Link href="/cabinet/routine">
+          <Card hoverable className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+              <CalendarDays className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-sm">Bakım Rutini Takvimi</p>
+              <p className="text-xs text-muted">Sabah ve akşam rutinini planla</p>
+            </div>
+          </Card>
+        </Link>
 
         {/* Expiry Alerts */}
         {expired.length > 0 && (
@@ -222,6 +248,22 @@ export default function CabinetPage() {
             </button>
           ))}
         </div>
+
+        {/* Wishlist Price Summary */}
+        {filter === "wishlist" && totalWishlistPrice > 0 && (
+          <Card className="border-primary/20 bg-primary/5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ShoppingCart className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm font-semibold">İstek Listesi Toplamı</p>
+                  <p className="text-xs text-muted">{totalWishlist} ürün</p>
+                </div>
+              </div>
+              <p className="text-xl font-bold text-primary">₺{totalWishlistPrice.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}</p>
+            </div>
+          </Card>
+        )}
 
         {/* Items */}
         {loading ? (
@@ -327,6 +369,32 @@ export default function CabinetPage() {
               className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary outline-none text-sm bg-surface resize-none"
             />
           </div>
+
+          {editForm.status === "wishlist" && (
+            <>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Hedef Fiyat (₺)</label>
+                <input
+                  type="number"
+                  placeholder="299.90"
+                  step="0.01"
+                  value={editForm.target_price}
+                  onChange={(e) => setEditForm({ ...editForm, target_price: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary outline-none text-sm bg-surface"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Satın Alma Linki</label>
+                <input
+                  type="url"
+                  placeholder="https://..."
+                  value={editForm.purchase_url}
+                  onChange={(e) => setEditForm({ ...editForm, purchase_url: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary outline-none text-sm bg-surface"
+                />
+              </div>
+            </>
+          )}
 
           <Button onClick={saveEdit} fullWidth>Kaydet</Button>
         </div>

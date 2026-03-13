@@ -1,12 +1,14 @@
 import Header from "@/components/layout/Header";
 import Card from "@/components/ui/Card";
 import Link from "next/link";
-import { Palette, Sparkles, Youtube, ChevronRight, LucideIcon } from "lucide-react";
+import { Palette, Sparkles, Youtube, ChevronRight, LucideIcon, Scissors, Crown } from "lucide-react";
 
 const sections: { href: string; icon: LucideIcon; title: string; desc: string }[] = [
   { href: "/makeup/undertone", icon: Palette, title: "Alt Ton Analizi", desc: "Sıcak, soğuk veya nötr tonunu öğren" },
   { href: "/makeup/solutions", icon: Sparkles, title: "Sorunlara Çözümler", desc: "Göz altı, akne, gözenek ve daha fazlası" },
   { href: "/makeup/youtube", icon: Youtube, title: "YouTube Önerileri", desc: "En iyi makyaj kanalları ve videolar" },
+  { href: "/hair", icon: Scissors, title: "Saç Bakım Rehberi", desc: "Saç tipine özel bakım önerileri" },
+  { href: "/best-look", icon: Crown, title: "En İyi Halin", desc: "Kişiselleştirilmiş güzellik rehberi" },
 ];
 
 export default function MakeupPage() {

@@ -7,12 +7,14 @@ import { MAKEUP_SOLUTIONS } from "@/lib/constants/makeup-solutions";
 import { SOLUTION_ICONS } from "@/lib/constants/icons";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { Sparkles, Lightbulb, Clock } from "lucide-react";
+import PinterestButton from "@/components/ui/PinterestButton";
+import { Sparkles, Lightbulb, Clock, ThumbsUp, ThumbsDown } from "lucide-react";
 
 export default function SolutionDetailPage() {
   const { slug } = useParams();
   const solution = MAKEUP_SOLUTIONS.find((s) => s.slug === slug);
   const [expandedStep, setExpandedStep] = useState<number | null>(0);
+  const [feedback, setFeedback] = useState<"up" | "down" | null>(null);
 
   if (!solution) {
     return (
@@ -107,6 +109,37 @@ export default function SolutionDetailPage() {
             ))}
           </div>
         </div>
+
+        {/* Pinterest */}
+        <PinterestButton query={`${solution.title} makeup tutorial`} className="w-full" />
+
+        {/* Feedback */}
+        <Card className="text-center">
+          <p className="font-semibold text-sm mb-3">Bu çözüm işe yaradı mı?</p>
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={() => setFeedback("up")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+                feedback === "up" ? "bg-safe/20 text-safe" : "bg-gray-100 text-muted hover:bg-safe/10"
+              }`}
+            >
+              <ThumbsUp size={18} /> Evet, harika!
+            </button>
+            <button
+              onClick={() => setFeedback("down")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+                feedback === "down" ? "bg-danger/20 text-danger" : "bg-gray-100 text-muted hover:bg-danger/10"
+              }`}
+            >
+              <ThumbsDown size={18} /> Pek değil
+            </button>
+          </div>
+          {feedback && (
+            <p className="text-xs text-muted mt-2">
+              {feedback === "up" ? "Geri bildiriminiz için teşekkürler!" : "Daha iyi çözümler üzerinde çalışıyoruz!"}
+            </p>
+          )}
+        </Card>
       </main>
     </>
   );
