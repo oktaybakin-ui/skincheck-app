@@ -64,15 +64,15 @@ const CATEGORIES: { label: string; icon: LucideIcon; value: string | null }[] = 
   { label: "Güneş", icon: Sun, value: "güneş" },
 ];
 
-const STORE_EMOJIS: Record<string, string> = {
-  gratis: "🟢",
-  watsons: "💙",
-  rossmann: "🔴",
-  trendyol: "🟠",
-  hepsiburada: "🟡",
-  sephora: "⬛",
-  flormar: "💜",
-  mac: "🖤",
+const STORE_LOGOS: Record<string, string> = {
+  gratis: "/logos/gratis.svg",
+  watsons: "/logos/watsons.svg",
+  rossmann: "/logos/rossmann.svg",
+  trendyol: "/logos/trendyol.svg",
+  hepsiburada: "/logos/hepsiburada.svg",
+  sephora: "/logos/sephora.svg",
+  flormar: "/logos/flormar.svg",
+  mac: "/logos/mac.svg",
 };
 
 const STORE_COLORS: Record<string, string> = {
@@ -182,7 +182,7 @@ export default function DealsPage() {
           </h2>
           <div className="grid grid-cols-2 gap-2.5">
             {retailers.map((r) => {
-              const emoji = STORE_EMOJIS[r.store_slug] || "🏪";
+              const logo = STORE_LOGOS[r.store_slug];
               const colors = STORE_COLORS[r.store_slug] || "from-gray-500/20 to-gray-600/5 border-gray-500/30";
               const storeDeals = deals.filter((d) => d.store_slug === r.store_slug);
               const dealCount = storeDeals.length;
@@ -196,7 +196,11 @@ export default function DealsPage() {
                   className={`relative bg-gradient-to-br ${colors} border rounded-2xl p-3.5 hover:scale-[1.02] active:scale-[0.98] transition-transform`}
                 >
                   <div className="flex items-start justify-between mb-2">
-                    <span className="text-2xl">{emoji}</span>
+                    {logo ? (
+                      <img src={logo} alt={r.store_name} className="h-7 w-auto object-contain" loading="lazy" />
+                    ) : (
+                      <Store size={24} className="text-muted" />
+                    )}
                     <ExternalLink size={12} className="text-muted/60" />
                   </div>
                   <p className="font-bold text-sm">{r.store_name}</p>
@@ -238,7 +242,12 @@ export default function DealsPage() {
                   : "bg-gray-100 text-muted hover:bg-gray-200"
               }`}
             >
-              {STORE_EMOJIS[r.store_slug] || "🏪"} {r.store_name}
+              {STORE_LOGOS[r.store_slug] ? (
+                <img src={STORE_LOGOS[r.store_slug]} alt="" className="h-3.5 w-auto object-contain" />
+              ) : (
+                <Store size={12} />
+              )}
+              {r.store_name}
             </button>
           ))}
         </div>
@@ -318,7 +327,11 @@ export default function DealsPage() {
                     <div className="flex-1 min-w-0">
                       {/* Store + brand */}
                       <div className="flex items-center gap-1.5 mb-0.5">
-                        <span className="text-xs">{STORE_EMOJIS[deal.store_slug] || "🏪"}</span>
+                        {STORE_LOGOS[deal.store_slug] ? (
+                          <img src={STORE_LOGOS[deal.store_slug]} alt="" className="h-3 w-auto object-contain" />
+                        ) : (
+                          <Store size={12} className="text-muted" />
+                        )}
                         <span className="text-[10px] text-muted font-medium">{deal.store_name}</span>
                         {deal.brand && (
                           <>
