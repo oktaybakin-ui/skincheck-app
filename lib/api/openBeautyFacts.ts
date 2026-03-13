@@ -7,25 +7,37 @@ export interface OBFProduct {
   ingredients_text: string;
 }
 
+const API_SOURCES = [
+  "https://world.openbeautyfacts.org/api/v0/product",
+  "https://world.openfoodfacts.org/api/v0/product",
+  "https://world.openproductsfacts.org/api/v0/product",
+];
+
 export async function searchByBarcode(barcode: string): Promise<OBFProduct | null> {
-  try {
-    const res = await fetch(`https://world.openbeautyfacts.org/api/v0/product/${barcode}.json`);
-    const data = await res.json();
+  for (const baseUrl of API_SOURCES) {
+    try {
+      const res = await fetch(`${baseUrl}/${barcode}.json`);
+      const data = await res.json();
 
-    if (data.status !== 1 || !data.product) return null;
+      if (data.status !== 1 || !data.product) continue;
 
-    const p = data.product;
-    return {
-      code: barcode,
-      product_name: p.product_name || p.product_name_en || "",
-      brands: p.brands || "",
-      categories: p.categories || "",
-      image_url: p.image_url || p.image_front_url || "",
-      ingredients_text: p.ingredients_text || p.ingredients_text_en || "",
-    };
-  } catch {
-    return null;
+      const p = data.product;
+      const name = p.product_name || p.product_name_en || p.product_name_tr || "";
+      if (!name) continue;
+
+      return {
+        code: barcode,
+        product_name: name,
+        brands: p.brands || "",
+        categories: p.categories || "",
+        image_url: p.image_url || p.image_front_url || "",
+        ingredients_text: p.ingredients_text || p.ingredients_text_en || p.ingredients_text_tr || "",
+      };
+    } catch {
+      continue;
+    }
   }
+  return null;
 }
 
 export function parseIngredients(text: string): string[] {

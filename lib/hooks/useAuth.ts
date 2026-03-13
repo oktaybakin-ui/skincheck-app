@@ -66,6 +66,20 @@ export function useAuth() {
     setSession(null);
   };
 
+  const uploadAvatar = async (file: File) => {
+    if (!user) return { error: new Error("Not authenticated"), url: null };
+    const ext = file.name.split(".").pop();
+    const path = `${user.id}/avatar.${ext}`;
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(path, file, { upsert: true });
+    if (uploadError) return { error: uploadError, url: null };
+    const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
+    const url = `${publicUrl}?t=${Date.now()}`;
+    await updateProfile({ avatar_url: url });
+    return { error: null, url };
+  };
+
   const updateProfile = async (updates: Partial<Profile>) => {
     if (!user) return { error: new Error("Not authenticated") };
     const { data, error } = await supabase
@@ -88,6 +102,7 @@ export function useAuth() {
     signInWithGoogle,
     signOut,
     updateProfile,
+    uploadAvatar,
     refreshProfile: () => user && fetchProfile(user.id),
   };
 }

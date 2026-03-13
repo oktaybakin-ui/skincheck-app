@@ -10,13 +10,13 @@ const channels = [
   { name: "Duygu Özaslan", subs: "3.5M", desc: "Cilt bakımı ve günlük makyaj", tags: ["Türkçe", "Başlangıç", "Cilt Bakımı"], url: "https://youtube.com/@duyguozaslan", img: "/images/channels/duygu-ozaslan.jpg" },
   { name: "Danla Bilic", subs: "4.2M", desc: "Trend makyaj ve ürün inceleme", tags: ["Türkçe", "Orta", "Günlük Makyaj"], url: "https://youtube.com/@DanlaBilic", img: "/images/channels/danla-bilic.jpg" },
   { name: "Merve Özkaynak", subs: "1.8M", desc: "Doğal makyaj ve saç bakımı", tags: ["Türkçe", "Başlangıç", "Doğal"], url: "https://youtube.com/@MerveOzkaynak", img: "/images/channels/merve-ozkaynak.jpg" },
-  { name: "Sebile Ölmez", subs: "1.2M", desc: "Makyaj dersleri ve ürün önerileri", tags: ["Türkçe", "Orta", "Profesyonel"], url: "https://youtube.com/@SebileOlmez" },
+  { name: "Sebile Ölmez", subs: "1.2M", desc: "Makyaj dersleri ve ürün önerileri", tags: ["Türkçe", "Orta", "Profesyonel"], url: "https://youtube.com/@SebileOlmez", img: "/images/channels/sebile-olmez.jpg" },
   { name: "Robert Welsh", subs: "2.1M", desc: "Profesyonel makyöz teknikleri", tags: ["İngilizce", "Profesyonel", "Teknik"], url: "https://youtube.com/@RobertWelsh", img: "/images/channels/robert-welsh.jpg" },
-  { name: "Ali Andreea", subs: "3.8M", desc: "Cilt tipine özel bakım rutinleri", tags: ["İngilizce", "Orta", "Cilt Bakımı"], url: "https://youtube.com/@AliAndreea" },
+  { name: "Ali Andreea", subs: "3.8M", desc: "Cilt tipine özel bakım rutinleri", tags: ["İngilizce", "Orta", "Cilt Bakımı"], url: "https://youtube.com/@AliAndreea", img: "/images/channels/ali-andreea.jpg" },
   { name: "Hyram", subs: "4.5M", desc: "İçerik analizi ve cilt bakım bilimi", tags: ["İngilizce", "Başlangıç", "Bilimsel"], url: "https://youtube.com/@Hyram", img: "/images/channels/hyram.jpg" },
-  { name: "James Welsh", subs: "1.5M", desc: "Erkek cilt bakımı ve skincare bilimi", tags: ["İngilizce", "Başlangıç", "Bilimsel"], url: "https://youtube.com/@JamesWelsh" },
+  { name: "James Welsh", subs: "1.5M", desc: "Erkek cilt bakımı ve skincare bilimi", tags: ["İngilizce", "Başlangıç", "Bilimsel"], url: "https://youtube.com/@JamesWelsh", img: "/images/channels/james-welsh.jpg" },
   { name: "Doctorly", subs: "1.9M", desc: "Dermatologlar tarafından cilt bakım rehberi", tags: ["İngilizce", "Profesyonel", "Bilimsel"], url: "https://youtube.com/@Doctorly", img: "/images/channels/doctorly.jpg" },
-  { name: "Glow By Ramón", subs: "800K", desc: "Temiz güzellik ve doğal ürünler", tags: ["İngilizce", "Orta", "Doğal"], url: "https://youtube.com/@GlowByRamon" },
+  { name: "Glow By Ramón", subs: "800K", desc: "Temiz güzellik ve doğal ürünler", tags: ["İngilizce", "Orta", "Doğal"], url: "https://youtube.com/@GlowByRamon", img: "/images/channels/glow-by-ramon.jpg" },
 ];
 
 const FILTERS = ["Hepsi", "Türkçe", "İngilizce", "Başlangıç", "Orta", "Profesyonel", "Cilt Bakımı", "Bilimsel", "Doğal"];

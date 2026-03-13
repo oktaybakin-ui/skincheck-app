@@ -2,29 +2,29 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, ScanLine, Sparkles, Users, UserCircle, LucideIcon } from "lucide-react";
-
-interface Tab {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-}
-
-const tabs: Tab[] = [
-  { href: "/", label: "Ana Sayfa", icon: Home },
-  { href: "/scan", label: "Tara", icon: ScanLine },
-  { href: "/makeup", label: "Makyaj", icon: Sparkles },
-  { href: "/community", label: "Topluluk", icon: Users },
-  { href: "/settings", label: "Profilim", icon: UserCircle },
-];
+import { Home, ScanLine, Sparkles, Users, Tag, LucideIcon } from "lucide-react";
+import { useAuthContext } from "@/lib/context/AuthContext";
+import { useI18n } from "@/lib/i18n/I18nContext";
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { profile } = useAuthContext();
+  const { t } = useI18n();
+
+  const tabs: { href: string; label: string; icon: LucideIcon }[] = [
+    { href: "/", label: t.nav_home, icon: Home },
+    { href: "/scan", label: t.nav_scan, icon: ScanLine },
+    { href: "/makeup", label: t.nav_makeup, icon: Sparkles },
+    { href: "/community", label: t.nav_community, icon: Users },
+    { href: "/deals", label: t.nav_deals, icon: Tag },
+  ];
 
   // Hide on auth pages
   if (pathname?.startsWith("/login") || pathname?.startsWith("/register") || pathname?.startsWith("/profile-setup")) {
     return null;
   }
+
+  const isSettingsActive = pathname?.startsWith("/settings");
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-surface border-t border-gray-200 safe-area-bottom">
@@ -50,6 +50,31 @@ export default function BottomNav() {
             </Link>
           );
         })}
+
+        {/* Profile tab with avatar */}
+        <Link
+          href="/settings"
+          className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
+            isSettingsActive
+              ? "text-primary"
+              : "text-muted hover:text-primary-light"
+          }`}
+        >
+          {profile?.avatar_url ? (
+            <img
+              src={profile.avatar_url}
+              alt=""
+              className={`w-6 h-6 rounded-full object-cover ${isSettingsActive ? "ring-2 ring-primary" : "ring-1 ring-gray-200"}`}
+            />
+          ) : (
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
+              isSettingsActive ? "bg-primary text-white" : "bg-gray-200 text-muted"
+            }`}>
+              {profile?.full_name?.[0] || "?"}
+            </div>
+          )}
+          <span className="text-[10px] mt-0.5 font-medium">{t.nav_profile}</span>
+        </Link>
       </div>
     </nav>
   );

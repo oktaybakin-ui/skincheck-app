@@ -3,13 +3,9 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Card from "@/components/ui/Card";
 import { CalendarHeart, Droplets, ChevronLeft, ChevronRight, Egg, CalendarDays } from "lucide-react";
+import { useI18n } from "@/lib/i18n/I18nContext";
 
 const CYCLE_KEY = "skincheck_period_data";
-const DAY_NAMES = ["Pt", "Sa", "Ça", "Pe", "Cu", "Ct", "Pz"];
-const MONTH_NAMES = [
-  "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
-  "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
-];
 
 interface PeriodData {
   periods: string[]; // Array of period start dates (YYYY-MM-DD)
@@ -56,10 +52,27 @@ function isSameDay(a: Date, b: Date): boolean {
 }
 
 export default function PeriodTracker() {
+  const { locale, t } = useI18n();
   const [data, setData] = useState<PeriodData>({ periods: [], cycleLength: 28, periodLength: 5 });
   const [showCalendar, setShowCalendar] = useState(false);
   const [viewDate, setViewDate] = useState(new Date());
   const [showSettings, setShowSettings] = useState(false);
+
+  const localeStr = locale === "tr" ? "tr-TR" : locale === "en" ? "en-US" : locale === "ar" ? "ar-SA" : locale === "de" ? "de-DE" : "fr-FR";
+
+  const dayNames = useMemo(() => {
+    const formatter = new Intl.DateTimeFormat(locale === "tr" ? "tr-TR" : locale === "en" ? "en-US" : locale === "ar" ? "ar-SA" : locale === "de" ? "de-DE" : "fr-FR", { weekday: "short" });
+    // Generate Monday through Sunday
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(2024, 0, i + 1); // Jan 1, 2024 is Monday
+      return formatter.format(d).slice(0, 2);
+    });
+  }, [locale]);
+
+  const monthNames = useMemo(() => {
+    const formatter = new Intl.DateTimeFormat(locale === "tr" ? "tr-TR" : locale === "en" ? "en-US" : locale === "ar" ? "ar-SA" : locale === "de" ? "de-DE" : "fr-FR", { month: "long" });
+    return Array.from({ length: 12 }, (_, i) => formatter.format(new Date(2024, i)));
+  }, [locale]);
 
   useEffect(() => {
     setData(loadData());
@@ -93,10 +106,10 @@ export default function PeriodTracker() {
 
     let phase: string;
     let phaseColor: string;
-    if (dayInCycle <= data.periodLength) { phase = "Regl Dönemi"; phaseColor = "text-danger"; }
-    else if (dayInCycle <= ovulationDay - 3) { phase = "Foliküler Faz"; phaseColor = "text-safe"; }
-    else if (dayInCycle <= ovulationDay + 2) { phase = "Ovülasyon"; phaseColor = "text-info"; }
-    else { phase = "Luteal Faz"; phaseColor = "text-warning"; }
+    if (dayInCycle <= data.periodLength) { phase = t.period_phase; phaseColor = "text-danger"; }
+    else if (dayInCycle <= ovulationDay - 3) { phase = t.follicular_phase; phaseColor = "text-safe"; }
+    else if (dayInCycle <= ovulationDay + 2) { phase = t.ovulation_phase; phaseColor = "text-info"; }
+    else { phase = t.luteal_phase; phaseColor = "text-warning"; }
 
     return {
       dayInCycle,
@@ -109,7 +122,7 @@ export default function PeriodTracker() {
       progress: dayInCycle / data.cycleLength,
       lastStart,
     };
-  }, [data]);
+  }, [data, t]);
 
   // Calendar helpers
   const calendarDays = useMemo(() => {
@@ -175,19 +188,19 @@ export default function PeriodTracker() {
   if (data.periods.length === 0 && !showCalendar) {
     return (
       <section>
-        <h3 className="text-lg font-bold mb-3">Regl Takibi</h3>
+        <h3 className="text-lg font-bold mb-3">{t.period_tracker}</h3>
         <Card className="border-primary/20 bg-primary/5">
           <div className="flex items-center gap-3">
             <CalendarHeart size={28} className="text-primary shrink-0" />
             <div className="flex-1">
-              <p className="text-sm font-semibold">Döngünü Takip Et</p>
-              <p className="text-xs text-muted mt-0.5">Regl takibi ile cilt bakımını optimize et</p>
+              <p className="text-sm font-semibold">{t.period_setup_title}</p>
+              <p className="text-xs text-muted mt-0.5">{t.period_setup_desc}</p>
             </div>
             <button
               onClick={() => setShowCalendar(true)}
               className="bg-primary text-white text-xs font-medium px-3 py-1.5 rounded-lg"
             >
-              Başla
+              {t.period_start_btn}
             </button>
           </div>
         </Card>
@@ -198,10 +211,10 @@ export default function PeriodTracker() {
   return (
     <section>
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-bold">Regl Takibi</h3>
+        <h3 className="text-lg font-bold">{t.period_tracker}</h3>
         <button onClick={() => setShowCalendar(!showCalendar)} className="text-primary text-sm font-medium flex items-center gap-1">
           <CalendarDays size={14} />
-          {showCalendar ? "Kapat" : "Takvim"}
+          {showCalendar ? t.close : t.period_calendar_btn}
         </button>
       </div>
 
@@ -223,7 +236,7 @@ export default function PeriodTracker() {
                 />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-xs font-bold">{cycleInfo.dayInCycle}. gün</span>
+                <span className="text-xs font-bold">{cycleInfo.dayInCycle}. {t.period_day_suffix}</span>
               </div>
             </div>
             <div className="flex-1 min-w-0">
@@ -231,27 +244,27 @@ export default function PeriodTracker() {
               <div className="flex items-center gap-1 mt-1">
                 <Droplets size={12} className="text-danger" />
                 <p className="text-xs text-muted">
-                  Sonraki regl: <span className="font-medium text-foreground">{cycleInfo.daysUntilNext} gün</span> ({cycleInfo.nextPeriod.toLocaleDateString("tr-TR", { day: "numeric", month: "short" })})
+                  {t.period_next_period_in}: <span className="font-medium text-foreground">{cycleInfo.daysUntilNext} {t.days}</span> ({cycleInfo.nextPeriod.toLocaleDateString(localeStr, { day: "numeric", month: "short" })})
                 </p>
               </div>
               <div className="flex items-center gap-1 mt-0.5">
                 <Egg size={12} className="text-info" />
                 <p className="text-xs text-muted">
-                  Tahmini yumurtlama: <span className="font-medium text-foreground">
+                  {t.period_ovulation_est}: <span className="font-medium text-foreground">
                     {cycleInfo.daysUntilOvulation > 0
-                      ? `${cycleInfo.daysUntilOvulation} gün`
+                      ? `${cycleInfo.daysUntilOvulation} ${t.days}`
                       : cycleInfo.daysUntilOvulation === 0
-                        ? "Bugün"
-                        : "Geçti"
+                        ? t.period_today_word
+                        : t.period_passed_word
                     }
-                  </span> ({cycleInfo.ovulationDate.toLocaleDateString("tr-TR", { day: "numeric", month: "short" })})
+                  </span> ({cycleInfo.ovulationDate.toLocaleDateString(localeStr, { day: "numeric", month: "short" })})
                 </p>
               </div>
               <p className="text-[10px] text-muted mt-1.5 leading-relaxed">
-                {cycleInfo.dayInCycle <= data.periodLength && "Hassas cilt dönemi - nazik ürünler tercih et"}
-                {cycleInfo.dayInCycle > data.periodLength && cycleInfo.dayInCycle <= data.cycleLength - 17 && "Cilt en parlak döneminde - yeni ürünler deneyebilirsin"}
-                {cycleInfo.dayInCycle > data.cycleLength - 17 && cycleInfo.dayInCycle <= data.cycleLength - 12 && "Nem dengesi önemli - nemlendirici kullan"}
-                {cycleInfo.dayInCycle > data.cycleLength - 12 && "Yağlanma artabilir - temizleyiciye önem ver"}
+                {cycleInfo.dayInCycle <= data.periodLength && t.period_tip_sensitive}
+                {cycleInfo.dayInCycle > data.periodLength && cycleInfo.dayInCycle <= data.cycleLength - 17 && t.period_tip_glow}
+                {cycleInfo.dayInCycle > data.cycleLength - 17 && cycleInfo.dayInCycle <= data.cycleLength - 12 && t.period_tip_hydrate}
+                {cycleInfo.dayInCycle > data.cycleLength - 12 && t.period_tip_cleanse}
               </p>
             </div>
           </div>
@@ -267,7 +280,7 @@ export default function PeriodTracker() {
               <ChevronLeft size={18} className="text-muted" />
             </button>
             <p className="text-sm font-bold">
-              {MONTH_NAMES[viewDate.getMonth()]} {viewDate.getFullYear()}
+              {monthNames[viewDate.getMonth()]} {viewDate.getFullYear()}
             </p>
             <button onClick={nextMonth} className="p-1 rounded-lg hover:bg-gray-100">
               <ChevronRight size={18} className="text-muted" />
@@ -276,8 +289,8 @@ export default function PeriodTracker() {
 
           {/* Day headers */}
           <div className="grid grid-cols-7 gap-1 mb-1">
-            {DAY_NAMES.map((d) => (
-              <div key={d} className="text-center text-[10px] text-muted font-medium py-1">{d}</div>
+            {dayNames.map((d, i) => (
+              <div key={`${d}-${i}`} className="text-center text-[10px] text-muted font-medium py-1">{d}</div>
             ))}
           </div>
 
@@ -312,15 +325,15 @@ export default function PeriodTracker() {
           <div className="flex flex-wrap gap-3 mt-3 pt-3 border-t border-gray-100">
             <div className="flex items-center gap-1.5">
               <div className="w-3 h-3 rounded-full bg-danger/20 ring-1 ring-danger" />
-              <span className="text-[10px] text-muted">Regl günü</span>
+              <span className="text-[10px] text-muted">{t.period_legend_period}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-3 h-3 rounded-full bg-danger/10 border border-dashed border-danger/40" />
-              <span className="text-[10px] text-muted">Tahmini regl</span>
+              <span className="text-[10px] text-muted">{t.period_legend_predicted}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-3 h-3 rounded-full bg-info/20" />
-              <span className="text-[10px] text-muted">Yumurtlama</span>
+              <span className="text-[10px] text-muted">{t.period_legend_ovulation}</span>
             </div>
           </div>
 
@@ -329,13 +342,13 @@ export default function PeriodTracker() {
             onClick={() => setShowSettings(!showSettings)}
             className="w-full text-center text-xs text-primary font-medium mt-3 pt-2 border-t border-gray-100"
           >
-            {showSettings ? "Ayarları Gizle" : "Döngü Ayarları"}
+            {showSettings ? t.period_hide_settings : t.period_cycle_settings}
           </button>
 
           {showSettings && (
             <div className="mt-3 space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-xs text-muted">Döngü süresi (gün)</label>
+                <label className="text-xs text-muted">{t.period_cycle_duration}</label>
                 <input
                   type="number"
                   value={data.cycleLength}
@@ -346,7 +359,7 @@ export default function PeriodTracker() {
                 />
               </div>
               <div className="flex items-center justify-between">
-                <label className="text-xs text-muted">Regl süresi (gün)</label>
+                <label className="text-xs text-muted">{t.period_period_duration}</label>
                 <input
                   type="number"
                   value={data.periodLength}
@@ -361,14 +374,14 @@ export default function PeriodTracker() {
                   onClick={() => { save({ periods: [], cycleLength: 28, periodLength: 5 }); setShowCalendar(false); }}
                   className="w-full text-xs text-danger py-1.5 border border-danger/20 rounded-lg mt-1"
                 >
-                  Tüm Verileri Sıfırla
+                  {t.period_reset_all}
                 </button>
               )}
             </div>
           )}
 
           <p className="text-[10px] text-muted text-center mt-3">
-            Regl günlerini takvimde isaretlemek icin günlere dokun
+            {t.period_tap_hint}
           </p>
         </Card>
       )}
