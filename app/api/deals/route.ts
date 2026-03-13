@@ -40,8 +40,8 @@ export async function GET(request: Request) {
   // Last scrape info
   const { data: lastRun } = await supabase
     .from("scrape_runs")
-    .select("started_at, status")
-    .order("started_at", { ascending: false })
+    .select("created_at, status")
+    .order("created_at", { ascending: false })
     .limit(1)
     .single();
 
@@ -49,7 +49,7 @@ export async function GET(request: Request) {
     {
       deals: data || [],
       retailers: retailers || [],
-      lastScrape: lastRun?.started_at || null,
+      lastScrape: lastRun?.created_at || null,
     },
     {
       headers: {

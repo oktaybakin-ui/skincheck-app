@@ -10,7 +10,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-export const maxDuration = 60; // Allow up to 60s for scraping
+export const maxDuration = 60;
 
 export async function POST(request: Request) {
   // Verify cron secret or allow in development
@@ -21,20 +21,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const runStart = new Date().toISOString();
-
-  // Log scrape run start
-  const { data: runData } = await supabase
-    .from("scrape_runs")
-    .insert({
-      started_at: runStart,
-      status: "running",
-      stores_attempted: STORE_CONFIGS.map((s) => s.slug),
-    })
-    .select()
-    .single();
-
-  const runId = runData?.id;
+  const runStart = Date.now();
 
   try {
     // Step 1: Scrape all stores with cheerio
@@ -71,10 +58,19 @@ export async function POST(request: Request) {
               }
             }
           } catch {
-            // AI parser also failed, keep original status
+            // AI parser also failed
           }
         }
       }
+
+      // Log scrape run per store (matches scrape_runs schema)
+      await supabase.from("scrape_runs").insert({
+        store_slug: result.store_slug,
+        status: storeStatuses[result.store_slug] || result.status,
+        deals_found: result.deals.length,
+        error_message: result.error || null,
+        duration_ms: result.duration_ms,
+      });
     }
 
     // Step 3: Add campaign link deals (always available)
@@ -105,59 +101,20 @@ export async function POST(request: Request) {
         valid_until: deal.valid_until || null,
         image_url: deal.image_url || null,
         source_type: deal.source_type,
-        last_scraped_at: runStart,
+        last_scraped_at: new Date().toISOString(),
         is_active: true,
       }));
 
       await supabase.from("deals").insert(dealsToInsert);
     }
 
-    // Step 5: Update scrape run log
-    const successCount = Object.values(storeStatuses).filter(
-      (s) => s === "success" || s === "ai_parsed"
-    ).length;
-
-    if (runId) {
-      await supabase
-        .from("scrape_runs")
-        .update({
-          completed_at: new Date().toISOString(),
-          status: successCount > 0 ? "completed" : "failed",
-          stores_succeeded: Object.entries(storeStatuses)
-            .filter(([, s]) => s === "success" || s === "ai_parsed")
-            .map(([slug]) => slug),
-          total_deals_found: allDeals.length,
-          error_details: Object.entries(storeStatuses)
-            .filter(([, s]) => s === "failed" || s === "blocked")
-            .reduce(
-              (acc, [slug, status]) => ({ ...acc, [slug]: status }),
-              {} as Record<string, string>
-            ),
-        })
-        .eq("id", runId);
-    }
-
     return NextResponse.json({
       success: true,
       totalDeals: allDeals.length,
       storeStatuses,
-      duration_ms: Date.now() - new Date(runStart).getTime(),
+      duration_ms: Date.now() - runStart,
     });
   } catch (err) {
-    // Update run as failed
-    if (runId) {
-      await supabase
-        .from("scrape_runs")
-        .update({
-          completed_at: new Date().toISOString(),
-          status: "failed",
-          error_details: {
-            message: err instanceof Error ? err.message : "Unknown error",
-          },
-        })
-        .eq("id", runId);
-    }
-
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Scrape failed" },
       { status: 500 }
