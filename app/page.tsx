@@ -12,15 +12,24 @@ import { useCommunity, Review } from "@/lib/hooks/useCommunity";
 import { useEffect, useState, useRef, useMemo } from "react";
 import { SKIN_TYPES } from "@/lib/constants";
 import { useI18n } from "@/lib/i18n/I18nContext";
-import { ScanLine, Archive, Palette, Sparkles, AlertTriangle, Clock, CheckCircle, Target, Play, ChevronRight, FlaskConical, Tag, type LucideIcon } from "lucide-react";
+import { ScanLine, Archive, Palette, Sparkles, AlertTriangle, Clock, CheckCircle, Target, Play, ChevronRight, FlaskConical, Tag, Instagram, type LucideIcon } from "lucide-react";
 
 const youtubeChannels = [
-  { name: "Duygu Özaslan", subs: "3.5M", img: "/images/channels/duygu-ozaslan.jpg", url: "https://youtube.com/@duyguozaslan" },
-  { name: "Danla Bilic", subs: "4.2M", img: "/images/channels/danla-bilic.jpg", url: "https://youtube.com/@DanlaBilic" },
-  { name: "Hyram", subs: "4.5M", img: "/images/channels/hyram.jpg", url: "https://youtube.com/@Hyram" },
-  { name: "Merve Özkaynak", subs: "1.8M", img: "/images/channels/merve-ozkaynak.jpg", url: "https://youtube.com/@MerveOzkaynak" },
-  { name: "Robert Welsh", subs: "2.1M", img: "/images/channels/robert-welsh.jpg", url: "https://youtube.com/@RobertWelsh" },
-  { name: "Doctorly", subs: "1.9M", img: "/images/channels/doctorly.jpg", url: "https://youtube.com/@Doctorly" },
+  { name: "Danla Bilic", subs: "4.2M", img: "/images/channels/danla-bilic.jpg", url: "https://youtube.com/@DanlaBilic", ig: "danlabilic" },
+  { name: "Duygu Özaslan", subs: "3.5M", img: "/images/channels/duygu-ozaslan.jpg", url: "https://youtube.com/@duyguozaslan", ig: "duyguozaslan" },
+  { name: "Hyram", subs: "4.5M", img: "/images/channels/hyram.jpg", url: "https://youtube.com/@Hyram", ig: "hyram" },
+  { name: "NikkieTutorials", subs: "14M", img: "/images/channels/nikkie-tutorials.jpg", url: "https://youtube.com/@NikkieTutorials", ig: "nikkietutorials" },
+  { name: "Merve Özkaynak", subs: "1.8M", img: "/images/channels/merve-ozkaynak.jpg", url: "https://youtube.com/@MerveOzkaynak", ig: "merveozkaynak" },
+  { name: "James Charles", subs: "24M", img: "/images/channels/james-charles.jpg", url: "https://youtube.com/@jamescharles", ig: "jamescharles" },
+  { name: "Robert Welsh", subs: "2.1M", img: "/images/channels/robert-welsh.jpg", url: "https://youtube.com/@RobertWelsh", ig: "robertwelsh" },
+  { name: "Sebile Ölmez", subs: "1.2M", img: "/images/channels/sebile-olmez.jpg", url: "https://youtube.com/@SebileOlmez", ig: "sebibebi" },
+  { name: "Doctorly", subs: "1.9M", img: "/images/channels/doctorly.jpg", url: "https://youtube.com/@Doctorly", ig: "doctorly" },
+  { name: "Wayne Goss", subs: "4M", img: "/images/channels/wayne-goss.jpg", url: "https://youtube.com/@WayneGoss", ig: "gossmakeupartist" },
+  { name: "Lisa Eldridge", subs: "2.5M", img: "/images/channels/lisa-eldridge.jpg", url: "https://youtube.com/@lisaeldridge", ig: "lisaeldridgemakeup" },
+  { name: "Patrick Starrr", subs: "4.5M", img: "/images/channels/patrick-starrr.jpg", url: "https://youtube.com/@PatrickStarrr", ig: "patrickstarrr" },
+  { name: "Charlotte Tilbury", subs: "1.7M", img: "/images/channels/charlotte-tilbury.jpg", url: "https://youtube.com/@CharlotteTilbury", ig: "charlottetilbury" },
+  { name: "Manny MUA", subs: "4.8M", img: "/images/channels/manny-mua.jpg", url: "https://youtube.com/@MannyMua733", ig: "mannymua733" },
+  { name: "İrem Güzey", subs: "900K", img: "/images/channels/irem-guzey.jpg", url: "https://youtube.com/@iremguzey", ig: "iremguzey" },
 ];
 
 export default function HomePage() {
@@ -248,13 +257,7 @@ export default function HomePage() {
           </div>
           <div ref={scrollRef} className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4">
             {youtubeChannels.map((ch) => (
-              <a
-                key={ch.name}
-                href={ch.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="shrink-0 w-36"
-              >
+              <div key={ch.name} className="shrink-0 w-36">
                 <Card hoverable className="!p-3 text-center">
                   <img
                     src={ch.img}
@@ -263,12 +266,19 @@ export default function HomePage() {
                   />
                   <p className="font-semibold text-xs mt-2 truncate">{ch.name}</p>
                   <p className="text-[10px] text-muted">{ch.subs} {t.subscribers}</p>
-                  <div className="flex items-center justify-center gap-1 mt-1.5">
-                    <Play size={10} className="text-danger" fill="currentColor" />
-                    <span className="text-[10px] text-muted">YouTube</span>
+                  <div className="flex items-center justify-center gap-2 mt-1.5">
+                    <a href={ch.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:opacity-70 transition-opacity">
+                      <Play size={10} className="text-danger" fill="currentColor" />
+                      <span className="text-[10px] text-muted">YouTube</span>
+                    </a>
+                    {ch.ig && (
+                      <a href={`https://instagram.com/${ch.ig}`} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
+                        <Instagram size={12} className="text-pink-400" />
+                      </a>
+                    )}
                   </div>
                 </Card>
-              </a>
+              </div>
             ))}
           </div>
         </section>
