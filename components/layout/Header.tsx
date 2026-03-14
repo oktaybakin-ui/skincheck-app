@@ -30,6 +30,9 @@ export default function Header({ title = "Beauty Check", showBack = false, showS
               <ArrowLeft size={20} />
             </button>
           )}
+          {!showBack && (
+            <img src="/icons/app-icon.svg" alt="Beauty Check" className="w-7 h-7 rounded-lg" />
+          )}
           <h1 className="text-lg font-bold text-primary">{title}</h1>
         </div>
         {showSettings && (

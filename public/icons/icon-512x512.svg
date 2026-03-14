@@ -1,4 +1,48 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="100" fill="#E91E8C"/>
-  <text x="256" y="300" text-anchor="middle" font-family="Arial, sans-serif" font-size="220" font-weight="bold" fill="white">SC</text>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg_icon" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFF5F7"/>
+      <stop offset="100%" stop-color="#FEF0E8"/>
+    </linearGradient>
+    <linearGradient id="rg_i" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F4A7BB"/>
+      <stop offset="100%" stop-color="#D4849A"/>
+    </linearGradient>
+    <linearGradient id="gold_i" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E8C77B"/>
+      <stop offset="100%" stop-color="#C9A44E"/>
+    </linearGradient>
+    <clipPath id="icon_clip"><rect x="0" y="0" width="1024" height="1024" rx="200"/></clipPath>
+  </defs>
+
+  <!-- Icon background -->
+  <rect x="0" y="0" width="1024" height="1024" rx="200" fill="url(#bg_icon)"/>
+  <rect x="0" y="0" width="1024" height="1024" rx="200" fill="none" stroke="#F4A7BB" stroke-width="1.5" opacity="0.4"/>
+
+  <g clip-path="url(#icon_clip)">
+    <!-- Subtle radial glow -->
+    <circle cx="512" cy="480" r="350" fill="#F4A7BB" opacity="0.06"/>
+
+    <!-- Sparkles -->
+    <path d="M200 180L206 200L226 206L206 212L200 232L194 212L174 206L194 200Z" fill="#E8C77B" opacity="0.5"/>
+    <path d="M824 150L828 168L846 172L828 176L824 194L820 176L802 172L820 168Z" fill="#E8C77B" opacity="0.4"/>
+    <path d="M780 760L784 774L798 778L784 782L780 796L776 782L762 778L776 774Z" fill="#F4A7BB" opacity="0.4"/>
+    <path d="M244 720L248 732L260 736L248 740L244 752L240 740L228 736L240 732Z" fill="#D4849A" opacity="0.35"/>
+    <path d="M170 500L173 510L183 513L173 516L170 526L167 516L157 513L167 510Z" fill="#F4A7BB" opacity="0.3"/>
+    <path d="M854 420L857 428L865 431L857 434L854 442L851 434L843 431L851 428Z" fill="#E8C77B" opacity="0.35"/>
+
+    <!-- Mirror circle -->
+    <circle cx="512" cy="440" r="200" fill="none" stroke="url(#gold_i)" stroke-width="12"/>
+    <circle cx="512" cy="440" r="178" fill="none" stroke="url(#rg_i)" stroke-width="5" opacity="0.4"/>
+
+    <!-- Handle -->
+    <line x1="647" y1="578" x2="720" y2="670" stroke="url(#gold_i)" stroke-width="20" stroke-linecap="round"/>
+
+    <!-- Shine -->
+    <path d="M420 350Q458 316 496 345" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" opacity="0.7"/>
+    <circle cx="432" cy="326" r="9" fill="#fff" opacity="0.6"/>
+
+    <!-- Checkmark -->
+    <path d="M435 440L490 498L600 382" fill="none" stroke="url(#rg_i)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
 </svg>

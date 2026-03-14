@@ -1,0 +1,52 @@
+<svg width="1200" height="350" viewBox="0 0 1200 350" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="rg_h" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F4A7BB"/>
+      <stop offset="100%" stop-color="#D4849A"/>
+    </linearGradient>
+    <linearGradient id="gold_h" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E8C77B"/>
+      <stop offset="100%" stop-color="#C9A44E"/>
+    </linearGradient>
+    <linearGradient id="pastel_h" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFF5F7"/>
+      <stop offset="100%" stop-color="#FEF0E8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background glow behind icon -->
+  <circle cx="175" cy="175" r="130" fill="url(#pastel_h)" opacity="0.5"/>
+
+  <!-- Sparkles around icon -->
+  <path d="M55 60L59 72L71 76L59 80L55 92L51 80L39 76L51 72Z" fill="#E8C77B" opacity="0.45"/>
+  <path d="M295 45L299 55L309 59L299 63L295 73L291 63L281 59L291 55Z" fill="#F4A7BB" opacity="0.4"/>
+  <path d="M280 285L284 295L294 299L284 303L280 313L276 303L266 299L276 295Z" fill="#E8C77B" opacity="0.35"/>
+  <circle cx="70" cy="265" r="3.5" fill="#D4849A" opacity="0.35"/>
+  <circle cx="300" cy="100" r="3" fill="#E8C77B" opacity="0.4"/>
+  <path d="M60 180L63 188L71 191L63 194L60 202L57 194L49 191L57 188Z" fill="#F4A7BB" opacity="0.3"/>
+
+  <!-- Mirror icon -->
+  <circle cx="175" cy="145" r="85" fill="none" stroke="url(#gold_h)" stroke-width="6"/>
+  <circle cx="175" cy="145" r="75" fill="none" stroke="url(#rg_h)" stroke-width="2.5" opacity="0.4"/>
+
+  <!-- Handle -->
+  <line x1="232" y1="207" x2="275" y2="260" stroke="url(#gold_h)" stroke-width="10" stroke-linecap="round"/>
+
+  <!-- Shine -->
+  <path d="M140 108Q156 92 172 106" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" opacity="0.7"/>
+  <circle cx="147" cy="97" r="4.5" fill="#fff" opacity="0.55"/>
+
+  <!-- Checkmark inside mirror -->
+  <path d="M143 145L167 170L212 122" fill="none" stroke="url(#rg_h)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- "Beauty" -->
+  <text x="390" y="155" font-family="'Helvetica Neue', 'Arial', sans-serif" font-size="82" font-weight="500" fill="#D4849A" letter-spacing="5">Beauty</text>
+
+  <!-- "Check" -->
+  <text x="394" y="220" font-family="'Helvetica Neue', 'Arial', sans-serif" font-size="52" font-weight="400" fill="#C9A44E" letter-spacing="16">Check</text>
+
+  <!-- Tagline -->
+  <line x1="394" y1="255" x2="494" y2="255" stroke="#E8C77B" stroke-width="1.2" opacity="0.5"/>
+  <text x="570" y="261" text-anchor="middle" font-family="'Helvetica Neue', 'Arial', sans-serif" font-size="16" fill="#C9A44E" opacity="0.65" letter-spacing="5">YOUR GLOW UP</text>
+  <line x1="646" y1="255" x2="746" y2="255" stroke="#E8C77B" stroke-width="1.2" opacity="0.5"/>
+</svg>
