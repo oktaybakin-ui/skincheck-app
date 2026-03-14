@@ -155,7 +155,7 @@ export default function SettingsPage() {
 
         {/* App Info */}
         <div className="text-center text-xs text-muted pt-4">
-          <p>SkinCheck v1.0.0</p>
+          <p>Beauty Check v1.0.0</p>
           <p className="mt-1">{t.app_tagline}</p>
         </div>
       </main>

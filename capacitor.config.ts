@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "com.skincheck.app",
-  appName: "SkinCheck",
+  appId: "com.beautycheck.app",
+  appName: "Beauty Check",
   webDir: "out",
   server: {
     url: "https://skin-okos-projects-11372c09.vercel.app",

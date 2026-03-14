@@ -15,9 +15,9 @@ export default function AboutPage() {
         {/* App Info */}
         <Card className="text-center">
           <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-            SC
+            BC
           </div>
-          <h2 className="text-xl font-bold mt-3">SkinCheck</h2>
+          <h2 className="text-xl font-bold mt-3">Beauty Check</h2>
           <p className="text-sm text-muted">{t.app_tagline}</p>
           <p className="text-xs text-muted mt-1">v1.0.0</p>
         </Card>

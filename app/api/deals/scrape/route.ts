@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
   const referer = request.headers.get("referer") || "";
-  const isSameOrigin = referer.includes("localhost") || referer.includes("vercel.app") || referer.includes("skincheck");
+  const isSameOrigin = referer.includes("localhost") || referer.includes("vercel.app") || referer.includes("beautycheck") || referer.includes("skincheck");
 
   if (cronSecret && !isSameOrigin && authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -1,6 +1,6 @@
 {
-  "name": "SkinCheck - Kozmetik Ürün Dedektifi",
-  "short_name": "SkinCheck",
+  "name": "Beauty Check - Kozmetik Ürün Dedektifi",
+  "short_name": "Beauty Check",
   "description": "Kozmetik ürün içerik analizi, hamilelikte güvenli mi kontrolü ve kişiselleştirilmiş cilt bakım rehberi",
   "start_url": "/",
   "scope": "/",

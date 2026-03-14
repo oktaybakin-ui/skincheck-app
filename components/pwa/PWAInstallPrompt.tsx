@@ -55,10 +55,10 @@ export default function PWAInstallPrompt() {
       <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-4">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center text-white text-xl font-bold shrink-0">
-            SC
+            BC
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-sm">SkinCheck&apos;i Yükle</p>
+            <p className="font-bold text-sm">Beauty Check&apos;i Yükle</p>
             <p className="text-xs text-muted">Ana ekranına ekle, hızlı eriş</p>
           </div>
           <button onClick={handleDismiss} className="text-muted text-lg shrink-0">×</button>

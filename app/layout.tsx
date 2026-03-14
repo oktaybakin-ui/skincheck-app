@@ -12,13 +12,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SkinCheck - Kozmetik Ürün Dedektifi",
+  title: "Beauty Check - Kozmetik Ürün Dedektifi",
   description: "Kozmetik ürün içerik analizi, hamilelikte güvenli mi kontrolü ve kişiselleştirilmiş cilt bakım rehberi",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "SkinCheck",
+    title: "Beauty Check",
   },
 };
 

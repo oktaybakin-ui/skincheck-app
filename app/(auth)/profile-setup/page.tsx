@@ -216,7 +216,7 @@ export default function ProfileSetupPage() {
             <div className="w-16 h-16 mx-auto bg-safe/10 rounded-full flex items-center justify-center">
               <CheckCircle size={40} className="text-safe" />
             </div>
-            <h2 className="text-xl font-bold">Harika! SkinCheck&apos;e hoş geldin!</h2>
+            <h2 className="text-xl font-bold">Harika! Beauty Check&apos;e hoş geldin!</h2>
             <Card>
               <div className="text-left space-y-2 text-sm">
                 <p><span className="text-muted">Cilt tipi:</span> <strong>{SKIN_TYPES.find((t) => t.value === skinType)?.label}</strong></p>

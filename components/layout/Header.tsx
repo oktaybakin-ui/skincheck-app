@@ -10,7 +10,7 @@ interface HeaderProps {
   showSettings?: boolean;
 }
 
-export default function Header({ title = "SkinCheck", showBack = false, showSettings = true }: HeaderProps) {
+export default function Header({ title = "Beauty Check", showBack = false, showSettings = true }: HeaderProps) {
   const router = useRouter();
 
   const handleBack = () => {

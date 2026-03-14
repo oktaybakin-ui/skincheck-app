@@ -36,7 +36,7 @@ export default function RegisterPage() {
     <div className="min-h-screen flex flex-col items-center justify-center px-6">
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-primary">SkinCheck</h1>
+          <h1 className="text-4xl font-bold text-primary">Beauty Check</h1>
           <p className="text-muted mt-2">Hesap Oluştur</p>
         </div>
 

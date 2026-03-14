@@ -13,7 +13,7 @@ export type TranslationKeys = { [K in keyof typeof translations.tr]: string };
 export const translations = {
   tr: {
     // Common
-    app_name: "SkinCheck",
+    app_name: "Beauty Check",
     app_tagline: "Kozmetik Ürün Dedektifi",
     loading: "Yükleniyor...",
     save: "Kaydet",
@@ -208,7 +208,7 @@ export const translations = {
     privacy_note: "Gizlilik ayarların anlık olarak güncellenir. Veri silme işlemi geri alınamaz.",
 
     // About page
-    about_desc: "SkinCheck, kozmetik ürünlerindeki içerikleri analiz ederek cilt tipine göre kişiselleştirilmiş öneriler sunan bir uygulamadır.",
+    about_desc: "Beauty Check, kozmetik ürünlerindeki içerikleri analiz ederek cilt tipine göre kişiselleştirilmiş öneriler sunan bir uygulamadır.",
     about_features_title: "Özellikler",
     about_feature_ai: "AI destekli içerik analizi ile güvenlik değerlendirmesi",
     about_feature_personalized: "Cilt tipine göre kişiselleştirilmiş risk değerlendirmesi",
@@ -220,7 +220,7 @@ export const translations = {
     about_licenses: "Açık Kaynak Lisansları",
     about_contact_title: "İletişim",
     about_feedback: "Geri Bildirim Gönder",
-    about_disclaimer: "SkinCheck tıbbi tavsiye yerine geçmez. Ciddi cilt sorunları için bir dermatolog ile görüşün.",
+    about_disclaimer: "Beauty Check tıbbi tavsiye yerine geçmez. Ciddi cilt sorunları için bir dermatolog ile görüşün.",
 
     // Community extras
     time_just_now: "az önce",
@@ -261,7 +261,7 @@ export const translations = {
   },
 
   en: {
-    app_name: "SkinCheck",
+    app_name: "Beauty Check",
     app_tagline: "Cosmetic Product Detective",
     loading: "Loading...",
     save: "Save",
@@ -445,7 +445,7 @@ export const translations = {
     privacy_delete_desc: "Permanently delete all your data",
     privacy_note: "Privacy settings update instantly. Data deletion is irreversible.",
 
-    about_desc: "SkinCheck is an app that analyzes cosmetic product ingredients and provides personalized recommendations based on your skin type.",
+    about_desc: "Beauty Check is an app that analyzes cosmetic product ingredients and provides personalized recommendations based on your skin type.",
     about_features_title: "Features",
     about_feature_ai: "AI-powered ingredient analysis with safety assessment",
     about_feature_personalized: "Personalized risk assessment based on skin type",
@@ -457,7 +457,7 @@ export const translations = {
     about_licenses: "Open Source Licenses",
     about_contact_title: "Contact",
     about_feedback: "Send Feedback",
-    about_disclaimer: "SkinCheck is not a substitute for medical advice. Consult a dermatologist for serious skin issues.",
+    about_disclaimer: "Beauty Check is not a substitute for medical advice. Consult a dermatologist for serious skin issues.",
 
     time_just_now: "just now",
     time_minutes_ago: "min ago",
@@ -496,7 +496,7 @@ export const translations = {
   },
 
   ar: {
-    app_name: "SkinCheck",
+    app_name: "Beauty Check",
     app_tagline: "محقق المنتجات التجميلية",
     loading: "جاري التحميل...",
     save: "حفظ",
@@ -680,7 +680,7 @@ export const translations = {
     privacy_delete_desc: "حذف جميع بياناتك نهائياً",
     privacy_note: "يتم تحديث إعدادات الخصوصية فوراً. حذف البيانات لا رجعة فيه.",
 
-    about_desc: "SkinCheck هو تطبيق يحلل مكونات منتجات التجميل ويقدم توصيات مخصصة بناءً على نوع بشرتك.",
+    about_desc: "Beauty Check هو تطبيق يحلل مكونات منتجات التجميل ويقدم توصيات مخصصة بناءً على نوع بشرتك.",
     about_features_title: "الميزات",
     about_feature_ai: "تحليل المكونات بالذكاء الاصطناعي مع تقييم السلامة",
     about_feature_personalized: "تقييم مخاطر مخصص حسب نوع البشرة",
@@ -692,7 +692,7 @@ export const translations = {
     about_licenses: "تراخيص مفتوحة المصدر",
     about_contact_title: "اتصل بنا",
     about_feedback: "إرسال ملاحظات",
-    about_disclaimer: "SkinCheck ليس بديلاً عن الاستشارة الطبية. استشر طبيب جلدية للمشاكل الجلدية الخطيرة.",
+    about_disclaimer: "Beauty Check ليس بديلاً عن الاستشارة الطبية. استشر طبيب جلدية للمشاكل الجلدية الخطيرة.",
 
     time_just_now: "الآن",
     time_minutes_ago: "دقائق مضت",
@@ -731,7 +731,7 @@ export const translations = {
   },
 
   de: {
-    app_name: "SkinCheck",
+    app_name: "Beauty Check",
     app_tagline: "Kosmetik-Produktdetektiv",
     loading: "Laden...",
     save: "Speichern",
@@ -915,7 +915,7 @@ export const translations = {
     privacy_delete_desc: "Alle deine Daten dauerhaft löschen",
     privacy_note: "Datenschutzeinstellungen werden sofort aktualisiert. Datenlöschung ist unwiderruflich.",
 
-    about_desc: "SkinCheck ist eine App, die Kosmetikinhaltsstoffe analysiert und personalisierte Empfehlungen basierend auf deinem Hauttyp gibt.",
+    about_desc: "Beauty Check ist eine App, die Kosmetikinhaltsstoffe analysiert und personalisierte Empfehlungen basierend auf deinem Hauttyp gibt.",
     about_features_title: "Funktionen",
     about_feature_ai: "KI-gestützte Inhaltsstoffanalyse mit Sicherheitsbewertung",
     about_feature_personalized: "Personalisierte Risikobewertung nach Hauttyp",
@@ -927,7 +927,7 @@ export const translations = {
     about_licenses: "Open-Source-Lizenzen",
     about_contact_title: "Kontakt",
     about_feedback: "Feedback senden",
-    about_disclaimer: "SkinCheck ersetzt keine ärztliche Beratung. Bei ernsthaften Hautproblemen einen Dermatologen aufsuchen.",
+    about_disclaimer: "Beauty Check ersetzt keine ärztliche Beratung. Bei ernsthaften Hautproblemen einen Dermatologen aufsuchen.",
 
     time_just_now: "gerade eben",
     time_minutes_ago: "Min. zuvor",
@@ -966,7 +966,7 @@ export const translations = {
   },
 
   fr: {
-    app_name: "SkinCheck",
+    app_name: "Beauty Check",
     app_tagline: "Détective de Produits Cosmétiques",
     loading: "Chargement...",
     save: "Enregistrer",
@@ -1150,7 +1150,7 @@ export const translations = {
     privacy_delete_desc: "Supprimer définitivement toutes vos données",
     privacy_note: "Les paramètres sont mis à jour instantanément. La suppression est irréversible.",
 
-    about_desc: "SkinCheck est une application qui analyse les ingrédients cosmétiques et fournit des recommandations personnalisées selon votre type de peau.",
+    about_desc: "Beauty Check est une application qui analyse les ingrédients cosmétiques et fournit des recommandations personnalisées selon votre type de peau.",
     about_features_title: "Fonctionnalités",
     about_feature_ai: "Analyse des ingrédients par IA avec évaluation de sécurité",
     about_feature_personalized: "Évaluation des risques personnalisée par type de peau",
@@ -1162,7 +1162,7 @@ export const translations = {
     about_licenses: "Licences open source",
     about_contact_title: "Contact",
     about_feedback: "Envoyer un commentaire",
-    about_disclaimer: "SkinCheck ne remplace pas un avis médical. Consultez un dermatologue pour les problèmes de peau graves.",
+    about_disclaimer: "Beauty Check ne remplace pas un avis médical. Consultez un dermatologue pour les problèmes de peau graves.",
 
     time_just_now: "à l'instant",
     time_minutes_ago: "min",
