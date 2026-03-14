@@ -12,7 +12,7 @@ import { useCommunity, Review } from "@/lib/hooks/useCommunity";
 import { useEffect, useState, useRef, useMemo } from "react";
 import { SKIN_TYPES } from "@/lib/constants";
 import { useI18n } from "@/lib/i18n/I18nContext";
-import { ScanLine, Archive, Palette, Sparkles, AlertTriangle, Clock, CheckCircle, Target, Play, ChevronRight, FlaskConical, Tag, Instagram, type LucideIcon } from "lucide-react";
+import { Archive, Palette, Sparkles, AlertTriangle, Clock, CheckCircle, Target, Play, ChevronRight, FlaskConical, Tag, Instagram, type LucideIcon } from "lucide-react";
 import { youtubeChannels } from "@/lib/constants/youtube-channels";
 import PinterestInspiration from "@/components/home/PinterestInspiration";
 import SocialMediaSearchHome from "@/components/home/SocialMediaSearchHome";
@@ -31,7 +31,6 @@ export default function HomePage() {
     : undefined;
 
   const quickActions: { href: string; icon: LucideIcon; label: string; desc: string }[] = useMemo(() => [
-    { href: "/scan", icon: ScanLine, label: t.scan_product, desc: t.scan_desc },
     { href: "/cabinet", icon: Archive, label: t.my_cabinet, desc: t.cabinet_desc },
     { href: "/makeup/undertone", icon: Palette, label: t.undertone_analysis, desc: t.undertone_desc },
     { href: "/makeup/solutions", icon: Sparkles, label: t.makeup_solutions, desc: t.solutions_desc },
@@ -136,15 +135,15 @@ export default function HomePage() {
         {/* Quick Actions */}
         <section>
           <h3 className="text-lg font-bold mb-3">{t.quick_actions}</h3>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             {quickActions.map((action) => {
               const Icon = action.icon;
               return (
               <Link key={action.href} href={action.href}>
                 <Card hoverable className="text-center">
-                  <Icon size={28} className="text-primary mx-auto" />
-                  <p className="font-semibold mt-2 text-sm">{action.label}</p>
-                  <p className="text-xs text-muted mt-0.5">{action.desc}</p>
+                  <Icon size={24} className="text-primary mx-auto" />
+                  <p className="font-semibold mt-2 text-xs">{action.label}</p>
+                  <p className="text-[10px] text-muted mt-0.5">{action.desc}</p>
                 </Card>
               </Link>
               );
