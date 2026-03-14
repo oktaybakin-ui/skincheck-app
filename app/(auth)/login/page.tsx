@@ -11,7 +11,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn, signInWithGoogle } = useAuthContext();
+  const { signIn } = useAuthContext();
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -25,10 +25,6 @@ export default function LoginPage() {
     } else {
       router.push("/");
     }
-  };
-
-  const handleGoogle = async () => {
-    await signInWithGoogle();
   };
 
   return (
@@ -68,11 +64,13 @@ export default function LoginPage() {
         </div>
 
         <div className="space-y-3">
-          <Button variant="outline" fullWidth onClick={handleGoogle}>
+          <Button variant="outline" fullWidth disabled className="opacity-50">
             Google ile Giriş Yap
+            <span className="ml-2 text-[10px] text-muted">(Yakında)</span>
           </Button>
-          <Button variant="outline" fullWidth disabled>
+          <Button variant="outline" fullWidth disabled className="opacity-50">
             Apple ile Giriş Yap
+            <span className="ml-2 text-[10px] text-muted">(Yakında)</span>
           </Button>
         </div>
 

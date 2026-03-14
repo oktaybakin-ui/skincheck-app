@@ -12,7 +12,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signUp, signInWithGoogle } = useAuthContext();
+  const { signUp } = useAuthContext();
   const router = useRouter();
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -79,8 +79,14 @@ export default function RegisterPage() {
         </div>
 
         <div className="space-y-3">
-          <Button variant="outline" fullWidth onClick={() => signInWithGoogle()}>Google ile Kayıt Ol</Button>
-          <Button variant="outline" fullWidth disabled>Apple ile Kayıt Ol</Button>
+          <Button variant="outline" fullWidth disabled className="opacity-50">
+            Google ile Kayıt Ol
+            <span className="ml-2 text-[10px] text-muted">(Yakında)</span>
+          </Button>
+          <Button variant="outline" fullWidth disabled className="opacity-50">
+            Apple ile Kayıt Ol
+            <span className="ml-2 text-[10px] text-muted">(Yakında)</span>
+          </Button>
         </div>
 
         <p className="text-center text-sm text-muted">
