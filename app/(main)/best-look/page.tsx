@@ -21,11 +21,11 @@ const LOOK_TYPES = [
 ];
 
 const FACE_SHAPES = [
-  { key: "oval" as const, label: "Oval", icon: "🥚", desc: "İdeal oranlar, çoğu stil yakışır" },
-  { key: "round" as const, label: "Yuvarlak", icon: "⭕", desc: "Elmacık kemikleri belirgin, yumuşak hatlar" },
-  { key: "square" as const, label: "Kare", icon: "⬜", desc: "Güçlü çene hattı, geniş alın" },
-  { key: "heart" as const, label: "Kalp", icon: "💛", desc: "Geniş alın, sivri çene" },
-  { key: "long" as const, label: "Uzun", icon: "📏", desc: "Alın-çene mesafesi uzun" },
+  { key: "oval" as const, label: "Oval", icon: "🪞", desc: "İdeal oranlar, çoğu stil yakışır" },
+  { key: "round" as const, label: "Yuvarlak", icon: "🌕", desc: "Elmacık kemikleri belirgin, yumuşak hatlar" },
+  { key: "square" as const, label: "Kare", icon: "🔲", desc: "Güçlü çene hattı, geniş alın" },
+  { key: "heart" as const, label: "Kalp", icon: "🩷", desc: "Geniş alın, sivri çene" },
+  { key: "long" as const, label: "Uzun", icon: "🔷", desc: "Alın-çene mesafesi uzun" },
 ];
 
 interface BrandProduct {

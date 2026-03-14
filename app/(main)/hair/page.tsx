@@ -12,10 +12,10 @@ type HairType = "straight" | "wavy" | "curly" | "coily";
 type HairIssue = "dry" | "oily" | "dandruff" | "loss" | "colored" | "damaged";
 
 const HAIR_TYPES: { key: HairType; label: string; desc: string; icon: string; porosity: string }[] = [
-  { key: "straight", label: "Düz (Tip 1)", desc: "Kaymak gibi düz, parlak saçlar", icon: "💇‍♀️", porosity: "Genellikle düşük gözenekli" },
-  { key: "wavy", label: "Dalgalı (Tip 2)", desc: "Hafif S dalgaları, hacimli", icon: "🌊", porosity: "Düşük-orta gözenekli" },
-  { key: "curly", label: "Kıvırcık (Tip 3)", desc: "Belirgin spiral bukleler", icon: "🌀", porosity: "Orta-yüksek gözenekli" },
-  { key: "coily", label: "Çok Kıvırcık (Tip 4)", desc: "Sıkı Z-pattern bukleler", icon: "💫", porosity: "Yüksek gözenekli" },
+  { key: "straight", label: "Düz (Tip 1)", desc: "Kaymak gibi düz, parlak saçlar", icon: "✨", porosity: "Genellikle düşük gözenekli" },
+  { key: "wavy", label: "Dalgalı (Tip 2)", desc: "Hafif S dalgaları, hacimli", icon: "〰️", porosity: "Düşük-orta gözenekli" },
+  { key: "curly", label: "Kıvırcık (Tip 3)", desc: "Belirgin spiral bukleler", icon: "🔄", porosity: "Orta-yüksek gözenekli" },
+  { key: "coily", label: "Çok Kıvırcık (Tip 4)", desc: "Sıkı Z-pattern bukleler", icon: "🧬", porosity: "Yüksek gözenekli" },
 ];
 
 const HAIR_ISSUES: { key: HairIssue; label: string; desc: string; icon: typeof Droplets }[] = [
@@ -166,10 +166,10 @@ function getAdvice(type: HairType, issue: HairIssue): HairAdvice {
         { name: "Botox Saç Bakımı", desc: "Derin nemlendirme + anti-aging, saçı doldurur", frequency: "3-4 ayda 1" },
       ],
       seasonal: [
-        { season: "🌸 İlkbahar", tip: "Kış sonrası derin onarım maskesi serisi başlat (3 hafta üst üste)" },
+        { season: "🌷 İlkbahar", tip: "Kış sonrası derin onarım maskesi serisi başlat (3 hafta üst üste)" },
         { season: "☀️ Yaz", tip: "UV koruyucu saç spreyi kullan, yüzme öncesi hindistancevizi yağı sür" },
-        { season: "🍂 Sonbahar", tip: "Nem maskelerin sıklığını artır, kuru hava öncesi hazırlan" },
-        { season: "❄️ Kış", tip: "Şapka altına saten astar tak, kapalı mekan kuru havasında leave-in kullan" },
+        { season: "🍁 Sonbahar", tip: "Nem maskelerin sıklığını artır, kuru hava öncesi hazırlan" },
+        { season: "🧊 Kış", tip: "Şapka altına saten astar tak, kapalı mekan kuru havasında leave-in kullan" },
       ],
       diyMasks: [
         { name: "Bal & Zeytinyağı Maskesi", recipe: "2 yk bal + 2 yk zeytinyağı + 1 yumurta sarısı karıştır, ılık saça uygula", duration: "30 dk" },
@@ -201,10 +201,10 @@ function getAdvice(type: HairType, issue: HairIssue): HairAdvice {
         { name: "LED Terapi", desc: "Mavi LED ışık ile yağ bezlerini regüle etme", frequency: "Haftada 1 (kürleme)" },
       ],
       seasonal: [
-        { season: "🌸 İlkbahar", tip: "Hafif formüllere geç, kış ürünlerini rafa kaldır" },
+        { season: "🌷 İlkbahar", tip: "Hafif formüllere geç, kış ürünlerini rafa kaldır" },
         { season: "☀️ Yaz", tip: "Yağlanma artar — kuru şampuanı yanından ayırma, günlük yıkama gerekebilir" },
-        { season: "🍂 Sonbahar", tip: "Dengeleyici şampuana geç, yaz boyunca biriken hasarı onar" },
-        { season: "❄️ Kış", tip: "Yağlanma azalabilir — yıkama sıklığını azalt, saç derisini kurutma" },
+        { season: "🍁 Sonbahar", tip: "Dengeleyici şampuana geç, yaz boyunca biriken hasarı onar" },
+        { season: "🧊 Kış", tip: "Yağlanma azalabilir — yıkama sıklığını azalt, saç derisini kurutma" },
       ],
       diyMasks: [
         { name: "Kil & Elma Sirkesi", recipe: "2 yk bentonit kil + 2 yk elma sirkesi + su ile macun kıvamı", duration: "15 dk (sadece deri)" },
@@ -236,10 +236,10 @@ function getAdvice(type: HairType, issue: HairIssue): HairAdvice {
         { name: "Mezoterapi", desc: "Saç derisine vitamin ve mineral enjeksiyonu", frequency: "2 haftada 1 (kürleme)" },
       ],
       seasonal: [
-        { season: "🌸 İlkbahar", tip: "Kış kepek artışı sonrası yoğun bakım kürü başlat" },
+        { season: "🌷 İlkbahar", tip: "Kış kepek artışı sonrası yoğun bakım kürü başlat" },
         { season: "☀️ Yaz", tip: "Terleme kepek artırabilir — yıkama sıklığını artır, hafif ürünler kullan" },
-        { season: "🍂 Sonbahar", tip: "Kuru hava öncesi nemlendirici kepek şampuanına geç" },
-        { season: "❄️ Kış", tip: "Kuru-soğuk hava en kötü dönem — kepek şampuanı + nemlendirici rutin birleştir" },
+        { season: "🍁 Sonbahar", tip: "Kuru hava öncesi nemlendirici kepek şampuanına geç" },
+        { season: "🧊 Kış", tip: "Kuru-soğuk hava en kötü dönem — kepek şampuanı + nemlendirici rutin birleştir" },
       ],
       diyMasks: [
         { name: "Elma Sirkesi Durulama", recipe: "1 bardak su + 2 yk elma sirkesi, son durulama olarak uygula (durulama)", duration: "2 dk bekle, durula" },
@@ -272,10 +272,10 @@ function getAdvice(type: HairType, issue: HairIssue): HairAdvice {
         { name: "Saç Simülasyonu (SMP)", desc: "Mikro pigmentasyon ile dolgunluk görünümü", frequency: "Tek seferlik" },
       ],
       seasonal: [
-        { season: "🌸 İlkbahar", tip: "Kış dökülmesi azalır, yeni çıkış dönemi — destekle" },
+        { season: "🌷 İlkbahar", tip: "Kış dökülmesi azalır, yeni çıkış dönemi — destekle" },
         { season: "☀️ Yaz", tip: "UV saç derisine zarar verir — şapka tak, SPF saç spreyi kullan" },
-        { season: "🍂 Sonbahar", tip: "Mevsimsel dökülme normal (günde 100-150 tel) — panik yapma" },
-        { season: "❄️ Kış", tip: "D vitamini düşer — takviye al, saç derisini nemlendirmeyi ihmal etme" },
+        { season: "🍁 Sonbahar", tip: "Mevsimsel dökülme normal (günde 100-150 tel) — panik yapma" },
+        { season: "🧊 Kış", tip: "D vitamini düşer — takviye al, saç derisini nemlendirmeyi ihmal etme" },
       ],
       diyMasks: [
         { name: "Rozmarin Yağı Masajı", recipe: "2 yk hindistancevizi yağı + 5 damla rozmarin yağı, saç derisine masaj", duration: "Gece boyu, sabah yıka" },
@@ -307,10 +307,10 @@ function getAdvice(type: HairType, issue: HairIssue): HairAdvice {
         { name: "Protein Tedavisi", desc: "Boyalı saçın kaybettiği proteini geri kazandırır", frequency: "Ayda 1" },
       ],
       seasonal: [
-        { season: "🌸 İlkbahar", tip: "Kışın solan rengi gloss ile canlandır" },
+        { season: "🌷 İlkbahar", tip: "Kışın solan rengi gloss ile canlandır" },
         { season: "☀️ Yaz", tip: "UV koruma en kritik dönem — SPF saç spreyi ve şapka şart" },
-        { season: "🍂 Sonbahar", tip: "Yaz hasarını onar, derin protein maskesi kürü başlat" },
-        { season: "❄️ Kış", tip: "Kuru hava rengi soldurur — nem maskelerini artır" },
+        { season: "🍁 Sonbahar", tip: "Yaz hasarını onar, derin protein maskesi kürü başlat" },
+        { season: "🧊 Kış", tip: "Kuru hava rengi soldurur — nem maskelerini artır" },
       ],
       diyMasks: [
         { name: "Elma Sirkesi Parlatma", recipe: "1 bardak soğuk su + 1 yk elma sirkesi, son durulama", duration: "Durulama, haftada 1" },
@@ -343,10 +343,10 @@ function getAdvice(type: HairType, issue: HairIssue): HairAdvice {
         { name: "Brazilian Blowout", desc: "Keratin bazlı düzleştirme + onarım (formaldehitsiz)", frequency: "3-6 ayda 1" },
       ],
       seasonal: [
-        { season: "🌸 İlkbahar", tip: "Kış hasarını onar — 4 haftalık yoğun protein kürü başlat" },
+        { season: "🌷 İlkbahar", tip: "Kış hasarını onar — 4 haftalık yoğun protein kürü başlat" },
         { season: "☀️ Yaz", tip: "UV + deniz/havuz hasarına karşı koruyucu ürünleri artır" },
-        { season: "🍂 Sonbahar", tip: "Yaz hasarını değerlendir, kırık uçları aldır, onarım rutini kur" },
-        { season: "❄️ Kış", tip: "Kuru hava + kapalı mekan ısıtması saçı kurutur — nem maskelerini 2x artır" },
+        { season: "🍁 Sonbahar", tip: "Yaz hasarını değerlendir, kırık uçları aldır, onarım rutini kur" },
+        { season: "🧊 Kış", tip: "Kuru hava + kapalı mekan ısıtması saçı kurutur — nem maskelerini 2x artır" },
       ],
       diyMasks: [
         { name: "Yumurta & Zeytinyağı Onarım", recipe: "1 yumurta + 2 yk zeytinyağı + 1 yk bal, saç boyuna uygula", duration: "30 dk, ılık su ile durula" },

@@ -15,7 +15,7 @@ export interface MakeupSolution {
 export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
   {
     slug: "goz-alti-morluklari",
-    icon: "👁️",
+    icon: "🌙",
     title: "Göz Altı Morlukları",
     desc: "Renk düzeltme ve kapatıcı teknikleri",
     difficulty: "Orta",
@@ -38,7 +38,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
   },
   {
     slug: "akne-kapatma",
-    icon: "🔴",
+    icon: "🫧",
     title: "Akne & Sivilce Kapatma",
     desc: "Sivilceleri doğal şekilde gizle",
     difficulty: "Orta",
@@ -61,7 +61,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
   },
   {
     slug: "genis-gozenekler",
-    icon: "⭕",
+    icon: "🔬",
     title: "Geniş Gözenekler",
     desc: "Gözenekleri minimize etme yolları",
     difficulty: "Kolay",
@@ -83,7 +83,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
   },
   {
     slug: "kizariklik-rozasea",
-    icon: "🌹",
+    icon: "🩹",
     title: "Kızarıklık & Rozasea",
     desc: "Kızarıklığı dengeleyen teknikler",
     difficulty: "Orta",
@@ -106,7 +106,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
   },
   {
     slug: "yuz-sekillendirme",
-    icon: "📐",
+    icon: "💎",
     title: "Yüz Şekillendirme",
     desc: "Kontur ve aydınlatıcı rehberi",
     difficulty: "İleri",
@@ -129,7 +129,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
   },
   {
     slug: "yas-belirtileri",
-    icon: "✨",
+    icon: "🪄",
     title: "Yaş Belirtileri",
     desc: "Gençleştiren makyaj ipuçları",
     difficulty: "Orta",
@@ -152,7 +152,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
   },
   {
     slug: "esit-olmayan-cilt-tonu",
-    icon: "🎭",
+    icon: "🎪",
     title: "Eşit Olmayan Cilt Tonu",
     desc: "Ton eşitleme teknikleri",
     difficulty: "Orta",
@@ -175,7 +175,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
   },
   {
     slug: "ince-dudaklar",
-    icon: "👄",
+    icon: "💋",
     title: "İnce Dudaklar",
     desc: "Dudakları dolgun gösterme",
     difficulty: "Kolay",
@@ -199,7 +199,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
   // === YENİ ÇÖZÜMLER ===
   {
     slug: "smokey-eye",
-    icon: "🌑",
+    icon: "🖤",
     title: "Smokey Eye",
     desc: "Klasik dumanlı göz makyajı",
     difficulty: "İleri",
@@ -223,7 +223,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
   },
   {
     slug: "dogal-no-makeup",
-    icon: "🍃",
+    icon: "🌿",
     title: "No-Makeup Makeup",
     desc: "Doğal ama bakımlı görünüm",
     difficulty: "Kolay",
@@ -247,7 +247,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
   },
   {
     slug: "kas-sekillendirme",
-    icon: "✏️",
+    icon: "🪮",
     title: "Kaş Şekillendirme",
     desc: "Yüzü çerçeveleyen kaş teknikleri",
     difficulty: "Orta",
@@ -270,7 +270,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
   },
   {
     slug: "eyeliner-teknikleri",
-    icon: "🖊️",
+    icon: "🖋️",
     title: "Eyeliner Çekme",
     desc: "Mükemmel eyeliner teknikleri",
     difficulty: "İleri",
@@ -293,7 +293,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
   },
   {
     slug: "allik-uygulama",
-    icon: "🌸",
+    icon: "🩰",
     title: "Allık Uygulama",
     desc: "Yüz şekline göre allık teknikleri",
     difficulty: "Kolay",
@@ -360,7 +360,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
   },
   {
     slug: "kirpik-bakim",
-    icon: "👁️‍🗨️",
+    icon: "🦋",
     title: "Kirpik Teknikleri",
     desc: "Hacimli ve uzun kirpik sırları",
     difficulty: "Kolay",
@@ -382,7 +382,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
   },
   {
     slug: "yaglanma-kontrolu",
-    icon: "💧",
+    icon: "🧊",
     title: "Yağlanma Kontrolü",
     desc: "Gün boyu mat kalma teknikleri",
     difficulty: "Kolay",
@@ -405,7 +405,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
   },
   {
     slug: "gelinlik-makyaji",
-    icon: "💍",
+    icon: "👰",
     title: "Gelin Makyajı",
     desc: "Uzun süre dayanan özel gün makyajı",
     difficulty: "İleri",
@@ -475,7 +475,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
   },
   {
     slug: "hassas-cilt-makyaji",
-    icon: "🧴",
+    icon: "🪷",
     title: "Hassas Cilt Makyajı",
     desc: "Tahriş etmeyen makyaj seçimleri",
     difficulty: "Orta",
@@ -498,7 +498,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
   },
   {
     slug: "goz-kapagi-dusukluğu",
-    icon: "👀",
+    icon: "👁️",
     title: "Göz Kapağı Düşüklüğü",
     desc: "Kapak düşüklüğüne uygun göz makyajı",
     difficulty: "Orta",
@@ -521,7 +521,7 @@ export const MAKEUP_SOLUTIONS: MakeupSolution[] = [
   },
   {
     slug: "makyaj-sabitleme",
-    icon: "🔒",
+    icon: "🛡️",
     title: "Makyaj Sabitleme",
     desc: "12+ saat kalıcı makyaj teknikleri",
     difficulty: "Kolay",
