@@ -26,7 +26,7 @@ interface PhotoResult {
 }
 
 export default function ScanPage() {
-  const [activeTab, setActiveTab] = useState<Tab>("barcode");
+  const [activeTab, setActiveTab] = useState<Tab>("photo");
   const [loading, setLoading] = useState(false);
   const [showManual, setShowManual] = useState(false);
   const [manualName, setManualName] = useState("");
@@ -238,9 +238,9 @@ export default function ScanPage() {
         {/* Tabs */}
         <div className="flex bg-gray-100 rounded-xl p-1 mb-4">
           {[
+            { key: "photo" as Tab, label: "📸 Fotoğraf" },
             { key: "barcode" as Tab, label: "Barkod" },
             { key: "ocr" as Tab, label: "INCI Oku" },
-            { key: "photo" as Tab, label: "Fotoğraf" },
           ].map((tab) => (
             <button
               key={tab.key}

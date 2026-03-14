@@ -261,7 +261,7 @@ export default function UndertonePage() {
   const [aiResult, setAiResult] = useState<AIAnalysisResult | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [showCamera, setShowCamera] = useState(false);
-  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -274,13 +274,29 @@ export default function UndertonePage() {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((t) => t.stop());
       }
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: facing, width: { ideal: 1280 }, height: { ideal: 960 } },
-        audio: false,
-      });
+      let stream: MediaStream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: facing, width: { ideal: 1280 }, height: { ideal: 960 } },
+          audio: false,
+        });
+      } catch {
+        // Fallback: try opposite camera or any camera
+        const fallback = facing === "user" ? "environment" : "user";
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: fallback, width: { ideal: 1280 }, height: { ideal: 960 } },
+            audio: false,
+          });
+          setFacingMode(fallback);
+        } catch {
+          stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        }
+      }
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        await videoRef.current.play().catch(() => {});
       }
       setShowCamera(true);
     } catch {

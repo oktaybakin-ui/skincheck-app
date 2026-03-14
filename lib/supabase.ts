@@ -24,6 +24,7 @@ export interface Profile {
   special_condition: string;
   trimester: number | null;
   allergies: string[] | null;
+  favorite_brands: string[] | null;
   birth_year: number | null;
   is_public: boolean;
   preferred_language: string;

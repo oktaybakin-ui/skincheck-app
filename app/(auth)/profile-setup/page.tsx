@@ -9,7 +9,15 @@ import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/lib/context/AuthContext";
 import { CheckCircle } from "lucide-react";
 
-const STEPS = ["Cilt Tipi", "Özel Durum", "Alerjiler", "Tamamla"];
+const STEPS = ["Cilt Tipi", "Özel Durum", "Alerjiler", "Favori Markalar", "Tamamla"];
+
+const POPULAR_BRANDS = [
+  "MAC", "Charlotte Tilbury", "NARS", "Fenty Beauty", "Maybelline",
+  "L'Oréal", "NYX", "Urban Decay", "Too Faced", "Benefit",
+  "Kérastase", "Moroccanoil", "The Ordinary", "CeraVe", "La Roche-Posay",
+  "Clinique", "Estée Lauder", "Bobbi Brown", "Rare Beauty", "Glossier",
+  "Flormar", "Golden Rose", "Gratis", "Sephora Collection", "Inglot",
+];
 
 export default function ProfileSetupPage() {
   const router = useRouter();
@@ -20,7 +28,20 @@ export default function ProfileSetupPage() {
   const [trimester, setTrimester] = useState<number | null>(null);
   const [allergies, setAllergies] = useState<string[]>([]);
   const [otherAllergy, setOtherAllergy] = useState("");
+  const [favoriteBrands, setFavoriteBrands] = useState<string[]>([]);
+  const [customBrand, setCustomBrand] = useState("");
   const [saving, setSaving] = useState(false);
+
+  const toggleBrand = (b: string) => {
+    setFavoriteBrands((prev) => prev.includes(b) ? prev.filter((x) => x !== b) : [...prev, b]);
+  };
+
+  const addCustomBrand = () => {
+    if (customBrand.trim() && !favoriteBrands.includes(customBrand.trim())) {
+      setFavoriteBrands((prev) => [...prev, customBrand.trim()]);
+      setCustomBrand("");
+    }
+  };
 
   const toggleAllergy = (a: string) => {
     setAllergies((prev) => prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]);
@@ -134,19 +155,75 @@ export default function ProfileSetupPage() {
           </div>
         )}
 
-        {/* Step 3: Complete */}
+        {/* Step 3: Favorite Brands */}
         {step === 3 && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold text-center">Favori markaların</h2>
+            <p className="text-sm text-muted text-center">Seçtiğin markalara göre kişisel öneriler alacaksın</p>
+
+            {/* Selected brands */}
+            {favoriteBrands.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {favoriteBrands.map((b) => (
+                  <button
+                    key={b}
+                    onClick={() => toggleBrand(b)}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-white text-xs font-medium"
+                  >
+                    {b} <span className="opacity-70">×</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Custom brand input */}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Başka marka ekle..."
+                value={customBrand}
+                onChange={(e) => setCustomBrand(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && addCustomBrand()}
+                className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:border-primary outline-none text-sm bg-surface"
+              />
+              <button
+                onClick={addCustomBrand}
+                disabled={!customBrand.trim()}
+                className="px-4 py-3 rounded-xl bg-primary text-white text-sm font-semibold disabled:opacity-40"
+              >
+                Ekle
+              </button>
+            </div>
+
+            {/* Popular brands grid */}
+            <div className="grid grid-cols-3 gap-2">
+              {POPULAR_BRANDS.filter((b) => !favoriteBrands.includes(b)).map((brand) => (
+                <button
+                  key={brand}
+                  onClick={() => toggleBrand(brand)}
+                  className="py-2.5 px-2 rounded-xl border border-gray-200 text-xs font-medium hover:border-primary hover:bg-primary/5 transition-colors truncate"
+                >
+                  {brand}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Complete */}
+        {step === 4 && (
           <div className="text-center space-y-6">
             <div className="w-16 h-16 mx-auto bg-safe/10 rounded-full flex items-center justify-center">
               <CheckCircle size={40} className="text-safe" />
             </div>
-            <h2 className="text-xl font-bold">Harika! SkinCheck&apos;e hos geldin!</h2>
+            <h2 className="text-xl font-bold">Harika! SkinCheck&apos;e hoş geldin!</h2>
             <Card>
               <div className="text-left space-y-2 text-sm">
                 <p><span className="text-muted">Cilt tipi:</span> <strong>{SKIN_TYPES.find((t) => t.value === skinType)?.label}</strong></p>
                 <p><span className="text-muted">Özel durum:</span> <strong>{SPECIAL_CONDITIONS.find((c) => c.value === condition)?.label}</strong></p>
                 {trimester && <p><span className="text-muted">Trimester:</span> <strong>{trimester}</strong></p>}
                 <p><span className="text-muted">Alerjiler:</span> <strong>{allergies.length > 0 ? allergies.join(", ") : "Belirtilmedi"}</strong></p>
+                <p><span className="text-muted">Favori markalar:</span> <strong>{favoriteBrands.length > 0 ? favoriteBrands.join(", ") : "Belirtilmedi"}</strong></p>
               </div>
             </Card>
           </div>
@@ -159,9 +236,9 @@ export default function ProfileSetupPage() {
               Geri
             </Button>
           )}
-          {step < 3 ? (
+          {step < 4 ? (
             <Button onClick={() => setStep((s) => s + 1)} disabled={!canNext()} fullWidth>
-              {step === 1 ? "İleri" : "Devam"}
+              {step === 1 ? "İleri" : step === 3 ? (favoriteBrands.length > 0 ? "Devam" : "Atla") : "Devam"}
             </Button>
           ) : (
             <Button loading={saving} onClick={async () => {
@@ -173,6 +250,7 @@ export default function ProfileSetupPage() {
                 special_condition: condition,
                 trimester: condition === "pregnant" ? trimester : null,
                 allergies: allAllergies.length > 0 ? allAllergies : null,
+                favorite_brands: favoriteBrands.length > 0 ? favoriteBrands : null,
               });
               setSaving(false);
               router.push("/");
@@ -182,7 +260,7 @@ export default function ProfileSetupPage() {
           )}
         </div>
 
-        {step < 3 && (
+        {step < 4 && (
           <button onClick={() => router.push("/")} className="w-full text-center text-sm text-muted mt-4 hover:text-primary">
             Atla, sonra tamamlarım
           </button>
