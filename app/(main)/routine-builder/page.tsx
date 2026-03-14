@@ -17,6 +17,7 @@ import {
   Sparkles,
   CheckCircle,
   Info,
+  ShieldCheck,
 } from "lucide-react";
 
 interface Product {
@@ -100,6 +101,10 @@ export default function RoutineBuilderPage() {
               <p className="text-sm font-semibold">AI Rutin Oluşturucu</p>
               <p className="text-xs text-muted mt-1">
                 Cilt bakım ürünlerinin fotoğraflarını yükle, AI bunları tanısın ve sana kişisel sabah-akşam rutini oluştursun.
+              </p>
+              <p className="text-[10px] text-muted/70 mt-1.5 flex items-center gap-1">
+                <ShieldCheck size={10} className="shrink-0" />
+                Fotoğrafların anlık olarak değerlendirilir ve sunucuda saklanmaz.
               </p>
             </div>
           </div>

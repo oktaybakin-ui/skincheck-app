@@ -841,6 +841,7 @@ export default function BestLookPage() {
                 <Camera size={28} className="text-primary mx-auto" />
                 <p className="font-semibold text-sm mt-2">AI ile Yüz Şekli Belirle</p>
                 <p className="text-xs text-muted mt-1">Fotoğraf yükle, AI yüz şeklini otomatik tespit etsin</p>
+                <p className="text-[10px] text-muted/60 mt-1">Fotoğrafın anlık olarak değerlendirilir, sunucuda saklanmaz.</p>
                 <label className={`mt-3 inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium cursor-pointer hover:bg-primary/90 transition-colors ${aiDetecting ? "opacity-50 pointer-events-none" : ""}`}>
                   {aiDetecting ? (
                     <>

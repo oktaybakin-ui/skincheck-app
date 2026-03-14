@@ -855,6 +855,7 @@ export default function UndertonePage() {
                 <p className="text-sm text-muted leading-relaxed max-w-xs mx-auto">
                   Yapay zeka, fotoğrafından cilt alt tonunu analiz ederek sana en uygun renkleri önerir.
                 </p>
+                <p className="text-[10px] text-muted/60 mt-1">Fotoğrafın anlık olarak değerlendirilir, sunucuda saklanmaz.</p>
               </div>
 
               {/* Tips */}

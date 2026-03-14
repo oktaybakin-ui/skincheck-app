@@ -290,6 +290,7 @@ export default function ScanPage() {
                   <p className="text-sm text-muted mt-1">
                     Kozmetik ürününün fotoğrafını çek, AI tanısın
                   </p>
+                  <p className="text-[10px] text-muted/60 mt-2">Fotoğrafın anlık olarak değerlendirilir, sunucuda saklanmaz.</p>
                 </div>
                 <input
                   ref={fileInputRef}
