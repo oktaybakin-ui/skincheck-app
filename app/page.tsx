@@ -14,6 +14,7 @@ import { SKIN_TYPES } from "@/lib/constants";
 import { useI18n } from "@/lib/i18n/I18nContext";
 import { ScanLine, Archive, Palette, Sparkles, AlertTriangle, Clock, CheckCircle, Target, Play, ChevronRight, FlaskConical, Tag, Instagram, type LucideIcon } from "lucide-react";
 import { youtubeChannels } from "@/lib/constants/youtube-channels";
+import PinterestInspiration from "@/components/home/PinterestInspiration";
 
 export default function HomePage() {
   const { user, profile } = useAuthContext();
@@ -229,6 +230,9 @@ export default function HomePage() {
             </Link>
           </div>
         </section>
+
+        {/* Pinterest Inspiration */}
+        <PinterestInspiration />
 
         {/* YouTube Channels */}
         <section>
