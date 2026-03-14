@@ -11,6 +11,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuthContext } from "@/lib/context/AuthContext";
 import { SAFETY_SCORE_RANGES, RISK_LEVELS } from "@/lib/constants";
 import { FlaskConical, CheckCircle, AlertTriangle, XCircle, HelpCircle, ChevronUp, ChevronDown } from "lucide-react";
+import SocialMediaSearch from "@/components/ui/SocialMediaSearch";
 
 interface Product {
   id: string;
@@ -310,6 +311,11 @@ export default function ProductDetailPage() {
           ) : (
             <p className="text-sm text-muted text-center py-4">İçerik listesi bulunamadı</p>
           )}
+        </Card>
+
+        {/* Social Media Reviews */}
+        <Card>
+          <SocialMediaSearch productName={product.name} brand={product.brand} />
         </Card>
 
         {/* Actions */}
