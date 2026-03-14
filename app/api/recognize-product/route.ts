@@ -25,9 +25,11 @@ Yanıtını şu JSON formatında ver:
     {
       "name": "İçerik adı (Türkçe)",
       "inci_name": "INCI adı",
-      "benefit": "Faydası (kısa)",
-      "warning": "Dikkat edilmesi gereken (varsa, yoksa null)",
-      "rating": "good" | "neutral" | "caution"
+      "benefit": "Detaylı faydası (2-3 cümle)",
+      "warning": "Dikkat edilmesi gereken detay (varsa, yoksa null)",
+      "rating": "good" | "neutral" | "caution",
+      "category": "aktif madde" | "nemlendirici" | "antioksidan" | "koruyucu" | ...,
+      "concentration_hint": "yüksek" | "orta" | "düşük"
     }
   ],
   "warnings": ["Genel uyarılar - hamilelikte dikkat, alerjen riski vb."],
@@ -35,12 +37,16 @@ Yanıtını şu JSON formatında ver:
   "not_suitable_for": ["Uygun olmayan cilt tipleri (varsa)"]
 }
 
-key_ingredients: Fotoğraftan okunabilen veya ürünün bilinen formülasyonundaki en önemli 5-10 içeriği listele.
-- rating "good": Faydalı, güvenli içerik
-- rating "neutral": Nötr, dolgu/yapısal içerik
-- rating "caution": Dikkat gerektiren içerik (tahriş, alerjen, hamilelikte dikkat vb.)
+key_ingredients: Fotoğraftan okunabilen veya ürünün bilinen formülasyonundaki TÜM önemli içerikleri (en az 8-15 adet) listele. Her biri için ayrıntılı bilgi ver:
+- name: İçeriğin Türkçe adı
+- inci_name: Uluslararası INCI adı
+- benefit: Detaylı fayda açıklaması (2-3 cümle). Ne işe yarar, cilde nasıl etki eder, hangi sorunlara iyi gelir.
+- warning: Dikkat edilmesi gereken (varsa detaylı açıklama, yoksa null). Hangi cilt tiplerinde sorun olabilir, ne zaman kullanılmamalı.
+- rating: "good" (faydalı, güvenli), "neutral" (nötr, dolgu/yapısal), "caution" (dikkat gerektiren - tahriş, alerjen, hamilelikte dikkat vb.)
+- category: İçeriğin kategorisi ("aktif madde" | "nemlendirici" | "antioksidan" | "koruyucu" | "emülgatör" | "koku" | "renklendirici" | "temizleyici" | "eksfolyan" | "güneş koruyucu" | "diğer")
+- concentration_hint: Tahmini konsantrasyon seviyesi ("yüksek" | "orta" | "düşük") - INCI listesindeki sıraya göre
 
-warnings: Ürün genelinde dikkat edilmesi gereken konular (hamilelikte kullanım, alerjen madde, güneş hassasiyeti vb.)
+warnings: Ürün genelinde dikkat edilmesi gereken konular (hamilelikte kullanım, alerjen madde, güneş hassasiyeti, ilaç etkileşimleri vb.)
 
 Eğer fotoğrafta kozmetik ürün göremiyorsan found: false döndür.
 Sadece JSON döndür, başka metin ekleme.`;
@@ -76,7 +82,7 @@ export async function POST(req: NextRequest) {
 
     const message = await client.messages.create({
       model: "claude-sonnet-4-20250514",
-      max_tokens: 1024,
+      max_tokens: 2048,
       system: SYSTEM_PROMPT,
       messages: [
         {

@@ -16,6 +16,7 @@ import { ScanLine, Archive, Palette, Sparkles, AlertTriangle, Clock, CheckCircle
 import { youtubeChannels } from "@/lib/constants/youtube-channels";
 import PinterestInspiration from "@/components/home/PinterestInspiration";
 import SocialMediaSearchHome from "@/components/home/SocialMediaSearchHome";
+import ProductSatisfaction from "@/components/home/ProductSatisfaction";
 
 export default function HomePage() {
   const { user, profile } = useAuthContext();
@@ -233,6 +234,9 @@ export default function HomePage() {
             </Link>
           </div>
         </section>
+
+        {/* Product Satisfaction Score */}
+        <ProductSatisfaction />
 
         {/* Social Media Product Search */}
         <SocialMediaSearchHome />

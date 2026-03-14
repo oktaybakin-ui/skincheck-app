@@ -2,18 +2,13 @@
 
 import Header from "@/components/layout/Header";
 import Button from "@/components/ui/Button";
-import Modal from "@/components/ui/Modal";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import BarcodeScanner from "@/components/scan/BarcodeScanner";
-import OCRScanner from "@/components/scan/OCRScanner";
-import { useState, useCallback, useRef } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { SearchX, Camera, CheckCircle, Edit3, Loader2, AlertTriangle, ShieldCheck, CircleDot, ChevronDown, ChevronUp } from "lucide-react";
-import { searchByBarcode, parseIngredients } from "@/lib/api/openBeautyFacts";
+import { SearchX, Camera, CheckCircle, Edit3, Loader2, AlertTriangle, ShieldCheck, CircleDot, FlaskConical, Upload } from "lucide-react";
+import { parseIngredients } from "@/lib/api/openBeautyFacts";
 import { supabase } from "@/lib/supabase";
-
-type Tab = "barcode" | "ocr" | "photo";
 
 interface KeyIngredient {
   name: string;
@@ -21,6 +16,8 @@ interface KeyIngredient {
   benefit: string;
   warning: string | null;
   rating: "good" | "neutral" | "caution";
+  category?: string;
+  concentration_hint?: "yüksek" | "orta" | "düşük";
 }
 
 interface PhotoResult {
@@ -38,113 +35,18 @@ interface PhotoResult {
 }
 
 export default function ScanPage() {
-  const [activeTab, setActiveTab] = useState<Tab>("photo");
   const [loading, setLoading] = useState(false);
-  const [showManual, setShowManual] = useState(false);
-  const [manualName, setManualName] = useState("");
-  const [manualBrand, setManualBrand] = useState("");
-  const [manualInci, setManualInci] = useState("");
-  const [notFound, setNotFound] = useState(false);
-  const [scannedBarcode, setScannedBarcode] = useState("");
   const router = useRouter();
 
-  // Photo recognition state
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoResult, setPhotoResult] = useState<PhotoResult | null>(null);
   const [photoAnalyzing, setPhotoAnalyzing] = useState(false);
   const [editingResult, setEditingResult] = useState(false);
   const [editName, setEditName] = useState("");
   const [editBrand, setEditBrand] = useState("");
-  const [showIngredients, setShowIngredients] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
-  const handleBarcodeScan = useCallback(async (barcode: string) => {
-    setLoading(true);
-    setScannedBarcode(barcode);
-
-    const { data: existing } = await supabase
-      .from("products")
-      .select("id")
-      .eq("barcode", barcode)
-      .single();
-
-    if (existing) {
-      router.push(`/product/${existing.id}`);
-      return;
-    }
-
-    const obfProduct = await searchByBarcode(barcode);
-    if (obfProduct && obfProduct.product_name) {
-      const ingredients = obfProduct.ingredients_text
-        ? parseIngredients(obfProduct.ingredients_text)
-        : [];
-
-      const { data: newProduct } = await supabase
-        .from("products")
-        .insert({
-          barcode,
-          name: obfProduct.product_name,
-          brand: obfProduct.brands,
-          category: obfProduct.categories?.split(",")[0]?.trim() || null,
-          image_url: obfProduct.image_url || null,
-          ingredients: ingredients,
-          open_beauty_facts_id: barcode,
-        })
-        .select("id")
-        .single();
-
-      if (newProduct) {
-        router.push(`/product/${newProduct.id}`);
-        return;
-      }
-    }
-
-    setLoading(false);
-    setNotFound(true);
-  }, [router]);
-
-  const handleOCRResult = async (text: string) => {
-    const ingredients = parseIngredients(text);
-    setLoading(true);
-
-    const { data: newProduct } = await supabase
-      .from("products")
-      .insert({
-        name: "OCR ile taranan ürün",
-        ingredients: ingredients,
-      })
-      .select("id")
-      .single();
-
-    setLoading(false);
-    if (newProduct) {
-      router.push(`/product/${newProduct.id}`);
-    }
-  };
-
-  const handleManualSubmit = async () => {
-    if (!manualInci.trim()) return;
-    setLoading(true);
-    const ingredients = parseIngredients(manualInci);
-
-    const { data: newProduct } = await supabase
-      .from("products")
-      .insert({
-        barcode: scannedBarcode || null,
-        name: manualName || "Manuel girilen ürün",
-        brand: manualBrand || null,
-        ingredients: ingredients,
-      })
-      .select("id")
-      .single();
-
-    setLoading(false);
-    if (newProduct) {
-      router.push(`/product/${newProduct.id}`);
-    }
-  };
-
-  // Photo recognition handlers
   const handlePhotoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -194,7 +96,6 @@ export default function ScanPage() {
       ? parseIngredients(photoResult.ingredients_text)
       : [];
 
-    // Search DB for existing product by name+brand
     const { data: existing } = await supabase
       .from("products")
       .select("id")
@@ -229,8 +130,8 @@ export default function ScanPage() {
     setPhotoPreview(null);
     setPhotoResult(null);
     setEditingResult(false);
-    setShowIngredients(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
+    if (galleryInputRef.current) galleryInputRef.current.value = "";
   };
 
   if (loading) {
@@ -239,7 +140,7 @@ export default function ScanPage() {
         <Header title="Ürün Tara" showBack />
         <main className="px-4 py-20 text-center">
           <div className="w-12 h-12 border-3 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
-          <p className="text-muted mt-4">Ürün aranıyor...</p>
+          <p className="text-muted mt-4">Ürün kaydediliyor...</p>
         </main>
       </>
     );
@@ -248,315 +149,275 @@ export default function ScanPage() {
   return (
     <>
       <Header title="Ürün Tara" showBack />
-      <main className="px-4 py-4">
-        {/* Tabs */}
-        <div className="flex bg-gray-100 rounded-xl p-1 mb-4">
-          {[
-            { key: "photo" as Tab, label: "Fotoğraf" },
-            { key: "barcode" as Tab, label: "Barkod" },
-            { key: "ocr" as Tab, label: "INCI Oku" },
-          ].map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => { setActiveTab(tab.key); setNotFound(false); }}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                activeTab === tab.key ? "bg-surface text-primary shadow-sm" : "text-muted"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+      <main className="px-4 py-4 space-y-4 pb-28">
+        {!photoPreview ? (
+          <>
+            {/* Hero */}
+            <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl p-8 text-center">
+              <Camera size={48} className="mx-auto text-primary" />
+              <h3 className="font-bold text-lg mt-3">Ürün Fotoğrafı Çek</h3>
+              <p className="text-sm text-muted mt-1">
+                Kozmetik ürününün fotoğrafını çek, AI tanısın ve içeriğini analiz etsin
+              </p>
+              <p className="text-[10px] text-muted/60 mt-2 flex items-center justify-center gap-1">
+                <ShieldCheck size={10} /> Fotoğrafın anlık olarak değerlendirilir, sunucuda saklanmaz.
+              </p>
+            </div>
 
-        {/* Barcode Tab */}
-        {activeTab === "barcode" && !notFound && (
-          <BarcodeScanner onScan={handleBarcodeScan} active={activeTab === "barcode"} />
-        )}
+            {/* Camera + Gallery buttons */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handlePhotoSelect}
+              className="hidden"
+            />
+            <input
+              ref={galleryInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoSelect}
+              className="hidden"
+            />
 
-        {/* Not Found */}
-        {notFound && (
-          <div className="text-center py-12 space-y-4">
-            <SearchX size={48} className="text-muted mx-auto" />
-            <h3 className="font-bold text-lg">Ürün bulunamadı</h3>
-            <p className="text-sm text-muted">Barkod: {scannedBarcode}</p>
             <div className="space-y-3">
-              <Button onClick={() => setShowManual(true)} fullWidth>Manuel Ekle</Button>
-              <Button variant="outline" onClick={() => { setNotFound(false); setScannedBarcode(""); }} fullWidth>
-                Tekrar Tara
+              <Button onClick={() => fileInputRef.current?.click()} fullWidth>
+                <Camera size={18} className="mr-2" />
+                Fotoğraf Çek
+              </Button>
+              <Button variant="outline" onClick={() => galleryInputRef.current?.click()} fullWidth>
+                <Upload size={18} className="mr-2" />
+                Galeriden Seç
               </Button>
             </div>
-          </div>
-        )}
-
-        {/* OCR Tab */}
-        {activeTab === "ocr" && (
-          <OCRScanner onResult={handleOCRResult} />
-        )}
-
-        {/* Photo Recognition Tab */}
-        {activeTab === "photo" && (
-          <div className="space-y-4">
-            {!photoPreview ? (
-              <div className="text-center space-y-4">
-                <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl p-8">
-                  <Camera size={48} className="mx-auto text-primary" />
-                  <h3 className="font-bold mt-3">Ürün Fotoğrafı Çek</h3>
-                  <p className="text-sm text-muted mt-1">
-                    Kozmetik ürününün fotoğrafını çek, AI tanısın
-                  </p>
-                  <p className="text-[10px] text-muted/60 mt-2">Fotoğrafın anlık olarak değerlendirilir, sunucuda saklanmaz.</p>
+          </>
+        ) : (
+          <>
+            {/* Photo Preview */}
+            <div className="relative rounded-2xl overflow-hidden">
+              <img src={photoPreview} alt="Ürün fotoğrafı" className="w-full max-h-64 object-contain bg-gray-50" />
+              {photoAnalyzing && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                  <div className="text-center text-white">
+                    <Loader2 size={32} className="animate-spin mx-auto" />
+                    <p className="text-sm mt-2">AI analiz ediyor...</p>
+                  </div>
                 </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={handlePhotoSelect}
-                  className="hidden"
-                />
-                <Button onClick={() => fileInputRef.current?.click()} fullWidth>
-                  <Camera size={18} className="mr-2" />
-                  Fotoğraf Çek
-                </Button>
-                <Button variant="outline" onClick={() => {
-                  if (fileInputRef.current) {
-                    fileInputRef.current.removeAttribute("capture");
-                    fileInputRef.current.click();
-                    fileInputRef.current.setAttribute("capture", "environment");
-                  }
-                }} fullWidth>
-                  Galeriden Seç
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {/* Photo Preview */}
-                <div className="relative rounded-2xl overflow-hidden">
-                  <img src={photoPreview} alt="Ürün fotoğrafı" className="w-full max-h-64 object-contain bg-gray-50" />
-                  {photoAnalyzing && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                      <div className="text-center text-white">
-                        <Loader2 size={32} className="animate-spin mx-auto" />
-                        <p className="text-sm mt-2">AI analiz ediyor...</p>
+              )}
+            </div>
+
+            {/* Result */}
+            {photoResult && (
+              <>
+                {photoResult.found ? (
+                  <Card className="border-safe/30 bg-safe/5">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle size={24} className="text-safe shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-bold text-sm">Ürün Tanındı!</p>
+                          <Badge
+                            variant={photoResult.confidence === "high" ? "safe" : photoResult.confidence === "medium" ? "warning" : "danger"}
+                            size="sm"
+                          >
+                            {photoResult.confidence === "high" ? "Yüksek" : photoResult.confidence === "medium" ? "Orta" : "Düşük"} güven
+                          </Badge>
+                        </div>
+
+                        {!editingResult ? (
+                          <>
+                            {photoResult.product_name && <p className="text-sm font-semibold">{photoResult.product_name}</p>}
+                            {photoResult.brand && <p className="text-xs text-muted">{photoResult.brand}</p>}
+                            {photoResult.category && <Badge variant="primary" size="sm" className="mt-1">{photoResult.category}</Badge>}
+                            {photoResult.description && <p className="text-xs text-muted mt-2">{photoResult.description}</p>}
+                            <button
+                              onClick={() => setEditingResult(true)}
+                              className="flex items-center gap-1 text-xs text-primary mt-2"
+                            >
+                              <Edit3 size={12} /> Düzenle
+                            </button>
+                          </>
+                        ) : (
+                          <div className="space-y-2 mt-2">
+                            <input
+                              type="text"
+                              placeholder="Ürün adı"
+                              value={editName}
+                              onChange={(e) => setEditName(e.target.value)}
+                              className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary outline-none text-sm"
+                            />
+                            <input
+                              type="text"
+                              placeholder="Marka"
+                              value={editBrand}
+                              onChange={(e) => setEditBrand(e.target.value)}
+                              className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary outline-none text-sm"
+                            />
+                            <button
+                              onClick={() => setEditingResult(false)}
+                              className="text-xs text-primary"
+                            >
+                              Tamam
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
-                  )}
-                </div>
-
-                {/* Result */}
-                {photoResult && (
-                  <>
-                    {photoResult.found ? (
-                      <Card className="border-safe/30 bg-safe/5">
-                        <div className="flex items-start gap-3">
-                          <CheckCircle size={24} className="text-safe shrink-0 mt-0.5" />
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <p className="font-bold text-sm">Ürün Tanındı!</p>
-                              <Badge
-                                variant={photoResult.confidence === "high" ? "safe" : photoResult.confidence === "medium" ? "warning" : "danger"}
-                                size="sm"
-                              >
-                                {photoResult.confidence === "high" ? "Yüksek" : photoResult.confidence === "medium" ? "Orta" : "Düşük"} güven
-                              </Badge>
-                            </div>
-
-                            {!editingResult ? (
-                              <>
-                                {photoResult.product_name && <p className="text-sm font-semibold">{photoResult.product_name}</p>}
-                                {photoResult.brand && <p className="text-xs text-muted">{photoResult.brand}</p>}
-                                {photoResult.category && <Badge variant="primary" size="sm" className="mt-1">{photoResult.category}</Badge>}
-                                {photoResult.description && <p className="text-xs text-muted mt-2">{photoResult.description}</p>}
-                                <button
-                                  onClick={() => setEditingResult(true)}
-                                  className="flex items-center gap-1 text-xs text-primary mt-2"
-                                >
-                                  <Edit3 size={12} /> Düzenle
-                                </button>
-                              </>
-                            ) : (
-                              <div className="space-y-2 mt-2">
-                                <input
-                                  type="text"
-                                  placeholder="Ürün adı"
-                                  value={editName}
-                                  onChange={(e) => setEditName(e.target.value)}
-                                  className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary outline-none text-sm"
-                                />
-                                <input
-                                  type="text"
-                                  placeholder="Marka"
-                                  value={editBrand}
-                                  onChange={(e) => setEditBrand(e.target.value)}
-                                  className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary outline-none text-sm"
-                                />
-                                <button
-                                  onClick={() => setEditingResult(false)}
-                                  className="text-xs text-primary"
-                                >
-                                  Tamam
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </Card>
-                    ) : (
-                      <Card className="border-warning/30 bg-warning/5">
-                        <div className="flex items-start gap-3">
-                          <SearchX size={24} className="text-warning shrink-0 mt-0.5" />
-                          <div>
-                            <p className="font-bold text-sm">Ürün Tanınamadı</p>
-                            <p className="text-xs text-muted mt-1">{photoResult.description}</p>
-                          </div>
-                        </div>
-                      </Card>
-                    )}
-
-                    {/* Key Ingredients */}
-                    {photoResult.found && photoResult.key_ingredients && photoResult.key_ingredients.length > 0 && (
-                      <Card>
-                        <button
-                          onClick={() => setShowIngredients(!showIngredients)}
-                          className="w-full flex items-center justify-between"
-                        >
-                          <div className="flex items-center gap-2">
-                            <CircleDot size={16} className="text-primary" />
-                            <h4 className="font-bold text-sm">İçerik Analizi ({photoResult.key_ingredients.length})</h4>
-                          </div>
-                          {showIngredients ? <ChevronUp size={16} className="text-muted" /> : <ChevronDown size={16} className="text-muted" />}
-                        </button>
-                        {showIngredients && (
-                          <div className="mt-3 space-y-2">
-                            {photoResult.key_ingredients.map((ing, i) => (
-                              <div key={i} className={`flex items-start gap-2 p-2 rounded-lg ${
-                                ing.rating === "good" ? "bg-safe/5" : ing.rating === "caution" ? "bg-danger/5" : "bg-gray-50"
-                              }`}>
-                                <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
-                                  ing.rating === "good" ? "bg-safe" : ing.rating === "caution" ? "bg-danger" : "bg-gray-400"
-                                }`} />
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-1.5">
-                                    <p className="text-xs font-semibold">{ing.name}</p>
-                                    <span className="text-[9px] text-muted">({ing.inci_name})</span>
-                                  </div>
-                                  <p className="text-[11px] text-muted">{ing.benefit}</p>
-                                  {ing.warning && (
-                                    <p className="text-[10px] text-danger mt-0.5 flex items-center gap-1">
-                                      <AlertTriangle size={10} className="shrink-0" /> {ing.warning}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </Card>
-                    )}
-
-                    {/* Warnings */}
-                    {photoResult.found && photoResult.warnings && photoResult.warnings.length > 0 && (
-                      <Card className="border-danger/20 bg-danger/5">
-                        <div className="flex items-center gap-2 mb-2">
-                          <AlertTriangle size={16} className="text-danger" />
-                          <h4 className="font-bold text-sm text-danger">Dikkat Edilmesi Gerekenler</h4>
-                        </div>
-                        <div className="space-y-1.5">
-                          {photoResult.warnings.map((w, i) => (
-                            <p key={i} className="text-xs text-muted flex items-start gap-2">
-                              <span className="text-danger shrink-0 mt-0.5">!</span> {w}
-                            </p>
-                          ))}
-                        </div>
-                      </Card>
-                    )}
-
-                    {/* Suitability */}
-                    {photoResult.found && (photoResult.suitable_for?.length || photoResult.not_suitable_for?.length) && (
-                      <Card>
-                        <div className="flex items-center gap-2 mb-2">
-                          <ShieldCheck size={16} className="text-primary" />
-                          <h4 className="font-bold text-sm">Uygunluk</h4>
-                        </div>
-                        {photoResult.suitable_for && photoResult.suitable_for.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mb-2">
-                            {photoResult.suitable_for.map((s, i) => (
-                              <Badge key={i} variant="safe" size="sm">{s}</Badge>
-                            ))}
-                          </div>
-                        )}
-                        {photoResult.not_suitable_for && photoResult.not_suitable_for.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5">
-                            {photoResult.not_suitable_for.map((s, i) => (
-                              <Badge key={i} variant="danger" size="sm">{s}</Badge>
-                            ))}
-                          </div>
-                        )}
-                      </Card>
-                    )}
-
-                    <div className="space-y-2">
-                      {photoResult.found && (
-                        <Button onClick={handlePhotoSave} fullWidth>
-                          Ürünü Kaydet ve İncele
-                        </Button>
-                      )}
-                      <Button variant="outline" onClick={resetPhoto} fullWidth>
-                        Yeni Fotoğraf Çek
-                      </Button>
-                      <Button variant="ghost" onClick={() => setShowManual(true)} fullWidth>
-                        Manuel Giriş
-                      </Button>
+                  </Card>
+                ) : (
+                  <Card className="border-warning/30 bg-warning/5">
+                    <div className="flex items-start gap-3">
+                      <SearchX size={24} className="text-warning shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-bold text-sm">Ürün Tanınamadı</p>
+                        <p className="text-xs text-muted mt-1">{photoResult.description}</p>
+                      </div>
                     </div>
-                  </>
+                  </Card>
                 )}
-              </div>
+
+                {/* Key Ingredients - Detailed List */}
+                {photoResult.found && photoResult.key_ingredients && photoResult.key_ingredients.length > 0 && (
+                  <Card>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <FlaskConical size={18} className="text-primary" />
+                        <h4 className="font-bold text-sm">İçerik Analizi</h4>
+                      </div>
+                      <div className="flex gap-1.5">
+                        <Badge variant="safe" size="sm">
+                          {photoResult.key_ingredients.filter(i => i.rating === "good").length} iyi
+                        </Badge>
+                        <Badge variant="muted" size="sm">
+                          {photoResult.key_ingredients.filter(i => i.rating === "neutral").length} nötr
+                        </Badge>
+                        <Badge variant="danger" size="sm">
+                          {photoResult.key_ingredients.filter(i => i.rating === "caution").length} dikkat
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      {photoResult.key_ingredients.map((ing, i) => (
+                        <div key={i} className={`rounded-xl border p-3 ${
+                          ing.rating === "good"
+                            ? "border-safe/30 bg-safe/5"
+                            : ing.rating === "caution"
+                              ? "border-danger/30 bg-danger/5"
+                              : "border-gray-200 bg-gray-50"
+                        }`}>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${
+                                ing.rating === "good"
+                                  ? "bg-safe/20 text-safe"
+                                  : ing.rating === "caution"
+                                    ? "bg-danger/20 text-danger"
+                                    : "bg-gray-200 text-gray-500"
+                              }`}>
+                                {ing.rating === "good" ? <CheckCircle size={14} /> : ing.rating === "caution" ? <AlertTriangle size={14} /> : <CircleDot size={14} />}
+                              </div>
+                              <div>
+                                <p className="text-sm font-bold">{ing.name}</p>
+                                <p className="text-[10px] text-muted font-mono">{ing.inci_name}</p>
+                              </div>
+                            </div>
+                            <div className="flex flex-col items-end gap-0.5">
+                              {ing.category && (
+                                <Badge variant="primary" size="sm">{ing.category}</Badge>
+                              )}
+                              {ing.concentration_hint && (
+                                <span className={`text-[9px] font-medium ${
+                                  ing.concentration_hint === "yüksek" ? "text-primary" : ing.concentration_hint === "orta" ? "text-muted" : "text-muted/60"
+                                }`}>
+                                  {ing.concentration_hint === "yüksek" ? "Yüksek oran" : ing.concentration_hint === "orta" ? "Orta oran" : "Düşük oran"}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <p className="text-xs text-foreground/80 leading-relaxed mt-1">{ing.benefit}</p>
+
+                          {ing.warning && (
+                            <div className="flex items-start gap-1.5 mt-2 p-2 bg-danger/10 rounded-lg">
+                              <AlertTriangle size={12} className="text-danger shrink-0 mt-0.5" />
+                              <p className="text-[11px] text-danger leading-relaxed">{ing.warning}</p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {photoResult.ingredients_text && (
+                      <details className="mt-3">
+                        <summary className="text-[11px] text-muted cursor-pointer hover:text-primary transition-colors">
+                          Tam INCI Listesi
+                        </summary>
+                        <p className="text-[10px] text-muted/70 mt-1.5 font-mono leading-relaxed p-2 bg-gray-50 rounded-lg">
+                          {photoResult.ingredients_text}
+                        </p>
+                      </details>
+                    )}
+                  </Card>
+                )}
+
+                {/* Warnings */}
+                {photoResult.found && photoResult.warnings && photoResult.warnings.length > 0 && (
+                  <Card className="border-danger/20 bg-danger/5">
+                    <div className="flex items-center gap-2 mb-2">
+                      <AlertTriangle size={16} className="text-danger" />
+                      <h4 className="font-bold text-sm text-danger">Dikkat Edilmesi Gerekenler</h4>
+                    </div>
+                    <div className="space-y-1.5">
+                      {photoResult.warnings.map((w, i) => (
+                        <p key={i} className="text-xs text-muted flex items-start gap-2">
+                          <span className="text-danger shrink-0 mt-0.5">!</span> {w}
+                        </p>
+                      ))}
+                    </div>
+                  </Card>
+                )}
+
+                {/* Suitability */}
+                {photoResult.found && (photoResult.suitable_for?.length || photoResult.not_suitable_for?.length) && (
+                  <Card>
+                    <div className="flex items-center gap-2 mb-2">
+                      <ShieldCheck size={16} className="text-primary" />
+                      <h4 className="font-bold text-sm">Uygunluk</h4>
+                    </div>
+                    {photoResult.suitable_for && photoResult.suitable_for.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mb-2">
+                        {photoResult.suitable_for.map((s, i) => (
+                          <Badge key={i} variant="safe" size="sm">{s}</Badge>
+                        ))}
+                      </div>
+                    )}
+                    {photoResult.not_suitable_for && photoResult.not_suitable_for.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {photoResult.not_suitable_for.map((s, i) => (
+                          <Badge key={i} variant="danger" size="sm">{s}</Badge>
+                        ))}
+                      </div>
+                    )}
+                  </Card>
+                )}
+
+                {/* Actions */}
+                <div className="space-y-2">
+                  {photoResult.found && (
+                    <Button onClick={handlePhotoSave} fullWidth>
+                      Ürünü Kaydet ve İncele
+                    </Button>
+                  )}
+                  <Button variant="outline" onClick={resetPhoto} fullWidth>
+                    Yeni Fotoğraf Çek
+                  </Button>
+                </div>
+              </>
             )}
-          </div>
+          </>
         )}
-
-        {/* Manual Entry Button */}
-        {!notFound && activeTab !== "photo" && (
-          <button
-            onClick={() => setShowManual(true)}
-            className="w-full text-center text-sm text-primary font-medium mt-4 py-2"
-          >
-            Manuel Giriş →
-          </button>
-        )}
-
-        {/* Manual Entry Modal */}
-        <Modal isOpen={showManual} onClose={() => setShowManual(false)} title="Manuel Ürün Girişi">
-          <div className="space-y-4">
-            <input
-              type="text"
-              placeholder="Ürün adı"
-              value={manualName}
-              onChange={(e) => setManualName(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary outline-none text-sm bg-surface"
-            />
-            <input
-              type="text"
-              placeholder="Marka"
-              value={manualBrand}
-              onChange={(e) => setManualBrand(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary outline-none text-sm bg-surface"
-            />
-            <div>
-              <textarea
-                placeholder="INCI listesini yapıştır (virgülle ayrılmış)..."
-                value={manualInci}
-                onChange={(e) => setManualInci(e.target.value)}
-                rows={5}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary outline-none text-sm bg-surface resize-none"
-              />
-              <p className="text-xs text-muted mt-1">Örn: Aqua, Glycerin, Niacinamide, ...</p>
-            </div>
-            <Button onClick={handleManualSubmit} disabled={!manualInci.trim()} fullWidth loading={loading}>
-              Analiz Et
-            </Button>
-          </div>
-        </Modal>
       </main>
     </>
   );

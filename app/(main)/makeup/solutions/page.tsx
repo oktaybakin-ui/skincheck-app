@@ -58,17 +58,21 @@ export default function SolutionsPage() {
 
         <p className="text-xs text-muted">{filtered.length} çözüm bulundu</p>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-2">
           {filtered.map((s) => {
             const Icon = SOLUTION_ICONS[s.slug] || Sparkles;
             return (
               <Link key={s.slug} href={`/makeup/solutions/${s.slug}`}>
-                <Card hoverable className="h-full">
-                  <div className="text-center">
-                    <Icon size={28} className="mx-auto text-primary" />
-                    <p className="font-semibold text-sm mt-2">{s.title}</p>
-                    <p className="text-xs text-muted mt-1">{s.desc}</p>
-                    <div className="flex justify-center gap-1 mt-2 flex-wrap">
+                <Card hoverable>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <Icon size={20} className="text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm">{s.title}</p>
+                      <p className="text-xs text-muted mt-0.5 line-clamp-1">{s.desc}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1 shrink-0">
                       <Badge variant={s.difficulty === "Kolay" ? "safe" : s.difficulty === "Orta" ? "warning" : "danger"} size="sm">
                         {s.difficulty}
                       </Badge>
