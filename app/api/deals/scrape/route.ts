@@ -13,11 +13,13 @@ const supabase = createClient(
 export const maxDuration = 60;
 
 export async function POST(request: Request) {
-  // Verify cron secret or allow in development
+  // Verify cron secret for external calls; allow same-origin requests (frontend refresh button)
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
+  const referer = request.headers.get("referer") || "";
+  const isSameOrigin = referer.includes("localhost") || referer.includes("vercel.app") || referer.includes("skincheck");
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (cronSecret && !isSameOrigin && authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
