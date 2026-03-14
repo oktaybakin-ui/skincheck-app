@@ -10,6 +10,7 @@ Fotoğraftan şunları tespit etmeye çalış:
 2. Marka
 3. Ürün kategorisi (nemlendirici, temizleyici, serum, ruj, fondöten vb.)
 4. Varsa INCI listesi (içerik maddeleri)
+5. Önemli içerik maddeleri ve bunlar hakkında dikkat edilmesi gerekenler
 
 Yanıtını şu JSON formatında ver:
 {
@@ -19,8 +20,27 @@ Yanıtını şu JSON formatında ver:
   "category": "Kategori veya null",
   "ingredients_text": "INCI listesi metni veya null",
   "confidence": "high|medium|low",
-  "description": "Ürün hakkında kısa açıklama"
+  "description": "Ürün hakkında kısa açıklama",
+  "key_ingredients": [
+    {
+      "name": "İçerik adı (Türkçe)",
+      "inci_name": "INCI adı",
+      "benefit": "Faydası (kısa)",
+      "warning": "Dikkat edilmesi gereken (varsa, yoksa null)",
+      "rating": "good" | "neutral" | "caution"
+    }
+  ],
+  "warnings": ["Genel uyarılar - hamilelikte dikkat, alerjen riski vb."],
+  "suitable_for": ["Uygun cilt tipleri"],
+  "not_suitable_for": ["Uygun olmayan cilt tipleri (varsa)"]
 }
+
+key_ingredients: Fotoğraftan okunabilen veya ürünün bilinen formülasyonundaki en önemli 5-10 içeriği listele.
+- rating "good": Faydalı, güvenli içerik
+- rating "neutral": Nötr, dolgu/yapısal içerik
+- rating "caution": Dikkat gerektiren içerik (tahriş, alerjen, hamilelikte dikkat vb.)
+
+warnings: Ürün genelinde dikkat edilmesi gereken konular (hamilelikte kullanım, alerjen madde, güneş hassasiyeti vb.)
 
 Eğer fotoğrafta kozmetik ürün göremiyorsan found: false döndür.
 Sadece JSON döndür, başka metin ekleme.`;

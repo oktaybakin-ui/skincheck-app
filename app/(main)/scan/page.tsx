@@ -9,11 +9,19 @@ import BarcodeScanner from "@/components/scan/BarcodeScanner";
 import OCRScanner from "@/components/scan/OCRScanner";
 import { useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { SearchX, Camera, CheckCircle, Edit3, Loader2 } from "lucide-react";
+import { SearchX, Camera, CheckCircle, Edit3, Loader2, AlertTriangle, ShieldCheck, CircleDot, ChevronDown, ChevronUp } from "lucide-react";
 import { searchByBarcode, parseIngredients } from "@/lib/api/openBeautyFacts";
 import { supabase } from "@/lib/supabase";
 
 type Tab = "barcode" | "ocr" | "photo";
+
+interface KeyIngredient {
+  name: string;
+  inci_name: string;
+  benefit: string;
+  warning: string | null;
+  rating: "good" | "neutral" | "caution";
+}
 
 interface PhotoResult {
   found: boolean;
@@ -23,6 +31,10 @@ interface PhotoResult {
   ingredients_text: string | null;
   confidence: string;
   description: string;
+  key_ingredients?: KeyIngredient[];
+  warnings?: string[];
+  suitable_for?: string[];
+  not_suitable_for?: string[];
 }
 
 export default function ScanPage() {
@@ -43,6 +55,7 @@ export default function ScanPage() {
   const [editingResult, setEditingResult] = useState(false);
   const [editName, setEditName] = useState("");
   const [editBrand, setEditBrand] = useState("");
+  const [showIngredients, setShowIngredients] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleBarcodeScan = useCallback(async (barcode: string) => {
@@ -216,6 +229,7 @@ export default function ScanPage() {
     setPhotoPreview(null);
     setPhotoResult(null);
     setEditingResult(false);
+    setShowIngredients(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -396,6 +410,88 @@ export default function ScanPage() {
                             <p className="text-xs text-muted mt-1">{photoResult.description}</p>
                           </div>
                         </div>
+                      </Card>
+                    )}
+
+                    {/* Key Ingredients */}
+                    {photoResult.found && photoResult.key_ingredients && photoResult.key_ingredients.length > 0 && (
+                      <Card>
+                        <button
+                          onClick={() => setShowIngredients(!showIngredients)}
+                          className="w-full flex items-center justify-between"
+                        >
+                          <div className="flex items-center gap-2">
+                            <CircleDot size={16} className="text-primary" />
+                            <h4 className="font-bold text-sm">İçerik Analizi ({photoResult.key_ingredients.length})</h4>
+                          </div>
+                          {showIngredients ? <ChevronUp size={16} className="text-muted" /> : <ChevronDown size={16} className="text-muted" />}
+                        </button>
+                        {showIngredients && (
+                          <div className="mt-3 space-y-2">
+                            {photoResult.key_ingredients.map((ing, i) => (
+                              <div key={i} className={`flex items-start gap-2 p-2 rounded-lg ${
+                                ing.rating === "good" ? "bg-safe/5" : ing.rating === "caution" ? "bg-danger/5" : "bg-gray-50"
+                              }`}>
+                                <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
+                                  ing.rating === "good" ? "bg-safe" : ing.rating === "caution" ? "bg-danger" : "bg-gray-400"
+                                }`} />
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-1.5">
+                                    <p className="text-xs font-semibold">{ing.name}</p>
+                                    <span className="text-[9px] text-muted">({ing.inci_name})</span>
+                                  </div>
+                                  <p className="text-[11px] text-muted">{ing.benefit}</p>
+                                  {ing.warning && (
+                                    <p className="text-[10px] text-danger mt-0.5 flex items-center gap-1">
+                                      <AlertTriangle size={10} className="shrink-0" /> {ing.warning}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </Card>
+                    )}
+
+                    {/* Warnings */}
+                    {photoResult.found && photoResult.warnings && photoResult.warnings.length > 0 && (
+                      <Card className="border-danger/20 bg-danger/5">
+                        <div className="flex items-center gap-2 mb-2">
+                          <AlertTriangle size={16} className="text-danger" />
+                          <h4 className="font-bold text-sm text-danger">Dikkat Edilmesi Gerekenler</h4>
+                        </div>
+                        <div className="space-y-1.5">
+                          {photoResult.warnings.map((w, i) => (
+                            <p key={i} className="text-xs text-muted flex items-start gap-2">
+                              <span className="text-danger shrink-0 mt-0.5">!</span> {w}
+                            </p>
+                          ))}
+                        </div>
+                      </Card>
+                    )}
+
+                    {/* Suitability */}
+                    {photoResult.found && (photoResult.suitable_for?.length || photoResult.not_suitable_for?.length) && (
+                      <Card>
+                        <div className="flex items-center gap-2 mb-2">
+                          <ShieldCheck size={16} className="text-primary" />
+                          <h4 className="font-bold text-sm">Uygunluk</h4>
+                        </div>
+                        {photoResult.suitable_for && photoResult.suitable_for.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mb-2">
+                            {photoResult.suitable_for.map((s, i) => (
+                              <Badge key={i} variant="safe" size="sm">{s}</Badge>
+                            ))}
+                          </div>
+                        )}
+                        {photoResult.not_suitable_for && photoResult.not_suitable_for.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5">
+                            {photoResult.not_suitable_for.map((s, i) => (
+                              <Badge key={i} variant="danger" size="sm">{s}</Badge>
+                            ))}
+                          </div>
+                        )}
                       </Card>
                     )}
 

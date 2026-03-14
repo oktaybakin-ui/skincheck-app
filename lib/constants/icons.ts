@@ -3,6 +3,7 @@ import {
   Eye, CircleDot, Flower2, Ruler, Sparkles, Blend, Smile,
   Moon, Pipette, Maximize, Clock, Palette, Pen, Brush,
   Sun, Heart, ShieldCheck, Gem, Wand2, Scissors, Target,
+  Glasses, Zap, Coffee, Layers, Aperture, Star, Highlighter,
   LucideIcon,
 } from "lucide-react";
 
@@ -39,4 +40,14 @@ export const SOLUTION_ICONS: Record<string, LucideIcon> = {
   "hassas-cilt-makyaji": Flower,
   "goz-kapagi-dusukluğu": Eye,
   "makyaj-sabitleme": ShieldCheck,
+  "glass-skin": Glasses,
+  "fox-eye": Zap,
+  "clean-girl": Sparkles,
+  "sunset-eye": Sun,
+  "lamination-kas": Pen,
+  "douyin-makyaj": Star,
+  "latte-makyaj": Coffee,
+  "monokrom-makyaj": Layers,
+  "badem-goz": Aperture,
+  "strobing": Highlighter,
 };
