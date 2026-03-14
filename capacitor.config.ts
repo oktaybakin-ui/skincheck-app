@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "com.beautycheck.app",
+  appId: "com.oktaybakin.beautycheck",
   appName: "Beauty Check",
   webDir: "out",
   server: {
