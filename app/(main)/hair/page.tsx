@@ -6,10 +6,10 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import { useState } from "react";
 import PinterestButton from "@/components/ui/PinterestButton";
-import { Scissors, Droplets, Wind, Sparkles, AlertTriangle, Leaf, Clock, Calendar, Beaker, ShoppingBag, Star, Minus, Waves, RotateCcw, Fingerprint, type LucideIcon } from "lucide-react";
+import { Scissors, Droplets, Wind, Sparkles, AlertTriangle, Leaf, Clock, Calendar, Beaker, ShoppingBag, Star, Minus, Waves, RotateCcw, Fingerprint, ExternalLink, Flower, Zap, Sun, Snowflake, CloudRain, TrendingUp, type LucideIcon } from "lucide-react";
 
 type HairType = "straight" | "wavy" | "curly" | "coily";
-type HairIssue = "dry" | "oily" | "dandruff" | "loss" | "colored" | "damaged";
+type HairIssue = "dry" | "oily" | "dandruff" | "loss" | "colored" | "damaged" | "frizzy" | "slow_growth" | "itchy" | "thinning";
 
 const HAIR_TYPE_ICONS: Record<string, LucideIcon> = {
   straight: Minus,
@@ -32,6 +32,10 @@ const HAIR_ISSUES: { key: HairIssue; label: string; desc: string; icon: typeof D
   { key: "loss", label: "Dökülme", desc: "İncelme, seyrelme", icon: AlertTriangle },
   { key: "colored", label: "Boyalı", desc: "Renk solması, yıpranma", icon: Scissors },
   { key: "damaged", label: "Yıpranmış", desc: "Kırık uçlar, elastikiyet kaybı", icon: Leaf },
+  { key: "frizzy", label: "Kabarık & Elektrikli", desc: "Kontrol edilemeyen kabarma", icon: Zap },
+  { key: "slow_growth", label: "Yavaş Uzama", desc: "Uzamıyor, kırılıyor", icon: TrendingUp },
+  { key: "itchy", label: "Kaşıntılı Deri", desc: "Saç derisi tahrişi", icon: Flower },
+  { key: "thinning", label: "İncelme & Seyrelme", desc: "Hacim kaybı, ince teller", icon: Wind },
 ];
 
 interface BrandProduct {
@@ -173,10 +177,10 @@ function getAdvice(type: HairType, issue: HairIssue): HairAdvice {
         { name: "Botox Saç Bakımı", desc: "Derin nemlendirme + anti-aging, saçı doldurur", frequency: "3-4 ayda 1" },
       ],
       seasonal: [
-        { season: "🌷 İlkbahar", tip: "Kış sonrası derin onarım maskesi serisi başlat (3 hafta üst üste)" },
-        { season: "☀️ Yaz", tip: "UV koruyucu saç spreyi kullan, yüzme öncesi hindistancevizi yağı sür" },
-        { season: "🍁 Sonbahar", tip: "Nem maskelerin sıklığını artır, kuru hava öncesi hazırlan" },
-        { season: "🧊 Kış", tip: "Şapka altına saten astar tak, kapalı mekan kuru havasında leave-in kullan" },
+        { season: "İlkbahar", tip: "Kış sonrası derin onarım maskesi serisi başlat (3 hafta üst üste)" },
+        { season: "Yaz", tip: "UV koruyucu saç spreyi kullan, yüzme öncesi hindistancevizi yağı sür" },
+        { season: "Sonbahar", tip: "Nem maskelerin sıklığını artır, kuru hava öncesi hazırlan" },
+        { season: "Kış", tip: "Şapka altına saten astar tak, kapalı mekan kuru havasında leave-in kullan" },
       ],
       diyMasks: [
         { name: "Bal & Zeytinyağı Maskesi", recipe: "2 yk bal + 2 yk zeytinyağı + 1 yumurta sarısı karıştır, ılık saça uygula", duration: "30 dk" },
@@ -208,10 +212,10 @@ function getAdvice(type: HairType, issue: HairIssue): HairAdvice {
         { name: "LED Terapi", desc: "Mavi LED ışık ile yağ bezlerini regüle etme", frequency: "Haftada 1 (kürleme)" },
       ],
       seasonal: [
-        { season: "🌷 İlkbahar", tip: "Hafif formüllere geç, kış ürünlerini rafa kaldır" },
-        { season: "☀️ Yaz", tip: "Yağlanma artar — kuru şampuanı yanından ayırma, günlük yıkama gerekebilir" },
-        { season: "🍁 Sonbahar", tip: "Dengeleyici şampuana geç, yaz boyunca biriken hasarı onar" },
-        { season: "🧊 Kış", tip: "Yağlanma azalabilir — yıkama sıklığını azalt, saç derisini kurutma" },
+        { season: "İlkbahar", tip: "Hafif formüllere geç, kış ürünlerini rafa kaldır" },
+        { season: "Yaz", tip: "Yağlanma artar — kuru şampuanı yanından ayırma, günlük yıkama gerekebilir" },
+        { season: "Sonbahar", tip: "Dengeleyici şampuana geç, yaz boyunca biriken hasarı onar" },
+        { season: "Kış", tip: "Yağlanma azalabilir — yıkama sıklığını azalt, saç derisini kurutma" },
       ],
       diyMasks: [
         { name: "Kil & Elma Sirkesi", recipe: "2 yk bentonit kil + 2 yk elma sirkesi + su ile macun kıvamı", duration: "15 dk (sadece deri)" },
@@ -243,10 +247,10 @@ function getAdvice(type: HairType, issue: HairIssue): HairAdvice {
         { name: "Mezoterapi", desc: "Saç derisine vitamin ve mineral enjeksiyonu", frequency: "2 haftada 1 (kürleme)" },
       ],
       seasonal: [
-        { season: "🌷 İlkbahar", tip: "Kış kepek artışı sonrası yoğun bakım kürü başlat" },
-        { season: "☀️ Yaz", tip: "Terleme kepek artırabilir — yıkama sıklığını artır, hafif ürünler kullan" },
-        { season: "🍁 Sonbahar", tip: "Kuru hava öncesi nemlendirici kepek şampuanına geç" },
-        { season: "🧊 Kış", tip: "Kuru-soğuk hava en kötü dönem — kepek şampuanı + nemlendirici rutin birleştir" },
+        { season: "İlkbahar", tip: "Kış kepek artışı sonrası yoğun bakım kürü başlat" },
+        { season: "Yaz", tip: "Terleme kepek artırabilir — yıkama sıklığını artır, hafif ürünler kullan" },
+        { season: "Sonbahar", tip: "Kuru hava öncesi nemlendirici kepek şampuanına geç" },
+        { season: "Kış", tip: "Kuru-soğuk hava en kötü dönem — kepek şampuanı + nemlendirici rutin birleştir" },
       ],
       diyMasks: [
         { name: "Elma Sirkesi Durulama", recipe: "1 bardak su + 2 yk elma sirkesi, son durulama olarak uygula (durulama)", duration: "2 dk bekle, durula" },
@@ -279,10 +283,10 @@ function getAdvice(type: HairType, issue: HairIssue): HairAdvice {
         { name: "Saç Simülasyonu (SMP)", desc: "Mikro pigmentasyon ile dolgunluk görünümü", frequency: "Tek seferlik" },
       ],
       seasonal: [
-        { season: "🌷 İlkbahar", tip: "Kış dökülmesi azalır, yeni çıkış dönemi — destekle" },
-        { season: "☀️ Yaz", tip: "UV saç derisine zarar verir — şapka tak, SPF saç spreyi kullan" },
-        { season: "🍁 Sonbahar", tip: "Mevsimsel dökülme normal (günde 100-150 tel) — panik yapma" },
-        { season: "🧊 Kış", tip: "D vitamini düşer — takviye al, saç derisini nemlendirmeyi ihmal etme" },
+        { season: "İlkbahar", tip: "Kış dökülmesi azalır, yeni çıkış dönemi — destekle" },
+        { season: "Yaz", tip: "UV saç derisine zarar verir — şapka tak, SPF saç spreyi kullan" },
+        { season: "Sonbahar", tip: "Mevsimsel dökülme normal (günde 100-150 tel) — panik yapma" },
+        { season: "Kış", tip: "D vitamini düşer — takviye al, saç derisini nemlendirmeyi ihmal etme" },
       ],
       diyMasks: [
         { name: "Rozmarin Yağı Masajı", recipe: "2 yk hindistancevizi yağı + 5 damla rozmarin yağı, saç derisine masaj", duration: "Gece boyu, sabah yıka" },
@@ -314,10 +318,10 @@ function getAdvice(type: HairType, issue: HairIssue): HairAdvice {
         { name: "Protein Tedavisi", desc: "Boyalı saçın kaybettiği proteini geri kazandırır", frequency: "Ayda 1" },
       ],
       seasonal: [
-        { season: "🌷 İlkbahar", tip: "Kışın solan rengi gloss ile canlandır" },
-        { season: "☀️ Yaz", tip: "UV koruma en kritik dönem — SPF saç spreyi ve şapka şart" },
-        { season: "🍁 Sonbahar", tip: "Yaz hasarını onar, derin protein maskesi kürü başlat" },
-        { season: "🧊 Kış", tip: "Kuru hava rengi soldurur — nem maskelerini artır" },
+        { season: "İlkbahar", tip: "Kışın solan rengi gloss ile canlandır" },
+        { season: "Yaz", tip: "UV koruma en kritik dönem — SPF saç spreyi ve şapka şart" },
+        { season: "Sonbahar", tip: "Yaz hasarını onar, derin protein maskesi kürü başlat" },
+        { season: "Kış", tip: "Kuru hava rengi soldurur — nem maskelerini artır" },
       ],
       diyMasks: [
         { name: "Elma Sirkesi Parlatma", recipe: "1 bardak soğuk su + 1 yk elma sirkesi, son durulama", duration: "Durulama, haftada 1" },
@@ -350,15 +354,157 @@ function getAdvice(type: HairType, issue: HairIssue): HairAdvice {
         { name: "Brazilian Blowout", desc: "Keratin bazlı düzleştirme + onarım (formaldehitsiz)", frequency: "3-6 ayda 1" },
       ],
       seasonal: [
-        { season: "🌷 İlkbahar", tip: "Kış hasarını onar — 4 haftalık yoğun protein kürü başlat" },
-        { season: "☀️ Yaz", tip: "UV + deniz/havuz hasarına karşı koruyucu ürünleri artır" },
-        { season: "🍁 Sonbahar", tip: "Yaz hasarını değerlendir, kırık uçları aldır, onarım rutini kur" },
-        { season: "🧊 Kış", tip: "Kuru hava + kapalı mekan ısıtması saçı kurutur — nem maskelerini 2x artır" },
+        { season: "İlkbahar", tip: "Kış hasarını onar — 4 haftalık yoğun protein kürü başlat" },
+        { season: "Yaz", tip: "UV + deniz/havuz hasarına karşı koruyucu ürünleri artır" },
+        { season: "Sonbahar", tip: "Yaz hasarını değerlendir, kırık uçları aldır, onarım rutini kur" },
+        { season: "Kış", tip: "Kuru hava + kapalı mekan ısıtması saçı kurutur — nem maskelerini 2x artır" },
       ],
       diyMasks: [
         { name: "Yumurta & Zeytinyağı Onarım", recipe: "1 yumurta + 2 yk zeytinyağı + 1 yk bal, saç boyuna uygula", duration: "30 dk, ılık su ile durula" },
         { name: "Muz & Bal Maskesi", recipe: "1 olgun muz + 1 yk bal + 2 yk hindistancevizi yağı, pürüzsüz ez", duration: "20 dk" },
         { name: "Mayonez Protein Maskesi", recipe: "3 yk mayonez (yumurtalı, yağlı — doğal protein kaynak), saça uygula", duration: "30 dk, şampuanla yıka" },
+      ],
+    },
+    frizzy: {
+      tips: [
+        "Saçını havlu ile ovma — mikrofiber havlu veya eski tişört ile sıkıştırarak kurut",
+        "Frizz kontrolü için leave-in conditioner her yıkamadan sonra şart",
+        "Saçını tamamen kurutmadan dışarı çıkma — nem farkı frizz yapar",
+        "Anti-frizz serum sadece uçlara uygula, köklere sürme",
+        "Plastik tarak yerine ahşap veya doğal kıl fırça kullan — statik azalır",
+        "Nemli hava günlerinde anti-humidity spreyi kullan",
+      ],
+      avoid: ["Pamuklu havlu ile ovalama", "Sülfatlı şampuanlar (saçı kurutur, kabarma artar)", "Sıcak su ile yıkama", "Saçı kuru fırçalama", "Sert plastik taraklar", "Silikon bazlı ağır ürünler (birikim yapar)"],
+      ingredients: [
+        { name: "Argan Yağı", benefit: "Saç lifini kaplar, nemi kilitler, kabarma azalır" },
+        { name: "Hindistancevizi Yağı", benefit: "Saç lifine nüfuz eder, içeriden nemlendirme sağlar" },
+        { name: "Shea Butter", benefit: "Ağır nemlendirici, frizz'i bastırır" },
+        { name: "Glycerin", benefit: "Havadan nem çeker ama nemli havada dikkat — kabarma yapabilir" },
+        { name: "Keratin", benefit: "Saç yüzeyini düzeltir, pürüzsüzlük sağlar" },
+        { name: "Dimethicone", benefit: "Silikon bazlı kaplama, anlık frizz kontrolü (clarifying şampuan ile temizle)" },
+      ],
+      salonTreatments: [
+        { name: "Keratin Düzleştirme", desc: "3-6 ay süren profesyonel frizz kontrolü", frequency: "4-6 ayda 1" },
+        { name: "Botox Saç Tedavisi", desc: "Derin nemlendirme + anti-frizz, saçı doldurur", frequency: "3-4 ayda 1" },
+        { name: "Nanoplastia", desc: "Formaldehitsiz organik düzleştirme, sağlıklı parlaklık", frequency: "4-6 ayda 1" },
+      ],
+      seasonal: [
+        { season: "İlkbahar", tip: "Nem oranı artar — anti-humidity ürünlere geç" },
+        { season: "Yaz", tip: "En kötü frizz dönemi — güçlü anti-frizz serum + UV koruma birleştir" },
+        { season: "Sonbahar", tip: "Nem azalır, statik artar — leave-in krem miktarını artır" },
+        { season: "Kış", tip: "Kuru hava + statik elektrik — saten yastık kılıfı ve nemlendirici maske şart" },
+      ],
+      diyMasks: [
+        { name: "Hindistancevizi & Bal", recipe: "3 yk hindistancevizi yağı + 1 yk bal, ılıt ve saça uygula", duration: "30 dk" },
+        { name: "Avokado Anti-Frizz", recipe: "1 avokado + 1 yk zeytinyağı + 1 yk bal, pürüzsüz ez", duration: "20 dk" },
+        { name: "Elma Sirkesi Durulama", recipe: "1 bardak soğuk su + 2 yk elma sirkesi, son durulama", duration: "Durula, haftada 1" },
+      ],
+    },
+    slow_growth: {
+      tips: [
+        "Saç ayda ortalama 1-1.5 cm uzar — sabırlı ol ama destekle",
+        "Saç derisi masajı günde 5 dk — kan dolaşımını artırır, folikülleri uyarır",
+        "Protein, demir, çinko, biotin zengin beslen — saç hücresi hızlı bölünen hücre",
+        "Uçlarını düzenli kestir — kırılan uçlar uzamayı yavaşlatır gibi görünür",
+        "Uyku kaliteni artır — büyüme hormonu gece salgılanır",
+        "Günde 2-3 litre su iç — hücre yenilenmesi için kritik",
+      ],
+      avoid: ["Sıkı saç modelleri (foliküle baskı)", "Aşırı ısı uygulaması (saç kırılır, uzamış gibi görünmez)", "Crash diyetler (besin eksikliği)", "Stres (telogen effluvium riski)", "Saçı çok sık yıkama", "Alkol ve sigara (kan dolaşımını bozar)"],
+      ingredients: [
+        { name: "Rozmarin Yağı", benefit: "Araştırmalarda Minoxidil %2 kadar etkili bulunmuş, folikül uyarır" },
+        { name: "Kafein", benefit: "Saç foliküllerini uyarır, büyüme fazını uzatır" },
+        { name: "Biotin (B7)", benefit: "Keratin üretimini hızlandırır, yeni saç güçlü çıkar" },
+        { name: "Nane Yağı", benefit: "Saç derisinde kan dolaşımını %25 artırdığı gösterilmiş" },
+        { name: "Castor Oil (Hint Yağı)", benefit: "Ricinoleik asit ile folikülleri besler, kalın saç teli" },
+        { name: "Niasinamid (B3)", benefit: "Mikro dolaşımı artırır, foliküle besin taşır" },
+      ],
+      salonTreatments: [
+        { name: "Mezoterapi", desc: "Vitamin + mineral + amino asit kokteyli direkt saç derisine enjekte", frequency: "2 haftada 1 (8-10 seans)" },
+        { name: "PRP Tedavisi", desc: "Kendi kanından zenginleştirilmiş plazma, büyüme faktörleri", frequency: "Ayda 1 (4-6 seans)" },
+        { name: "LED/LLLT Tedavisi", desc: "Kırmızı LED ışık ile folikül uyarımı", frequency: "Haftada 2-3 (12 hafta)" },
+        { name: "Dermapen/Microneedling", desc: "Mikro iğneler ile folikül uyarımı + serum emilimi", frequency: "3-4 haftada 1" },
+      ],
+      seasonal: [
+        { season: "İlkbahar", tip: "Büyüme mevsimi — takviye ve masaj rutinini artır" },
+        { season: "Yaz", tip: "En hızlı uzama dönemi — beslenme ve hidrasyon kritik" },
+        { season: "Sonbahar", tip: "Büyüme yavaşlar — mezoterapi veya PRP kürü düşün" },
+        { season: "Kış", tip: "En yavaş dönem — D vitamini takviyesi, iç bakım odaklı ol" },
+      ],
+      diyMasks: [
+        { name: "Rozmarin Saç Derisi Yağı", recipe: "3 yk hindistancevizi yağı + 10 damla rozmarin yağı, saç derisine masaj", duration: "Gece boyu, sabah yıka" },
+        { name: "Hint Yağı Kürü", recipe: "2 yk castor oil + 1 yk argan yağı, saç derisine ve uçlara", duration: "2-3 saat veya gece boyu" },
+        { name: "Soğan & Sarımsak Suyu", recipe: "1 soğan + 2 diş sarımsak rendele, suyunu saç derisine uygula", duration: "30 dk, şampuanla yıka" },
+        { name: "Pirinç Suyu Durulama", recipe: "Pirinci yıka, bekletme suyunu saça uygula", duration: "20 dk, durula" },
+      ],
+    },
+    itchy: {
+      tips: [
+        "Tırnaklarla kaşıma — parmak uçlarıyla dairesel masaj yap",
+        "Şampuanı 3-5 dk saç derisinde beklet, hemen durulama",
+        "Yeni ürün kullanmaya başladıysan alerji testi yap — kulak arkasına az miktar uygula",
+        "Saçını her gün yıkama ama 3 günden fazla da bekleme — denge önemli",
+        "Sıcak su kullanma — ılık/soğuk su ile yıka, tahriş azalır",
+        "Kronik kaşıntı için mutlaka dermatologa danış — egzama, sedef olabilir",
+      ],
+      avoid: ["Parfümlü saç ürünleri", "SLS/SLES içeren şampuanlar", "Alkol bazlı saç spreyleri", "Çok sıcak su", "Sentetik şapka/bone (terletir)", "Ürün çeşitliliği (az ürün, tutarlı kullan)"],
+      ingredients: [
+        { name: "Çay Ağacı Yağı", benefit: "Antibakteriyel + antifungal, kaşıntıyı azaltır" },
+        { name: "Salisilik Asit", benefit: "Saç derisini eksfoliye eder, pullanmayı giderir" },
+        { name: "Aloe Vera", benefit: "Yatıştırıcı, soğutucu, tahriş giderici" },
+        { name: "Mentol/Nane Yağı", benefit: "Serinletici etki, kaşıntıyı anında hafifletir" },
+        { name: "Panthenol (B5)", benefit: "Saç derisini onarır ve nemlendirir" },
+        { name: "Niasinamid", benefit: "İltihaplanmayı azaltır, bariyer onarır" },
+      ],
+      salonTreatments: [
+        { name: "Saç Derisi Analizi", desc: "Trichoscopy ile saç derisi durumunu detaylı inceleme", frequency: "İlk değerlendirme" },
+        { name: "Medikal Peeling", desc: "Profesyonel asit bazlı saç derisi temizliği", frequency: "3-4 haftada 1" },
+        { name: "Ozon Terapi", desc: "Ozon ile saç derisini dezenfekte, kaşıntıyı azaltma", frequency: "Haftada 1 (6 seans)" },
+      ],
+      seasonal: [
+        { season: "İlkbahar", tip: "Alerji sezonu — kaşıntı artabilir, antihistaminik düşün" },
+        { season: "Yaz", tip: "Terleme kaşıntıyı artırır — hafif formüller ve sık durulama" },
+        { season: "Sonbahar", tip: "Kuru hava başlangıcı — nemlendirici tonik kullanmaya başla" },
+        { season: "Kış", tip: "Kuru hava + kapalı mekan en kötü dönem — nemlendirici şampuan ve saç derisi serumu" },
+      ],
+      diyMasks: [
+        { name: "Aloe Vera Yatıştırıcı", recipe: "3 yk taze aloe vera jeli direkt saç derisine uygula", duration: "15 dk, soğuk su ile durula" },
+        { name: "Nane & Çay Ağacı Tonik", recipe: "100 ml su + 5 damla nane yağı + 5 damla çay ağacı yağı", duration: "Durulanmaz, günlük sprey" },
+        { name: "Yoğurt Saç Derisi Maskesi", recipe: "3 yk doğal yoğurt + 1 yk bal, saç derisine masaj yap", duration: "20 dk, şampuanla yıka" },
+      ],
+    },
+    thinning: {
+      tips: [
+        "Hacim veren şampuan ve kök spreyi rutininin parçası olsun",
+        "Saçı tersine fönle — başı aşağı eğ, köklere doğru fönle",
+        "Ağır saç kremi ve yağları köklerden uzak tut — ağırlaştırır",
+        "Saç ayrımını değiştir — hep aynı yerden ayırmak seyreleşme izlenimi verir",
+        "Düzenli egzersiz yap — kan dolaşımı folikülleri besler",
+        "Tiroid ve demir kontrolü yaptır — ince saçın altta yatan sebebi olabilir",
+      ],
+      avoid: ["Ağır yağlar ve butter'lar (köklere)", "Sıkı at kuyruğu ve topuz", "Aşırı ısı uygulaması", "Silikon birikimi", "Saçı çok sık yıkama veya çok az yıkama", "Sülfatlı sert şampuanlar"],
+      ingredients: [
+        { name: "Biotin (B7)", benefit: "Keratin üretimini destekler, saç telini kalınlaştırır" },
+        { name: "Kafein", benefit: "DHT'yi bloke eder, saç folikülünü uyarır" },
+        { name: "Panthenol (B5)", benefit: "Saç telini kalınlaştırır, hacim verir" },
+        { name: "Niasinamid (B3)", benefit: "Mikro dolaşımı artırır, foliküle besin taşır" },
+        { name: "Keratin", benefit: "Saç telini dolgunlaştırır, güçlendirir" },
+        { name: "Pirinç Proteini", benefit: "Saç lifini kaplayan hafif protein, hacim verir" },
+      ],
+      salonTreatments: [
+        { name: "Hacim Veren Keratin", desc: "Saç telini kalınlaştıran özel keratin formülü", frequency: "3-4 ayda 1" },
+        { name: "Mezoterapi", desc: "Biotin + B vitamini + amino asit enjeksiyonu", frequency: "2 haftada 1 (8 seans)" },
+        { name: "Saç Simülasyonu (SMP)", desc: "Mikro pigmentasyon ile dolgunluk görünümü", frequency: "Tek seferlik" },
+      ],
+      seasonal: [
+        { season: "İlkbahar", tip: "Hacim veren ürünlere geç, kışın ağır ürünlerini bırak" },
+        { season: "Yaz", tip: "Tuz spreyi doğal hacim verir — deniz tuzu bazlı sprey kullan" },
+        { season: "Sonbahar", tip: "Mevsimsel dökülme normal — panik yapma ama destekle" },
+        { season: "Kış", tip: "Statik elektrik hacim verir ama kırılgan yapar — hafif leave-in kullan" },
+      ],
+      diyMasks: [
+        { name: "Yumurta Protein Maskesi", recipe: "2 yumurta + 1 yk zeytinyağı, saça uygula", duration: "20 dk, soğuk su ile durula" },
+        { name: "Bira Durulama", recipe: "1 bardak düz bira (gazı çıkmış), son durulama olarak uygula", duration: "5 dk, durula" },
+        { name: "Pirinç Suyu Hacim", recipe: "Pirinci bekletme suyu + 3 damla rozmarin yağı, sprey şişeye", duration: "Durulanmaz, kök spreyi" },
       ],
     },
   };
@@ -466,12 +612,40 @@ export default function HairCarePage() {
             </div>
             <div className="space-y-3">
               {advice.products.map((p, i) => (
-                <div key={i} className="flex items-start gap-2">
-                  <Badge variant="primary" size="sm">{p.brand}</Badge>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{p.product}</p>
-                    <p className="text-xs text-muted">{p.detail}</p>
-                    <p className="text-xs text-primary font-medium mt-0.5">{p.priceRange}</p>
+                <div key={i} className="border border-gray-100 rounded-xl p-3">
+                  <div className="flex items-start gap-2 mb-2">
+                    <Badge variant="primary" size="sm">{p.brand}</Badge>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{p.product}</p>
+                      <p className="text-xs text-muted">{p.detail}</p>
+                      <p className="text-xs text-primary font-medium mt-0.5">{p.priceRange}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-1.5">
+                    <a
+                      href={`https://www.trendyol.com/sr?q=${encodeURIComponent(p.brand + " " + p.product)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1 bg-orange-50 text-orange-600 rounded-lg text-[10px] font-medium flex items-center gap-1 hover:bg-orange-100 transition-colors"
+                    >
+                      Trendyol <ExternalLink size={10} />
+                    </a>
+                    <a
+                      href={`https://www.gratis.com/search?q=${encodeURIComponent(p.brand + " " + p.product)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1 bg-green-50 text-green-600 rounded-lg text-[10px] font-medium flex items-center gap-1 hover:bg-green-100 transition-colors"
+                    >
+                      Gratis <ExternalLink size={10} />
+                    </a>
+                    <a
+                      href={`https://www.sephora.com.tr/search?q=${encodeURIComponent(p.brand + " " + p.product)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1 bg-gray-100 text-gray-700 rounded-lg text-[10px] font-medium flex items-center gap-1 hover:bg-gray-200 transition-colors"
+                    >
+                      Sephora <ExternalLink size={10} />
+                    </a>
                   </div>
                 </div>
               ))}
@@ -559,15 +733,22 @@ export default function HairCarePage() {
           <Card>
             <h3 className="font-bold text-sm mb-3">Mevsimsel Bakım Takvimi</h3>
             <div className="space-y-2">
-              {advice.seasonal.map((s, i) => (
-                <div key={i} className="flex items-start gap-2">
-                  <span className="text-lg shrink-0">{s.season.split(" ")[0]}</span>
+              {advice.seasonal.map((s, i) => {
+                const seasonIcons: Record<string, LucideIcon> = { "İlkbahar": Flower, "Yaz": Sun, "Sonbahar": CloudRain, "Kış": Snowflake };
+                const SeasonIcon = seasonIcons[s.season] || Sun;
+                const seasonColors: Record<string, string> = { "İlkbahar": "text-pink-500", "Yaz": "text-amber-500", "Sonbahar": "text-orange-500", "Kış": "text-blue-400" };
+                return (
+                <div key={i} className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
+                    <SeasonIcon size={16} className={seasonColors[s.season] || "text-primary"} />
+                  </div>
                   <div>
-                    <p className="text-sm font-medium">{s.season.split(" ").slice(1).join(" ")}</p>
+                    <p className="text-sm font-medium">{s.season}</p>
                     <p className="text-xs text-muted">{s.tip}</p>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </Card>
 

@@ -68,6 +68,26 @@ const CONFLICT_RULES: { a: string[]; b: string[]; reason: string }[] = [
     b: ["vitamin c", "ascorbic acid", "aha", "bha", "retinol"],
     reason: "Bakır peptidleri direkt asitler ve retinol ile uyumsuz olabilir. Akşam 1: Bakır Peptid → Akşam 2: Asitler/Retinol (dönüşümlü)",
   },
+  {
+    a: ["retinol", "retinoid", "tretinoin"],
+    b: ["benzoyl peroxide"],
+    reason: "Benzoil Peroksit retinolü oksitleyerek etkisiz hale getirir. Farklı zamanlarda kullanın: Sabah: Benzoil Peroksit → Akşam: Retinol",
+  },
+  {
+    a: ["aha", "glycolic acid", "lactic acid"],
+    b: ["bha", "salicylic acid"],
+    reason: "AHA ve BHA birlikte kullanmak aşırı eksfoliyasyona neden olabilir. Aynı gün ikisini birden kullanmayın, dönüşümlü tercih edin.",
+  },
+  {
+    a: ["vitamin c", "ascorbic acid"],
+    b: ["benzoyl peroxide"],
+    reason: "Benzoil Peroksit C Vitamini'ni oksitleyerek etkisiz kılar. Sabah: C Vitamini → Akşam: Benzoil Peroksit",
+  },
+  {
+    a: ["retinol", "retinoid"],
+    b: ["vitamin c", "ascorbic acid"],
+    reason: "Retinol ve C Vitamini farklı pH seviyelerinde çalışır. Aynı rutinde kullanıldığında birbirinin etkisini azaltır. Sabah: C Vitamini → Akşam: Retinol",
+  },
 ];
 
 // Known synergies
@@ -91,6 +111,26 @@ const SYNERGY_TIPS: { a: string[]; b: string[]; tip: string }[] = [
     a: ["niacinamide"],
     b: ["salicylic acid"],
     tip: "Niasinamid + Salisilik Asit: Yağlı ciltler için harika. Gözenekleri sıkılaştırır.",
+  },
+  {
+    a: ["retinol"],
+    b: ["peptide", "peptides"],
+    tip: "Retinol + Peptidler: Dönüşümlü kullanımda anti-aging etkiyi güçlendirir.",
+  },
+  {
+    a: ["azelaic acid"],
+    b: ["niacinamide"],
+    tip: "Azelaik Asit + Niasinamid: Hiperpigmentasyon ve akne izleri için güçlü kombinasyon.",
+  },
+  {
+    a: ["hyaluronic acid"],
+    b: ["ceramide", "squalane"],
+    tip: "Hyaluronik Asit + Ceramide/Squalane: Nem katmanlama tekniği — HA nemi çeker, ceramide kilitler.",
+  },
+  {
+    a: ["vitamin c", "ascorbic acid"],
+    b: ["spf", "sunscreen"],
+    tip: "C Vitamini + SPF: Antioksidan + UV koruma birleşimi, foto-yaşlanmaya karşı en güçlü savunma.",
   },
 ];
 

@@ -121,7 +121,7 @@ export default function SolutionDetailPage() {
                       Trendyol <ExternalLink size={10} />
                     </a>
                     <a
-                      href={`https://www.gratis.com/arama?q=${encodeURIComponent(p)}`}
+                      href={`https://www.gratis.com/search?q=${encodeURIComponent(p)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="px-2.5 py-1 bg-green-50 text-green-600 rounded-lg text-[10px] font-medium flex items-center gap-1 hover:bg-green-100 transition-colors"

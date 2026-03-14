@@ -676,7 +676,7 @@ export default function BestLookPage() {
                               Trendyol <ExternalLink size={8} />
                             </a>
                             <a
-                              href={`https://www.gratis.com/arama?q=${encodeURIComponent(p.brand + " " + p.product)}`}
+                              href={`https://www.gratis.com/search?q=${encodeURIComponent(p.brand + " " + p.product)}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="px-1.5 py-0.5 bg-green-50 text-green-600 rounded text-[9px] font-medium flex items-center gap-0.5 hover:bg-green-100"
