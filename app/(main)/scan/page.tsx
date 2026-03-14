@@ -238,7 +238,7 @@ export default function ScanPage() {
         {/* Tabs */}
         <div className="flex bg-gray-100 rounded-xl p-1 mb-4">
           {[
-            { key: "photo" as Tab, label: "📸 Fotoğraf" },
+            { key: "photo" as Tab, label: "Fotoğraf" },
             { key: "barcode" as Tab, label: "Barkod" },
             { key: "ocr" as Tab, label: "INCI Oku" },
           ].map((tab) => (

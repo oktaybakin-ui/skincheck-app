@@ -6,16 +6,23 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import { useState } from "react";
 import PinterestButton from "@/components/ui/PinterestButton";
-import { Scissors, Droplets, Wind, Sparkles, AlertTriangle, Leaf, Clock, Calendar, Beaker, ShoppingBag, Star } from "lucide-react";
+import { Scissors, Droplets, Wind, Sparkles, AlertTriangle, Leaf, Clock, Calendar, Beaker, ShoppingBag, Star, Minus, Waves, RotateCcw, Fingerprint, type LucideIcon } from "lucide-react";
 
 type HairType = "straight" | "wavy" | "curly" | "coily";
 type HairIssue = "dry" | "oily" | "dandruff" | "loss" | "colored" | "damaged";
 
-const HAIR_TYPES: { key: HairType; label: string; desc: string; icon: string; porosity: string }[] = [
-  { key: "straight", label: "Düz (Tip 1)", desc: "Kaymak gibi düz, parlak saçlar", icon: "✨", porosity: "Genellikle düşük gözenekli" },
-  { key: "wavy", label: "Dalgalı (Tip 2)", desc: "Hafif S dalgaları, hacimli", icon: "〰️", porosity: "Düşük-orta gözenekli" },
-  { key: "curly", label: "Kıvırcık (Tip 3)", desc: "Belirgin spiral bukleler", icon: "🔄", porosity: "Orta-yüksek gözenekli" },
-  { key: "coily", label: "Çok Kıvırcık (Tip 4)", desc: "Sıkı Z-pattern bukleler", icon: "🧬", porosity: "Yüksek gözenekli" },
+const HAIR_TYPE_ICONS: Record<string, LucideIcon> = {
+  straight: Minus,
+  wavy: Waves,
+  curly: RotateCcw,
+  coily: Fingerprint,
+};
+
+const HAIR_TYPES: { key: HairType; label: string; desc: string; porosity: string }[] = [
+  { key: "straight", label: "Düz (Tip 1)", desc: "Kaymak gibi düz, parlak saçlar", porosity: "Genellikle düşük gözenekli" },
+  { key: "wavy", label: "Dalgalı (Tip 2)", desc: "Hafif S dalgaları, hacimli", porosity: "Düşük-orta gözenekli" },
+  { key: "curly", label: "Kıvırcık (Tip 3)", desc: "Belirgin spiral bukleler", porosity: "Orta-yüksek gözenekli" },
+  { key: "coily", label: "Çok Kıvırcık (Tip 4)", desc: "Sıkı Z-pattern bukleler", porosity: "Yüksek gözenekli" },
 ];
 
 const HAIR_ISSUES: { key: HairIssue; label: string; desc: string; icon: typeof Droplets }[] = [
@@ -395,7 +402,7 @@ export default function HairCarePage() {
         <main className="px-4 py-4 space-y-4 pb-28">
           {/* Hero */}
           <div className="bg-gradient-to-br from-secondary/10 to-primary/10 rounded-2xl p-5 text-center">
-            <span className="text-4xl">{typeInfo.icon}</span>
+            {(() => { const HairIcon = HAIR_TYPE_ICONS[hairType!] || Scissors; return <HairIcon size={40} className="mx-auto text-primary" />; })()}
             <h2 className="text-lg font-bold mt-2">{typeInfo.label} Saç — {issueInfo.label}</h2>
             <p className="text-xs text-muted mt-1">Sana özel profesyonel bakım rehberin</p>
             <div className="flex justify-center gap-2 mt-2">
@@ -589,10 +596,12 @@ export default function HairCarePage() {
               <p className="text-sm text-muted mt-1">Saç tipini seç, profesyonel bakım rehberin hazırlansın</p>
             </div>
             <div className="space-y-3 mt-4">
-              {HAIR_TYPES.map(t => (
+              {HAIR_TYPES.map(t => {
+                const HIcon = HAIR_TYPE_ICONS[t.key] || Scissors;
+                return (
                 <Card key={t.key} hoverable onClick={() => handleTypeSelect(t.key)}>
                   <div className="flex items-center gap-4">
-                    <span className="text-3xl shrink-0">{t.icon}</span>
+                    <HIcon size={28} className="text-primary shrink-0" />
                     <div>
                       <p className="font-semibold">{t.label}</p>
                       <p className="text-xs text-muted">{t.desc}</p>
@@ -600,7 +609,8 @@ export default function HairCarePage() {
                     </div>
                   </div>
                 </Card>
-              ))}
+                );
+              })}
             </div>
           </>
         )}

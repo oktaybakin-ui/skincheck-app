@@ -6,46 +6,67 @@ import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import { useI18n } from "@/lib/i18n/I18nContext";
 import { useState } from "react";
-import { FlaskConical, Plus, X, CheckCircle, AlertTriangle, XCircle, ArrowRight, Trash2 } from "lucide-react";
+import { FlaskConical, Plus, X, CheckCircle, AlertTriangle, XCircle, ArrowRight, Trash2, Sunrise, Moon, Clock } from "lucide-react";
+
+type TimeSlot = "morning" | "evening" | "both";
 
 interface CompatibilityResult {
   compatible: boolean;
   warnings: string[];
   tips: string[];
   conflicts: { ingredient1: string; ingredient2: string; reason: string }[];
+  routineSuggestion: { morning: string[]; evening: string[] };
 }
+
+// Ingredient → best time mapping
+const INGREDIENT_TIME: { keywords: string[]; time: TimeSlot; label: string }[] = [
+  { keywords: ["vitamin c", "ascorbic acid", "l-ascorbic acid"], time: "morning", label: "C Vitamini → Sabah" },
+  { keywords: ["retinol", "retinoid", "retinal", "tretinoin", "adapalene", "retinoic acid"], time: "evening", label: "Retinol → Akşam" },
+  { keywords: ["aha", "glycolic acid", "lactic acid", "mandelic acid"], time: "evening", label: "AHA → Akşam" },
+  { keywords: ["bha", "salicylic acid"], time: "evening", label: "BHA → Akşam" },
+  { keywords: ["niacinamide", "nicotinamide"], time: "both", label: "Niasinamid → Sabah/Akşam" },
+  { keywords: ["hyaluronic acid"], time: "both", label: "Hyaluronik Asit → Sabah/Akşam" },
+  { keywords: ["benzoyl peroxide"], time: "evening", label: "Benzoil Peroksit → Akşam" },
+  { keywords: ["ceramide"], time: "both", label: "Ceramide → Sabah/Akşam" },
+  { keywords: ["squalane"], time: "both", label: "Squalane → Sabah/Akşam" },
+  { keywords: ["vitamin e", "tocopherol"], time: "morning", label: "E Vitamini → Sabah" },
+  { keywords: ["ferulic acid"], time: "morning", label: "Ferulik Asit → Sabah" },
+  { keywords: ["copper peptide", "copper tripeptide"], time: "evening", label: "Bakır Peptid → Akşam" },
+  { keywords: ["azelaic acid"], time: "both", label: "Azelaik Asit → Sabah/Akşam" },
+  { keywords: ["spf", "sunscreen", "güneş kremi"], time: "morning", label: "SPF → Sabah" },
+];
 
 // Known ingredient conflicts
 const CONFLICT_RULES: { a: string[]; b: string[]; reason: string }[] = [
   {
     a: ["retinol", "retinoid", "retinal", "tretinoin", "adapalene", "retinoic acid"],
     b: ["vitamin c", "ascorbic acid", "l-ascorbic acid"],
-    reason: "Retinol ve C Vitamini birlikte kullanıldığında birbirinin etkisini azaltabilir ve ciltte tahrişe yol açabilir. Sabah C Vitamini, akşam Retinol kullanın.",
+    reason: "Retinol ve C Vitamini birlikte kullanıldığında birbirinin etkisini azaltabilir ve ciltte tahrişe yol açabilir. Sabah: C Vitamini → Akşam: Retinol",
   },
   {
     a: ["retinol", "retinoid", "retinal", "tretinoin", "adapalene"],
     b: ["aha", "glycolic acid", "lactic acid", "mandelic acid", "bha", "salicylic acid"],
-    reason: "Retinol ile AHA/BHA birlikte kullanılması aşırı soyulmaya ve tahrişe neden olabilir. Farklı günlerde kullanın.",
+    reason: "Retinol ile AHA/BHA birlikte kullanılması aşırı soyulmaya ve tahrişe neden olabilir. Farklı günlerde dönüşümlü kullanın veya Akşam 1: AHA/BHA → Akşam 2: Retinol",
   },
   {
     a: ["vitamin c", "ascorbic acid", "l-ascorbic acid"],
     b: ["niacinamide", "nicotinamide"],
-    reason: "C Vitamini ve Niasinamid yüksek konsantrasyonlarda birbirinin etkisini azaltabilir. Araya 15-20 dk bekleyin veya farklı vakitlerde kullanın.",
+    reason: "C Vitamini ve Niasinamid yüksek konsantrasyonlarda birbirinin etkisini azaltabilir. Sabah: C Vitamini → Akşam: Niasinamid veya araya 15-20 dk bekleyin.",
   },
   {
     a: ["benzoyl peroxide"],
     b: ["retinol", "retinoid", "tretinoin", "vitamin c", "ascorbic acid"],
-    reason: "Benzoil Peroksit, Retinol ve C Vitamini'ni oksitleyerek etkisiz hale getirebilir. Farklı vakitlerde kullanın.",
+    reason: "Benzoil Peroksit, Retinol ve C Vitamini'ni oksitleyerek etkisiz hale getirebilir. Sabah: C Vitamini → Akşam: Benzoil Peroksit (Retinol farklı gün)",
   },
   {
     a: ["aha", "glycolic acid", "lactic acid"],
     b: ["vitamin c", "ascorbic acid"],
-    reason: "AHA ve C Vitamini birlikte pH dengesini bozarak tahrişe neden olabilir. Farklı vakitlerde kullanın.",
+    reason: "AHA ve C Vitamini birlikte pH dengesini bozarak tahrişe neden olabilir. Sabah: C Vitamini → Akşam: AHA",
   },
   {
     a: ["copper peptide", "copper tripeptide"],
     b: ["vitamin c", "ascorbic acid", "aha", "bha", "retinol"],
-    reason: "Bakır peptidleri direkt asitler ve retinol ile uyumsuz olabilir. Ayrı rutinlerde kullanın.",
+    reason: "Bakır peptidleri direkt asitler ve retinol ile uyumsuz olabilir. Akşam 1: Bakır Peptid → Akşam 2: Asitler/Retinol (dönüşümlü)",
   },
 ];
 
@@ -72,6 +93,14 @@ const SYNERGY_TIPS: { a: string[]; b: string[]; tip: string }[] = [
     tip: "Niasinamid + Salisilik Asit: Yağlı ciltler için harika. Gözenekleri sıkılaştırır.",
   },
 ];
+
+function getIngredientTime(ingredient: string): TimeSlot {
+  const lower = ingredient.toLowerCase();
+  for (const it of INGREDIENT_TIME) {
+    if (it.keywords.some((k) => lower.includes(k))) return it.time;
+  }
+  return "both";
+}
 
 function checkCompatibility(ingredients: string[]): CompatibilityResult {
   const lower = ingredients.map((i) => i.toLowerCase().trim());
@@ -100,6 +129,16 @@ function checkCompatibility(ingredients: string[]): CompatibilityResult {
     }
   }
 
+  // Build routine suggestion
+  const morning: string[] = [];
+  const evening: string[] = [];
+  for (const ing of ingredients) {
+    const time = getIngredientTime(ing);
+    if (time === "morning") morning.push(ing);
+    else if (time === "evening") evening.push(ing);
+    else { morning.push(ing); evening.push(ing); }
+  }
+
   const warnings = conflicts.map((c) => `${c.ingredient1} + ${c.ingredient2}`);
 
   return {
@@ -107,6 +146,7 @@ function checkCompatibility(ingredients: string[]): CompatibilityResult {
     warnings,
     tips,
     conflicts,
+    routineSuggestion: { morning, evening },
   };
 }
 
@@ -294,6 +334,55 @@ export default function CompatibilityPage() {
                   </Card>
                 ))}
               </div>
+            )}
+
+            {/* Routine Suggestion */}
+            {(result.routineSuggestion.morning.length > 0 || result.routineSuggestion.evening.length > 0) && (
+              <Card>
+                <h4 className="text-sm font-semibold mb-3 flex items-center gap-1.5">
+                  <Clock size={16} className="text-primary" /> Önerilen Rutin Planı
+                </h4>
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Morning */}
+                  <div className="bg-amber-50 rounded-xl p-3">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Sunrise size={14} className="text-amber-600" />
+                      <span className="text-xs font-semibold text-amber-700">Sabah</span>
+                    </div>
+                    <div className="space-y-1">
+                      {result.routineSuggestion.morning.length > 0 ? (
+                        result.routineSuggestion.morning.map((ing, i) => (
+                          <p key={i} className="text-[11px] text-amber-800 flex items-center gap-1">
+                            <span className="w-1 h-1 rounded-full bg-amber-500 shrink-0" />
+                            {ing}
+                          </p>
+                        ))
+                      ) : (
+                        <p className="text-[11px] text-amber-600 italic">Sabah için uygun içerik yok</p>
+                      )}
+                    </div>
+                  </div>
+                  {/* Evening */}
+                  <div className="bg-indigo-50 rounded-xl p-3">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Moon size={14} className="text-indigo-600" />
+                      <span className="text-xs font-semibold text-indigo-700">Akşam</span>
+                    </div>
+                    <div className="space-y-1">
+                      {result.routineSuggestion.evening.length > 0 ? (
+                        result.routineSuggestion.evening.map((ing, i) => (
+                          <p key={i} className="text-[11px] text-indigo-800 flex items-center gap-1">
+                            <span className="w-1 h-1 rounded-full bg-indigo-500 shrink-0" />
+                            {ing}
+                          </p>
+                        ))
+                      ) : (
+                        <p className="text-[11px] text-indigo-600 italic">Akşam için uygun içerik yok</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </Card>
             )}
           </div>
         )}

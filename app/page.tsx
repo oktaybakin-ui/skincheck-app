@@ -15,6 +15,7 @@ import { useI18n } from "@/lib/i18n/I18nContext";
 import { ScanLine, Archive, Palette, Sparkles, AlertTriangle, Clock, CheckCircle, Target, Play, ChevronRight, FlaskConical, Tag, Instagram, type LucideIcon } from "lucide-react";
 import { youtubeChannels } from "@/lib/constants/youtube-channels";
 import PinterestInspiration from "@/components/home/PinterestInspiration";
+import SocialMediaSearchHome from "@/components/home/SocialMediaSearchHome";
 
 export default function HomePage() {
   const { user, profile } = useAuthContext();
@@ -24,7 +25,9 @@ export default function HomePage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { t } = useI18n();
 
-  const skinTypeLabel = SKIN_TYPES.find((s) => s.value === profile?.skin_type)?.label;
+  const skinTypeLabel = profile?.skin_type
+    ? profile.skin_type.split(",").map(st => SKIN_TYPES.find(s => s.value === st)?.label).filter(Boolean).join(", ")
+    : undefined;
 
   const quickActions: { href: string; icon: LucideIcon; label: string; desc: string }[] = useMemo(() => [
     { href: "/scan", icon: ScanLine, label: t.scan_product, desc: t.scan_desc },
@@ -230,6 +233,9 @@ export default function HomePage() {
             </Link>
           </div>
         </section>
+
+        {/* Social Media Product Search */}
+        <SocialMediaSearchHome />
 
         {/* Pinterest Inspiration */}
         <PinterestInspiration />

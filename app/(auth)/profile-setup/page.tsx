@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { SKIN_TYPES, SPECIAL_CONDITIONS, COMMON_ALLERGENS } from "@/lib/constants";
@@ -21,9 +21,9 @@ const POPULAR_BRANDS = [
 
 export default function ProfileSetupPage() {
   const router = useRouter();
-  const { updateProfile } = useAuthContext();
+  const { updateProfile, profile } = useAuthContext();
   const [step, setStep] = useState(0);
-  const [skinType, setSkinType] = useState("");
+  const [skinTypes, setSkinTypes] = useState<string[]>([]);
   const [condition, setCondition] = useState("none");
   const [trimester, setTrimester] = useState<number | null>(null);
   const [allergies, setAllergies] = useState<string[]>([]);
@@ -31,6 +31,27 @@ export default function ProfileSetupPage() {
   const [favoriteBrands, setFavoriteBrands] = useState<string[]>([]);
   const [customBrand, setCustomBrand] = useState("");
   const [saving, setSaving] = useState(false);
+
+  // Load existing profile data
+  useEffect(() => {
+    if (profile) {
+      if (profile.skin_type) {
+        setSkinTypes(profile.skin_type.split(",").filter(Boolean));
+      }
+      if (profile.special_condition) {
+        setCondition(profile.special_condition);
+      }
+      if (profile.trimester) {
+        setTrimester(profile.trimester);
+      }
+      if (profile.allergies && profile.allergies.length > 0) {
+        setAllergies(profile.allergies);
+      }
+      if (profile.favorite_brands && profile.favorite_brands.length > 0) {
+        setFavoriteBrands(profile.favorite_brands);
+      }
+    }
+  }, [profile]);
 
   const toggleBrand = (b: string) => {
     setFavoriteBrands((prev) => prev.includes(b) ? prev.filter((x) => x !== b) : [...prev, b]);
@@ -47,8 +68,14 @@ export default function ProfileSetupPage() {
     setAllergies((prev) => prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]);
   };
 
+  const toggleSkinType = (value: string) => {
+    setSkinTypes((prev) =>
+      prev.includes(value) ? prev.filter((x) => x !== value) : [...prev, value]
+    );
+  };
+
   const canNext = () => {
-    if (step === 0) return !!skinType;
+    if (step === 0) return skinTypes.length > 0;
     return true;
   };
 
@@ -69,13 +96,20 @@ export default function ProfileSetupPage() {
         {step === 0 && (
           <div className="space-y-4">
             <h2 className="text-xl font-bold text-center">Cilt tipini seç</h2>
+            <p className="text-sm text-muted text-center">Birden fazla seçebilirsin (ör. Karma + Hassas)</p>
             <div className="grid grid-cols-2 gap-3">
               {SKIN_TYPES.map((type) => {
                 const Icon = SKIN_TYPE_ICONS[type.value];
+                const isSelected = skinTypes.includes(type.value);
                 return (
-                  <Card key={type.value} selected={skinType === type.value} onClick={() => setSkinType(type.value)}>
-                    <div className="text-center">
-                      {Icon && <Icon size={28} className={skinType === type.value ? "text-primary mx-auto" : "text-muted mx-auto"} />}
+                  <Card key={type.value} selected={isSelected} onClick={() => toggleSkinType(type.value)}>
+                    <div className="text-center relative">
+                      {isSelected && (
+                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                          <CheckCircle size={14} className="text-white" />
+                        </div>
+                      )}
+                      {Icon && <Icon size={28} className={isSelected ? "text-primary mx-auto" : "text-muted mx-auto"} />}
                       <p className="font-semibold text-sm mt-2">{type.label}</p>
                       <p className="text-xs text-muted mt-1">{type.description}</p>
                     </div>
@@ -83,6 +117,13 @@ export default function ProfileSetupPage() {
                 );
               })}
             </div>
+            {skinTypes.length > 1 && (
+              <div className="bg-primary/5 rounded-xl p-3 text-center">
+                <p className="text-xs text-primary font-medium">
+                  Seçilen: {skinTypes.map(st => SKIN_TYPES.find(t => t.value === st)?.label).join(" + ")}
+                </p>
+              </div>
+            )}
           </div>
         )}
 
@@ -219,7 +260,7 @@ export default function ProfileSetupPage() {
             <h2 className="text-xl font-bold">Harika! Beauty Check&apos;e hoş geldin!</h2>
             <Card>
               <div className="text-left space-y-2 text-sm">
-                <p><span className="text-muted">Cilt tipi:</span> <strong>{SKIN_TYPES.find((t) => t.value === skinType)?.label}</strong></p>
+                <p><span className="text-muted">Cilt tipi:</span> <strong>{skinTypes.map(st => SKIN_TYPES.find((t) => t.value === st)?.label).join(", ")}</strong></p>
                 <p><span className="text-muted">Özel durum:</span> <strong>{SPECIAL_CONDITIONS.find((c) => c.value === condition)?.label}</strong></p>
                 {trimester && <p><span className="text-muted">Trimester:</span> <strong>{trimester}</strong></p>}
                 <p><span className="text-muted">Alerjiler:</span> <strong>{allergies.length > 0 ? allergies.join(", ") : "Belirtilmedi"}</strong></p>
@@ -246,7 +287,7 @@ export default function ProfileSetupPage() {
               const allAllergies = [...allergies.filter(a => a !== "yok")];
               if (otherAllergy) allAllergies.push(...otherAllergy.split(",").map(s => s.trim()).filter(Boolean));
               await updateProfile({
-                skin_type: skinType,
+                skin_type: skinTypes.join(","),
                 special_condition: condition,
                 trimester: condition === "pregnant" ? trimester : null,
                 allergies: allAllergies.length > 0 ? allAllergies : null,

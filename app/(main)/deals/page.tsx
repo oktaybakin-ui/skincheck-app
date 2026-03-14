@@ -21,6 +21,8 @@ import {
   TrendingDown,
   Percent,
   ShoppingBag,
+  Search,
+  X,
   type LucideIcon,
 } from "lucide-react";
 
@@ -106,6 +108,7 @@ export default function DealsPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeStore, setActiveStore] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchDeals = useCallback(async () => {
     try {
@@ -149,7 +152,17 @@ export default function DealsPage() {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  const scrapedDeals = deals.filter((d) => d.source_type === "scraped");
+  const scrapedDeals = deals.filter((d) => {
+    if (d.source_type !== "scraped") return false;
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      (d.product_name && d.product_name.toLowerCase().includes(q)) ||
+      (d.brand && d.brand.toLowerCase().includes(q)) ||
+      (d.campaign_title && d.campaign_title.toLowerCase().includes(q)) ||
+      (d.store_name && d.store_name.toLowerCase().includes(q))
+    );
+  });
   const hasDeals = scrapedDeals.length > 0;
 
   return (
@@ -172,6 +185,26 @@ export default function DealsPage() {
             <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
             {refreshing ? "Güncelleniyor..." : "Yenile"}
           </button>
+        </div>
+
+        {/* Search */}
+        <div className="relative">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Ürün, marka veya mağaza ara..."
+            className="w-full pl-9 pr-9 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none text-sm bg-surface"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground"
+            >
+              <X size={16} />
+            </button>
+          )}
         </div>
 
         {/* Store Campaign Cards */}

@@ -7,7 +7,7 @@ import Button from "@/components/ui/Button";
 import { useState } from "react";
 import Link from "next/link";
 import PinterestButton from "@/components/ui/PinterestButton";
-import { Sparkles, Sun, Briefcase, Heart, Crown, Clock, Palette, Eye, Star, ShoppingBag } from "lucide-react";
+import { Sparkles, Sun, Briefcase, Heart, Crown, Clock, Palette, Eye, Star, ShoppingBag, Camera, Loader2, ExternalLink } from "lucide-react";
 
 type LookType = "daily" | "work" | "special" | "date";
 type SkinTone = "warm" | "cool" | "neutral";
@@ -20,12 +20,30 @@ const LOOK_TYPES = [
   { key: "date" as const, label: "Randevu", icon: Heart, desc: "Romantik, çekici ve kendinden emin", time: "25-35 dk" },
 ];
 
+const FaceShapeIcon = ({ shape, className = "" }: { shape: string; className?: string }) => {
+  const paths: Record<string, string> = {
+    oval: "M24 4C18 4 13 8 11 14C9 20 9 28 11 34C13 40 18 44 24 44C30 44 35 40 37 34C39 28 39 20 37 14C35 8 30 4 24 4Z",
+    round: "M24 6C14 6 6 14 6 24C6 34 14 42 24 42C34 42 42 34 42 24C42 14 34 6 24 6Z",
+    square: "M10 8H38C40 8 42 10 42 12V36C42 38 40 40 38 40H10C8 40 6 38 6 36V12C6 10 8 8 10 8Z",
+    heart: "M24 42C24 42 8 32 8 18C8 12 12 6 18 6C22 6 24 10 24 10C24 10 26 6 30 6C36 6 40 12 40 18C40 32 24 42 24 42Z",
+    long: "M24 2C20 2 16 6 14 12C12 18 11 26 12 32C13 38 18 46 24 46C30 46 35 38 36 32C37 26 36 18 34 12C32 6 28 2 24 2Z",
+  };
+  return (
+    <svg viewBox="0 0 48 48" className={className} fill="none" stroke="currentColor" strokeWidth="2">
+      <path d={paths[shape] || paths.oval} />
+      <circle cx="18" cy="20" r="1.5" fill="currentColor" />
+      <circle cx="30" cy="20" r="1.5" fill="currentColor" />
+      <path d="M20 28Q24 32 28 28" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+};
+
 const FACE_SHAPES = [
-  { key: "oval" as const, label: "Oval", icon: "🪞", desc: "İdeal oranlar, çoğu stil yakışır" },
-  { key: "round" as const, label: "Yuvarlak", icon: "🌕", desc: "Elmacık kemikleri belirgin, yumuşak hatlar" },
-  { key: "square" as const, label: "Kare", icon: "🔲", desc: "Güçlü çene hattı, geniş alın" },
-  { key: "heart" as const, label: "Kalp", icon: "🩷", desc: "Geniş alın, sivri çene" },
-  { key: "long" as const, label: "Uzun", icon: "🔷", desc: "Alın-çene mesafesi uzun" },
+  { key: "oval" as const, label: "Oval", desc: "İdeal oranlar, çoğu stil yakışır" },
+  { key: "round" as const, label: "Yuvarlak", desc: "Elmacık kemikleri belirgin, yumuşak hatlar" },
+  { key: "square" as const, label: "Kare", desc: "Güçlü çene hattı, geniş alın" },
+  { key: "heart" as const, label: "Kalp", desc: "Geniş alın, sivri çene" },
+  { key: "long" as const, label: "Uzun", desc: "Alın-çene mesafesi uzun" },
 ];
 
 interface BrandProduct {
@@ -527,12 +545,45 @@ export default function BestLookPage() {
   const [lookType, setLookType] = useState<LookType | null>(null);
   const [tone, setTone] = useState<SkinTone | null>(null);
   const [faceShape, setFaceShape] = useState<FaceShape | null>(null);
+  const [aiDetecting, setAiDetecting] = useState(false);
+  const [aiResult, setAiResult] = useState<string | null>(null);
 
   const handleLook = (l: LookType) => { setLookType(l); setStep("tone"); };
   const handleTone = (t: SkinTone) => { setTone(t); setStep("face"); };
   const handleFace = (f: FaceShape) => { setFaceShape(f); setStep("result"); };
 
-  const reset = () => { setStep("look"); setLookType(null); setTone(null); setFaceShape(null); };
+  const reset = () => { setStep("look"); setLookType(null); setTone(null); setFaceShape(null); setAiResult(null); };
+
+  const detectFaceShape = async (file: File) => {
+    setAiDetecting(true);
+    setAiResult(null);
+    try {
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((resolve) => {
+        reader.onload = () => resolve((reader.result as string).split(",")[1]);
+        reader.readAsDataURL(file);
+      });
+
+      const res = await fetch("/api/ai/face-shape", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: base64 }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const detected = data.faceShape as FaceShape;
+        if (["oval", "round", "square", "heart", "long"].includes(detected)) {
+          setFaceShape(detected);
+          setAiResult(`AI analizi: ${FACE_SHAPES.find(f => f.key === detected)?.label} yüz şekli tespit edildi`);
+        }
+      }
+    } catch {
+      setAiResult("Yüz şekli tespit edilemedi. Lütfen manuel seçin.");
+    } finally {
+      setAiDetecting(false);
+    }
+  };
 
   if (step === "result" && lookType && tone && faceShape) {
     const look = generateLook(lookType, tone, faceShape);
@@ -608,13 +659,39 @@ export default function BestLookPage() {
                   <div className="bg-primary/5 rounded-lg p-2 ml-9 mb-2">
                     <p className="text-xs"><span className="font-semibold text-primary">Pro Tip:</span> {m.proTip}</p>
                   </div>
-                  <div className="ml-9 space-y-1.5">
+                  <div className="ml-9 space-y-2">
                     {m.products.map((p, j) => (
-                      <div key={j} className="flex items-start gap-2">
+                      <div key={j} className="flex items-start gap-2 bg-gray-50 rounded-lg p-2">
                         <Badge variant="primary" size="sm">{p.brand}</Badge>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium truncate">{p.product}</p>
                           <p className="text-[10px] text-muted">{p.shade} · {p.priceRange}</p>
+                          <div className="flex gap-1 mt-1">
+                            <a
+                              href={`https://www.trendyol.com/sr?q=${encodeURIComponent(p.brand + " " + p.product)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-1.5 py-0.5 bg-orange-50 text-orange-600 rounded text-[9px] font-medium flex items-center gap-0.5 hover:bg-orange-100"
+                            >
+                              Trendyol <ExternalLink size={8} />
+                            </a>
+                            <a
+                              href={`https://www.gratis.com/arama?q=${encodeURIComponent(p.brand + " " + p.product)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-1.5 py-0.5 bg-green-50 text-green-600 rounded text-[9px] font-medium flex items-center gap-0.5 hover:bg-green-100"
+                            >
+                              Gratis <ExternalLink size={8} />
+                            </a>
+                            <a
+                              href={`https://www.sephora.com.tr/search?q=${encodeURIComponent(p.brand + " " + p.product)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-[9px] font-medium flex items-center gap-0.5 hover:bg-gray-200"
+                            >
+                              Sephora <ExternalLink size={8} />
+                            </a>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -757,11 +834,61 @@ export default function BestLookPage() {
           <>
             <h2 className="text-lg font-bold text-center">Yüz Şeklin Ne?</h2>
             <p className="text-sm text-muted text-center">Kontur ve highlight noktaları buna göre belirlenir</p>
-            <div className="grid grid-cols-2 gap-3 mt-4">
+
+            {/* AI Detection */}
+            <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20 mt-4">
+              <div className="text-center">
+                <Camera size={28} className="text-primary mx-auto" />
+                <p className="font-semibold text-sm mt-2">AI ile Yüz Şekli Belirle</p>
+                <p className="text-xs text-muted mt-1">Fotoğraf yükle, AI yüz şeklini otomatik tespit etsin</p>
+                <label className={`mt-3 inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium cursor-pointer hover:bg-primary/90 transition-colors ${aiDetecting ? "opacity-50 pointer-events-none" : ""}`}>
+                  {aiDetecting ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" /> Analiz ediliyor...
+                    </>
+                  ) : (
+                    <>
+                      <Camera size={16} /> Fotoğraf Yükle
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="user"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) detectFaceShape(file);
+                    }}
+                  />
+                </label>
+                {aiResult && (
+                  <div className={`mt-3 px-3 py-2 rounded-lg text-xs font-medium ${faceShape ? "bg-safe/10 text-safe" : "bg-danger/10 text-danger"}`}>
+                    {aiResult}
+                  </div>
+                )}
+                {faceShape && aiResult && (
+                  <button
+                    onClick={() => setStep("result")}
+                    className="mt-2 px-4 py-2 bg-safe text-white rounded-xl text-sm font-medium"
+                  >
+                    Bu sonuçla devam et
+                  </button>
+                )}
+              </div>
+            </Card>
+
+            <div className="flex items-center gap-3 my-3">
+              <div className="flex-1 h-px bg-gray-200" />
+              <span className="text-xs text-muted">veya manuel seç</span>
+              <div className="flex-1 h-px bg-gray-200" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
               {FACE_SHAPES.map(f => (
                 <Card key={f.key} hoverable onClick={() => handleFace(f.key)}>
                   <div className="text-center">
-                    <span className="text-2xl">{f.icon}</span>
+                    <FaceShapeIcon shape={f.key} className="w-10 h-10 mx-auto text-primary" />
                     <p className="font-semibold text-sm mt-1">{f.label}</p>
                     <p className="text-[10px] text-muted mt-0.5">{f.desc}</p>
                   </div>

@@ -8,7 +8,7 @@ import { SOLUTION_ICONS } from "@/lib/constants/icons";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import PinterestButton from "@/components/ui/PinterestButton";
-import { Sparkles, Lightbulb, Clock, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Sparkles, Lightbulb, Clock, ThumbsUp, ThumbsDown, ExternalLink, ShoppingBag } from "lucide-react";
 
 export default function SolutionDetailPage() {
   const { slug } = useParams();
@@ -100,12 +100,45 @@ export default function SolutionDetailPage() {
           </Card>
         </div>
 
-        {/* Product Types */}
+        {/* Product Types with Seller Links */}
         <div>
           <h3 className="font-bold text-sm mb-2">Önerilen Ürün Tipleri</h3>
-          <div className="flex flex-wrap gap-2">
+          <div className="space-y-2">
             {solution.productTypes.map((p) => (
-              <Badge key={p} variant="primary" size="md">{p}</Badge>
+              <Card key={p} className="!p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ShoppingBag size={14} className="text-primary" />
+                    <span className="text-sm font-medium">{p}</span>
+                  </div>
+                  <div className="flex gap-1.5">
+                    <a
+                      href={`https://www.trendyol.com/sr?q=${encodeURIComponent(p)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1 bg-orange-50 text-orange-600 rounded-lg text-[10px] font-medium flex items-center gap-1 hover:bg-orange-100 transition-colors"
+                    >
+                      Trendyol <ExternalLink size={10} />
+                    </a>
+                    <a
+                      href={`https://www.gratis.com/arama?q=${encodeURIComponent(p)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1 bg-green-50 text-green-600 rounded-lg text-[10px] font-medium flex items-center gap-1 hover:bg-green-100 transition-colors"
+                    >
+                      Gratis <ExternalLink size={10} />
+                    </a>
+                    <a
+                      href={`https://www.sephora.com.tr/search?q=${encodeURIComponent(p)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1 bg-gray-100 text-gray-700 rounded-lg text-[10px] font-medium flex items-center gap-1 hover:bg-gray-200 transition-colors"
+                    >
+                      Sephora <ExternalLink size={10} />
+                    </a>
+                  </div>
+                </div>
+              </Card>
             ))}
           </div>
         </div>
