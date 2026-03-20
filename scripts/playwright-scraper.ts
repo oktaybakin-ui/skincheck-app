@@ -61,58 +61,40 @@ function parsePrice(text: string): number | undefined {
 }
 
 // ─── Watsons Scraper ────────────────────────────────────────────────
+// SAP Spartacus/Hybris Angular SPA with e2-* web components
 async function scrapeWatsons(page: Page): Promise<ScrapeResult> {
   const start = Date.now();
   const deals: ScrapedDeal[] = [];
 
   try {
-    await page.goto("https://www.watsons.com.tr/kampanyalar", {
-      waitUntil: "domcontentloaded",
+    // Product listing page (not /kampanyalar which is just banners)
+    await page.goto("https://www.watsons.com.tr/tum-urunler/c/50110?sort=topRated", {
+      waitUntil: "networkidle",
       timeout: 30000,
     });
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(4000);
 
-    // Try multiple selector patterns for campaign cards
-    const cards = await page.$$("a[href*='kampanya'], .campaign-item, .promotion-card, [class*='campaign'] a, .slick-slide a, article a");
+    // Product cards use .product-list-item class
+    const cards = await page.$$(".product-list-item, [class*='product-grid'] [class*='product']");
 
-    for (const card of cards.slice(0, 20)) {
+    for (const card of cards.slice(0, 25)) {
       try {
-        const title = await card.getAttribute("title") || await card.innerText().catch(() => "");
-        const href = await card.getAttribute("href") || "";
-        const img = await card.$("img");
+        const name = await card.$eval("h3.product-list-item__name, h3[class*='name'], [class*='product-name']", (el) => el.textContent?.trim() || "").catch(() => "");
+        const priceText = await card.$eval("span.price__default-value, [class*='price'] span, e2core-price", (el) => el.textContent?.trim() || "").catch(() => "");
+        const memberPrice = await card.$eval("span.price__member-price-value, [class*='member-price']", (el) => el.textContent?.trim() || "").catch(() => "");
+        const link = await card.$("a.product-list-item__link, a.product-list-item__details-wrapper, a[class*='product']");
+        const href = link ? await link.getAttribute("href") || "" : "";
+        const img = await card.$(".product-list-item__image img, e2core-media img, img");
         const imgSrc = img ? await img.getAttribute("src") || await img.getAttribute("data-src") || "" : "";
 
-        if (!title?.trim() || title.trim().length < 5) continue;
-
-        const fullUrl = href.startsWith("http") ? href : `https://www.watsons.com.tr${href}`;
-
-        deals.push({
-          store_slug: "watsons",
-          store_name: "Watsons",
-          campaign_title: title.trim(),
-          campaign_url: fullUrl,
-          product_name: title.trim(),
-          category: categorize(title),
-          image_url: imgSrc || undefined,
-          source_type: "scraped",
-        });
-      } catch {
-        // Skip individual card errors
-      }
-    }
-
-    // Also try product listings if campaign page has products
-    const productCards = await page.$$("[class*='product'] a, .product-card, .product-item");
-    for (const card of productCards.slice(0, 15)) {
-      try {
-        const name = await card.$eval("[class*='name'], [class*='title'], h3, h4", (el) => el.textContent?.trim() || "").catch(() => "");
-        const priceEl = await card.$("[class*='price'], .price");
-        const priceText = priceEl ? await priceEl.innerText() : "";
-        const href = await card.getAttribute("href") || "";
-        const img = await card.$("img");
-        const imgSrc = img ? await img.getAttribute("src") || "" : "";
-
         if (!name || name.length < 3) continue;
+
+        const regularPrice = parsePrice(priceText);
+        const salePrice = memberPrice ? parsePrice(memberPrice) : regularPrice;
+        const originalPrice = memberPrice ? regularPrice : undefined;
+        const discount = originalPrice && salePrice && salePrice < originalPrice
+          ? Math.round(((originalPrice - salePrice) / originalPrice) * 100)
+          : undefined;
 
         deals.push({
           store_slug: "watsons",
@@ -121,12 +103,14 @@ async function scrapeWatsons(page: Page): Promise<ScrapeResult> {
           campaign_url: href.startsWith("http") ? href : `https://www.watsons.com.tr${href}`,
           product_name: name,
           category: categorize(name),
-          sale_price: parsePrice(priceText),
-          image_url: imgSrc || undefined,
+          original_price: originalPrice,
+          sale_price: salePrice,
+          discount_percent: discount,
+          image_url: imgSrc ? (imgSrc.startsWith("http") ? imgSrc : `https://www.watsons.com.tr${imgSrc}`) : undefined,
           source_type: "scraped",
         });
       } catch {
-        // Skip
+        // Skip individual card errors
       }
     }
 
@@ -137,37 +121,46 @@ async function scrapeWatsons(page: Page): Promise<ScrapeResult> {
 }
 
 // ─── Hepsiburada Scraper ────────────────────────────────────────────
+// React SPA with CSS Modules — use stable data-test-id attributes
 async function scrapeHepsiburada(page: Page): Promise<ScrapeResult> {
   const start = Date.now();
   const deals: ScrapedDeal[] = [];
 
   try {
-    await page.goto("https://www.hepsiburada.com/kozmetik-kisisel-bakim-c-702?siralama=indirim", {
+    await page.goto("https://www.hepsiburada.com/kozmetik-kisisel-bakim-c-702?siralama=artpirim", {
       waitUntil: "domcontentloaded",
       timeout: 30000,
     });
-    await page.waitForTimeout(4000);
+    await page.waitForTimeout(5000);
 
-    // Hepsiburada product listing
-    const cards = await page.$$("[data-test-id='product-card'], .productCardContent, [class*='productCard'], li[class*='product']");
+    // Product cards: li[type="comfort"] > article or use data-test-id
+    const cards = await page.$$('li[type="comfort"] article, article[class*="productCard"]');
 
     for (const card of cards.slice(0, 25)) {
       try {
-        const name = await card.$eval("[data-test-id='product-card-name'], [class*='productName'], [class*='product-title'], h3", (el) => el.textContent?.trim() || "").catch(() => "");
-        const currentPrice = await card.$eval("[data-test-id='price-current-price'], [class*='price-value'], [class*='currentPrice']", (el) => el.textContent?.trim() || "").catch(() => "");
-        const oldPrice = await card.$eval("[data-test-id='price-old-price'], [class*='oldPrice'], del", (el) => el.textContent?.trim() || "").catch(() => "");
-        const link = await card.$("a");
+        // Title: h2 with data-test-id^="title-"
+        const name = await card.$eval('[data-test-id^="title-"], h2, [class*="product-title"]', (el) => el.textContent?.trim() || "").catch(() => "");
+        // Final price: div with data-test-id^="final-price-"
+        const finalPrice = await card.$eval('[data-test-id^="final-price-"], [class*="finalPrice"]', (el) => el.textContent?.trim() || "").catch(() => "");
+        // Original price: span with class containing "originalPrice"
+        const oldPrice = await card.$eval('[class*="originalPrice"], [class*="old-price"]', (el) => el.textContent?.trim() || "").catch(() => "");
+        // Discount rate
+        const discountText = await card.$eval('[class*="discountRate"], [class*="discount"]', (el) => el.textContent?.trim() || "").catch(() => "");
+        // Link from title
+        const link = await card.$('[data-test-id^="title-"] a, a[class*="productCardLink"], a');
         const href = link ? await link.getAttribute("href") || "" : "";
-        const img = await card.$("img");
+        // Image
+        const img = await card.$("picture img, img[class*='hbImageView'], img");
         const imgSrc = img ? await img.getAttribute("src") || await img.getAttribute("data-src") || "" : "";
 
         if (!name || name.length < 3) continue;
 
-        const sale = parsePrice(currentPrice);
+        const sale = parsePrice(finalPrice);
         const original = parsePrice(oldPrice);
-        const discount = original && sale && sale < original
+        const discountNum = discountText ? parseInt(discountText.replace(/[^0-9]/g, "")) : undefined;
+        const discount = discountNum || (original && sale && sale < original
           ? Math.round(((original - sale) / original) * 100)
-          : undefined;
+          : undefined);
 
         deals.push({
           store_slug: "hepsiburada",
@@ -194,60 +187,54 @@ async function scrapeHepsiburada(page: Page): Promise<ScrapeResult> {
 }
 
 // ─── Sephora Scraper ────────────────────────────────────────────────
+// Salesforce Commerce Cloud (Demandware) — clean semantic class names
 async function scrapeSephora(page: Page): Promise<ScrapeResult> {
   const start = Date.now();
   const deals: ScrapedDeal[] = [];
 
   try {
-    await page.goto("https://www.sephora.com.tr/firsatlar/", {
+    // /firsatlar/ returns no results — use /avantajli-teklif-7/ for actual discounted products
+    await page.goto("https://www.sephora.com.tr/avantajli-teklif-7/", {
       waitUntil: "domcontentloaded",
       timeout: 30000,
     });
     await page.waitForTimeout(3000);
 
-    // Sephora product grid
-    const cards = await page.$$("[class*='product-tile'], [class*='ProductTile'], .product-item, [class*='product-grid'] > div, article");
+    // Product grid: li.grid-tile > div.product-tile
+    const cards = await page.$$("li.grid-tile, div.product-tile, [class*='product-tile']");
 
-    for (const card of cards.slice(0, 20)) {
+    for (const card of cards.slice(0, 25)) {
       try {
-        const name = await card.$eval("[class*='product-name'], [class*='ProductName'], h2, h3, [class*='name']", (el) => el.textContent?.trim() || "").catch(() => "");
-        const brand = await card.$eval("[class*='brand'], [class*='Brand']", (el) => el.textContent?.trim() || "").catch(() => "");
-        const priceText = await card.$eval("[class*='price'], [class*='Price']", (el) => el.textContent?.trim() || "").catch(() => "");
-        const link = await card.$("a");
+        // Brand: span.product-brand
+        const brand = await card.$eval("span.product-brand, [class*='product-brand']", (el) => el.textContent?.trim() || "").catch(() => "");
+        // Product name: h3.product-title
+        const name = await card.$eval("h3.product-title, [class*='product-title'], .summarize-description", (el) => el.textContent?.trim() || "").catch(() => "");
+        // Price: span.price-sales-standard
+        const priceText = await card.$eval("span.price-sales-standard, [class*='price-sales'], [class*='price']", (el) => el.textContent?.trim() || "").catch(() => "");
+        // Link: a.product-tile-link
+        const link = await card.$("a.product-tile-link, a[class*='product-tile-link'], a");
         const href = link ? await link.getAttribute("href") || "" : "";
-        const img = await card.$("img");
+        // Image: img.product-first-img
+        const img = await card.$("img.product-first-img, .product-image img, img");
         const imgSrc = img ? await img.getAttribute("src") || await img.getAttribute("data-src") || "" : "";
+        // Product ID
+        const pid = await card.getAttribute("data-pid") || "";
 
         if (!name || name.length < 3) continue;
 
-        // Sephora often shows "oldPrice newPrice" in same element
-        const prices = priceText.match(/[\d.,]+/g);
-        let sale: number | undefined;
-        let original: number | undefined;
-
-        if (prices && prices.length >= 2) {
-          original = parsePrice(prices[0]);
-          sale = parsePrice(prices[1]);
-        } else if (prices && prices.length === 1) {
-          sale = parsePrice(prices[0]);
-        }
-
-        const discount = original && sale && sale < original
-          ? Math.round(((original - sale) / original) * 100)
-          : undefined;
+        const sale = parsePrice(priceText);
+        const title = brand ? `${brand} - ${name}` : name;
 
         deals.push({
           store_slug: "sephora",
           store_name: "Sephora",
-          campaign_title: brand ? `${brand} - ${name}` : name,
+          campaign_title: title,
           campaign_url: href.startsWith("http") ? href : `https://www.sephora.com.tr${href}`,
           product_name: name,
           brand: brand || undefined,
-          category: categorize(name),
-          original_price: original,
+          category: categorize(name + " " + brand),
           sale_price: sale,
-          discount_percent: discount,
-          image_url: imgSrc || undefined,
+          image_url: imgSrc ? (imgSrc.startsWith("http") ? imgSrc : `https://www.sephora.com.tr${imgSrc}`) : undefined,
           source_type: "scraped",
         });
       } catch {
