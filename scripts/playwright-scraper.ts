@@ -145,44 +145,35 @@ async function scrapeHepsiburada(page: Page): Promise<ScrapeResult> {
   const deals: ScrapedDeal[] = [];
 
   try {
-    // Try category page first, fallback to search
-    await page.goto("https://www.hepsiburada.com/kozmetik-kisisel-bakim-c-702?siralama=artpirim", {
-      waitUntil: "domcontentloaded",
-      timeout: 30000,
-    });
-    await page.waitForTimeout(6000);
-    // Wait for product cards to render
-    await page.waitForSelector('[data-test-id^="title-"], li[type="comfort"], article[class*="productCard"]', { timeout: 10000 }).catch(() => {});
+    // Try multiple kozmetik category URLs
+    const hbUrls = [
+      "https://www.hepsiburada.com/ara?q=kozmetik+makyaj&siralama=artpirim",
+      "https://www.hepsiburada.com/ara?q=fondoten+ruj+rimel&siralama=artpirim",
+      "https://www.hepsiburada.com/ara?q=cilt+bakim+serum+krem&siralama=artpirim",
+    ];
 
-    // Debug: log page content summary
-    const hbTitle = await page.title();
-    const hbBodyLen = await page.evaluate(() => document.body.innerHTML.length);
-    const hbArticles = await page.$$eval("article", (els) => els.length);
-    const hbLis = await page.$$eval('li[type="comfort"]', (els) => els.length);
-    const hbTestIds = await page.evaluate(() => {
-      return Array.from(document.querySelectorAll("[data-test-id]"))
-        .map(e => e.getAttribute("data-test-id"))
-        .filter(id => id?.includes("title") || id?.includes("price"))
-        .slice(0, 10);
-    });
-    console.log(`  [DEBUG] HB title: "${hbTitle}", body: ${hbBodyLen}, articles: ${hbArticles}, li[comfort]: ${hbLis}, test-ids: ${JSON.stringify(hbTestIds)}`);
+    let cards: Awaited<ReturnType<Page["$$"]>> = [];
 
-    // Product cards: li[type="comfort"] > article or use data-test-id
-    let cards = await page.$$('li[type="comfort"] article, article[class*="productCard"]');
+    for (const hbUrl of hbUrls) {
+      try {
+        await page.goto(hbUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
+        await page.waitForTimeout(6000);
+        await page.waitForSelector('li[type="comfort"], article[class*="productCard"]', { timeout: 10000 }).catch(() => {});
 
-    // Fallback: try search URL if category page was blocked
-    if (cards.length === 0) {
-      console.log("  [DEBUG] HB category page empty, trying search URL...");
-      await page.goto("https://www.hepsiburada.com/ara?q=kozmetik+indirim&siralama=artpirim", {
-        waitUntil: "domcontentloaded",
-        timeout: 30000,
-      });
-      await page.waitForTimeout(6000);
-      await page.waitForSelector('[data-test-id^="title-"], li[type="comfort"]', { timeout: 10000 }).catch(() => {});
-      const hbTitle2 = await page.title();
-      const hbArticles2 = await page.$$eval("article", (els) => els.length);
-      console.log(`  [DEBUG] HB search page title: "${hbTitle2}", articles: ${hbArticles2}`);
-      cards = await page.$$('li[type="comfort"] article, article[class*="productCard"]');
+        const hbTitle = await page.title();
+        const hbArticles = await page.$$eval("article", (els) => els.length);
+        console.log(`  [DEBUG] HB "${hbUrl.split("q=")[1]?.split("&")[0]}" → title: "${hbTitle}", articles: ${hbArticles}`);
+
+        const pageCards = await page.$$('li[type="comfort"] article, article[class*="productCard"]');
+        if (pageCards.length > 0) {
+          // Add cards from this search
+          for (const card of pageCards.slice(0, 15)) {
+            cards.push(card);
+          }
+        }
+      } catch {
+        continue;
+      }
     }
 
     for (const card of cards.slice(0, 25)) {
@@ -318,26 +309,52 @@ async function scrapeGratis(page: Page): Promise<ScrapeResult> {
     const title = await page.title();
     console.log(`  [DEBUG] Gratis title: "${title}"`);
 
-    // Try multiple selectors for product cards
-    let cards = await page.$$('[class*="product-card"], [class*="ProductCard"], [data-testid*="product"], .product-item');
+    // Debug: log all class names containing 'product' to find correct selectors
+    const productClasses = await page.evaluate(() => {
+      const all = document.querySelectorAll("*");
+      const classes = new Set<string>();
+      all.forEach((el) => {
+        el.classList.forEach((c) => {
+          if (c.toLowerCase().includes("product") || c.toLowerCase().includes("card") || c.toLowerCase().includes("item")) {
+            classes.add(c);
+          }
+        });
+      });
+      return Array.from(classes).slice(0, 20);
+    });
+    console.log(`  [DEBUG] Gratis product-related classes: ${JSON.stringify(productClasses)}`);
+
+    // Try broad selectors for products
+    let cards = await page.$$('[class*="product-card"], [class*="ProductCard"], [data-testid*="product"], .product-item, [class*="product_card"], [class*="productCard"]');
 
     if (cards.length === 0) {
-      // Fallback: try category page
-      await page.goto("https://www.gratis.com/makyaj", { waitUntil: "domcontentloaded", timeout: 30000 });
-      await page.waitForTimeout(5000);
-      cards = await page.$$('[class*="product-card"], [class*="ProductCard"], [data-testid*="product"], .product-item');
+      // Try links that look like product links
+      const productLinks = await page.$$eval('a[href*="/p/"], a[href*="/urun/"]', (els) => els.length);
+      console.log(`  [DEBUG] Gratis product links: ${productLinks}`);
+      cards = await page.$$('a[href*="/p/"], a[href*="/urun/"]');
     }
 
-    if (cards.length === 0) {
-      // Last resort: try search
-      await page.goto("https://www.gratis.com/arama?q=indirim", { waitUntil: "domcontentloaded", timeout: 30000 });
-      await page.waitForTimeout(5000);
-      cards = await page.$$('[class*="product-card"], [class*="ProductCard"], [data-testid*="product"], .product-item');
+    const gratisUrls = [
+      "https://www.gratis.com/makyaj",
+      "https://www.gratis.com/cilt-bakimi",
+      "https://www.gratis.com/arama?q=indirim",
+    ];
+
+    for (const gUrl of gratisUrls) {
+      if (cards.length > 0) break;
+      try {
+        await page.goto(gUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
+        await page.waitForTimeout(5000);
+        const gTitle = await page.title();
+        console.log(`  [DEBUG] Gratis ${gUrl.split(".com")[1]} → "${gTitle}"`);
+        cards = await page.$$('[class*="product-card"], [class*="ProductCard"], [class*="product_card"], [class*="productCard"], a[href*="/p/"]');
+        console.log(`  [DEBUG] Gratis found ${cards.length} cards`);
+      } catch { continue; }
     }
 
-    console.log(`  [DEBUG] Gratis found ${cards.length} cards`);
+    console.log(`  [DEBUG] Gratis total cards: ${cards.length}`);
 
-    // Also try extracting from JSON-LD or Next.js data
+    // Try extracting from JSON-LD or Next.js data
     if (cards.length === 0) {
       const jsonLd = await page.$$eval('script[type="application/ld+json"]', (scripts) =>
         scripts.map((s) => s.textContent || "")
@@ -421,29 +438,43 @@ async function scrapeRossmann(page: Page): Promise<ScrapeResult> {
   const deals: ScrapedDeal[] = [];
 
   try {
+    // Rossmann uses Cloudflare — wait longer for challenge to resolve
     await page.goto("https://www.rossmann.com.tr/kampanyalar", {
-      waitUntil: "domcontentloaded",
+      waitUntil: "networkidle",
       timeout: 30000,
     });
-    await page.waitForTimeout(5000);
+    // Wait for Cloudflare challenge to pass
+    await page.waitForTimeout(8000);
 
-    const title = await page.title();
+    let title = await page.title();
     console.log(`  [DEBUG] Rossmann title: "${title}"`);
+
+    // If still on Cloudflare, wait more
+    if (title.includes("dakika") || title.includes("moment") || title.includes("Checking")) {
+      console.log("  [DEBUG] Rossmann: Cloudflare challenge detected, waiting...");
+      await page.waitForTimeout(10000);
+      title = await page.title();
+      console.log(`  [DEBUG] Rossmann title after wait: "${title}"`);
+    }
 
     let cards = await page.$$('[class*="product-card"], [class*="ProductCard"], .product-item, [class*="campaign"]');
 
-    if (cards.length === 0) {
-      // Try products page
-      await page.goto("https://www.rossmann.com.tr/c/makyaj", { waitUntil: "domcontentloaded", timeout: 30000 });
-      await page.waitForTimeout(5000);
-      cards = await page.$$('[class*="product-card"], [class*="ProductCard"], .product-item, article');
-    }
+    const rossmannUrls = [
+      "https://www.rossmann.com.tr/c/makyaj",
+      "https://www.rossmann.com.tr/c/cilt-bakimi",
+      "https://www.rossmann.com.tr",
+    ];
 
-    if (cards.length === 0) {
-      // Try main page
-      await page.goto("https://www.rossmann.com.tr", { waitUntil: "domcontentloaded", timeout: 30000 });
-      await page.waitForTimeout(5000);
-      cards = await page.$$('[class*="product-card"], [class*="ProductCard"], .product-item, [class*="campaign"], article');
+    for (const rUrl of rossmannUrls) {
+      if (cards.length > 0) break;
+      try {
+        await page.goto(rUrl, { waitUntil: "networkidle", timeout: 30000 });
+        await page.waitForTimeout(8000);
+        const rTitle = await page.title();
+        console.log(`  [DEBUG] Rossmann ${rUrl.split(".tr")[1]} → "${rTitle}"`);
+        cards = await page.$$('[class*="product-card"], [class*="ProductCard"], .product-item, article, [class*="campaign"]');
+        console.log(`  [DEBUG] Rossmann found ${cards.length} cards`);
+      } catch { continue; }
     }
 
     console.log(`  [DEBUG] Rossmann found ${cards.length} cards`);
