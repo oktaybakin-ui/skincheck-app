@@ -78,7 +78,7 @@ async function scrapeWatsons(page: Page): Promise<ScrapeResult> {
 
     for (const wUrl of watsonsUrls) {
       try {
-        await page.goto(wUrl, { waitUntil: "domcontentloaded", timeout: 15000 });
+        await page.goto(wUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
         await page.waitForTimeout(5000);
 
         const title = await page.title();
@@ -297,6 +297,326 @@ async function scrapeSephora(page: Page): Promise<ScrapeResult> {
   }
 }
 
+// ─── Gratis Scraper ────────────────────────────────────────────────
+// Next.js SSR app — product cards with structured data
+async function scrapeGratis(page: Page): Promise<ScrapeResult> {
+  const start = Date.now();
+  const deals: ScrapedDeal[] = [];
+
+  try {
+    await page.goto("https://www.gratis.com/firsatlar", {
+      waitUntil: "domcontentloaded",
+      timeout: 30000,
+    });
+    await page.waitForTimeout(5000);
+
+    const title = await page.title();
+    console.log(`  [DEBUG] Gratis title: "${title}"`);
+
+    // Try multiple selectors for product cards
+    let cards = await page.$$('[class*="product-card"], [class*="ProductCard"], [data-testid*="product"], .product-item');
+
+    if (cards.length === 0) {
+      // Fallback: try category page
+      await page.goto("https://www.gratis.com/makyaj", { waitUntil: "domcontentloaded", timeout: 30000 });
+      await page.waitForTimeout(5000);
+      cards = await page.$$('[class*="product-card"], [class*="ProductCard"], [data-testid*="product"], .product-item');
+    }
+
+    if (cards.length === 0) {
+      // Last resort: try search
+      await page.goto("https://www.gratis.com/arama?q=indirim", { waitUntil: "domcontentloaded", timeout: 30000 });
+      await page.waitForTimeout(5000);
+      cards = await page.$$('[class*="product-card"], [class*="ProductCard"], [data-testid*="product"], .product-item');
+    }
+
+    console.log(`  [DEBUG] Gratis found ${cards.length} cards`);
+
+    // Also try extracting from JSON-LD or Next.js data
+    if (cards.length === 0) {
+      const jsonLd = await page.$$eval('script[type="application/ld+json"]', (scripts) =>
+        scripts.map((s) => s.textContent || "")
+      );
+      for (const json of jsonLd) {
+        try {
+          const data = JSON.parse(json);
+          if (data["@type"] === "ItemList" && data.itemListElement) {
+            for (const item of data.itemListElement.slice(0, 25)) {
+              const product = item.item || item;
+              if (product.name) {
+                deals.push({
+                  store_slug: "gratis",
+                  store_name: "Gratis",
+                  campaign_title: product.name,
+                  campaign_url: product.url || "https://www.gratis.com",
+                  product_name: product.name,
+                  category: categorize(product.name),
+                  sale_price: product.offers?.price ? parseFloat(product.offers.price) : undefined,
+                  image_url: product.image,
+                  source_type: "scraped",
+                });
+              }
+            }
+          }
+        } catch { /* skip */ }
+      }
+    }
+
+    for (const card of cards.slice(0, 25)) {
+      try {
+        const name = await card.$eval('[class*="name"], [class*="title"], h3, h4, a', (el) => el.textContent?.trim() || "").catch(() => "");
+        const priceText = await card.$eval('[class*="price"], [class*="Price"]', (el) => el.textContent?.trim() || "").catch(() => "");
+        const link = await card.$("a");
+        const href = link ? await link.getAttribute("href") || "" : "";
+        const img = await card.$("img");
+        const imgSrc = img ? await img.getAttribute("src") || await img.getAttribute("data-src") || "" : "";
+
+        if (!name || name.length < 3) continue;
+
+        // Parse prices — Gratis often shows "149,90 TL 99,90 TL"
+        const prices = priceText.match(/[\d.,]+/g);
+        let original: number | undefined;
+        let sale: number | undefined;
+        if (prices && prices.length >= 2) {
+          original = parsePrice(prices[0]);
+          sale = parsePrice(prices[prices.length - 1]);
+        } else if (prices && prices.length === 1) {
+          sale = parsePrice(prices[0]);
+        }
+
+        const discount = original && sale && sale < original
+          ? Math.round(((original - sale) / original) * 100)
+          : undefined;
+
+        deals.push({
+          store_slug: "gratis",
+          store_name: "Gratis",
+          campaign_title: name,
+          campaign_url: href.startsWith("http") ? href : `https://www.gratis.com${href}`,
+          product_name: name,
+          category: categorize(name),
+          original_price: original,
+          sale_price: sale,
+          discount_percent: discount,
+          image_url: imgSrc ? (imgSrc.startsWith("http") ? imgSrc : `https://www.gratis.com${imgSrc}`) : undefined,
+          source_type: "scraped",
+        });
+      } catch { /* skip */ }
+    }
+
+    return { store_slug: "gratis", status: deals.length > 0 ? "success" : "no_deals", deals, duration_ms: Date.now() - start };
+  } catch (err) {
+    return { store_slug: "gratis", status: "failed", deals: [], error: err instanceof Error ? err.message : "Unknown", duration_ms: Date.now() - start };
+  }
+}
+
+// ─── Rossmann Scraper ──────────────────────────────────────────────
+async function scrapeRossmann(page: Page): Promise<ScrapeResult> {
+  const start = Date.now();
+  const deals: ScrapedDeal[] = [];
+
+  try {
+    await page.goto("https://www.rossmann.com.tr/kampanyalar", {
+      waitUntil: "domcontentloaded",
+      timeout: 30000,
+    });
+    await page.waitForTimeout(5000);
+
+    const title = await page.title();
+    console.log(`  [DEBUG] Rossmann title: "${title}"`);
+
+    let cards = await page.$$('[class*="product-card"], [class*="ProductCard"], .product-item, [class*="campaign"]');
+
+    if (cards.length === 0) {
+      // Try products page
+      await page.goto("https://www.rossmann.com.tr/c/makyaj", { waitUntil: "domcontentloaded", timeout: 30000 });
+      await page.waitForTimeout(5000);
+      cards = await page.$$('[class*="product-card"], [class*="ProductCard"], .product-item, article');
+    }
+
+    if (cards.length === 0) {
+      // Try main page
+      await page.goto("https://www.rossmann.com.tr", { waitUntil: "domcontentloaded", timeout: 30000 });
+      await page.waitForTimeout(5000);
+      cards = await page.$$('[class*="product-card"], [class*="ProductCard"], .product-item, [class*="campaign"], article');
+    }
+
+    console.log(`  [DEBUG] Rossmann found ${cards.length} cards`);
+
+    // Try JSON-LD approach
+    if (cards.length === 0) {
+      const jsonLd = await page.$$eval('script[type="application/ld+json"]', (scripts) =>
+        scripts.map((s) => s.textContent || "")
+      );
+      for (const json of jsonLd) {
+        try {
+          const data = JSON.parse(json);
+          const products = data["@type"] === "ItemList" ? data.itemListElement : Array.isArray(data) ? data : [data];
+          for (const item of products.slice(0, 25)) {
+            const product = item.item || item;
+            if (product["@type"] === "Product" && product.name) {
+              deals.push({
+                store_slug: "rossmann",
+                store_name: "Rossmann",
+                campaign_title: product.name,
+                campaign_url: product.url || "https://www.rossmann.com.tr",
+                product_name: product.name,
+                brand: product.brand?.name,
+                category: categorize(product.name),
+                sale_price: product.offers?.price ? parseFloat(product.offers.price) : undefined,
+                image_url: product.image,
+                source_type: "scraped",
+              });
+            }
+          }
+        } catch { /* skip */ }
+      }
+    }
+
+    for (const card of cards.slice(0, 25)) {
+      try {
+        const name = await card.$eval('[class*="name"], [class*="title"], h3, h4, a', (el) => el.textContent?.trim() || "").catch(() => "");
+        const priceText = await card.$eval('[class*="price"], [class*="Price"]', (el) => el.textContent?.trim() || "").catch(() => "");
+        const link = await card.$("a");
+        const href = link ? await link.getAttribute("href") || "" : "";
+        const img = await card.$("img");
+        const imgSrc = img ? await img.getAttribute("src") || await img.getAttribute("data-src") || "" : "";
+
+        if (!name || name.length < 3) continue;
+
+        const prices = priceText.match(/[\d.,]+/g);
+        let original: number | undefined;
+        let sale: number | undefined;
+        if (prices && prices.length >= 2) {
+          original = parsePrice(prices[0]);
+          sale = parsePrice(prices[prices.length - 1]);
+        } else if (prices && prices.length === 1) {
+          sale = parsePrice(prices[0]);
+        }
+
+        const discount = original && sale && sale < original
+          ? Math.round(((original - sale) / original) * 100)
+          : undefined;
+
+        deals.push({
+          store_slug: "rossmann",
+          store_name: "Rossmann",
+          campaign_title: name,
+          campaign_url: href.startsWith("http") ? href : `https://www.rossmann.com.tr${href}`,
+          product_name: name,
+          category: categorize(name),
+          original_price: original,
+          sale_price: sale,
+          discount_percent: discount,
+          image_url: imgSrc ? (imgSrc.startsWith("http") ? imgSrc : `https://www.rossmann.com.tr${imgSrc}`) : undefined,
+          source_type: "scraped",
+        });
+      } catch { /* skip */ }
+    }
+
+    return { store_slug: "rossmann", status: deals.length > 0 ? "success" : "no_deals", deals, duration_ms: Date.now() - start };
+  } catch (err) {
+    return { store_slug: "rossmann", status: "failed", deals: [], error: err instanceof Error ? err.message : "Unknown", duration_ms: Date.now() - start };
+  }
+}
+
+// ─── MAC Cosmetics Scraper ─────────────────────────────────────────
+async function scrapeMAC(page: Page): Promise<ScrapeResult> {
+  const start = Date.now();
+  const deals: ScrapedDeal[] = [];
+
+  try {
+    // MAC Turkey — Estée Lauder Companies e-commerce platform
+    await page.goto("https://www.maccosmetics.com.tr/en-cok-satanlar", {
+      waitUntil: "domcontentloaded",
+      timeout: 30000,
+    });
+    await page.waitForTimeout(5000);
+
+    const title = await page.title();
+    console.log(`  [DEBUG] MAC title: "${title}"`);
+
+    let cards = await page.$$('[class*="product-brief"], .product-grid__item, [class*="product-tile"], [class*="ProductCard"]');
+
+    if (cards.length === 0) {
+      await page.goto("https://www.maccosmetics.com.tr/makyaj", { waitUntil: "domcontentloaded", timeout: 30000 });
+      await page.waitForTimeout(5000);
+      cards = await page.$$('[class*="product-brief"], .product-grid__item, [class*="product-tile"], [class*="ProductCard"]');
+    }
+
+    if (cards.length === 0) {
+      // Try best sellers
+      await page.goto("https://www.maccosmetics.com.tr/best-sellers", { waitUntil: "domcontentloaded", timeout: 30000 });
+      await page.waitForTimeout(5000);
+      cards = await page.$$('[class*="product-brief"], .product-grid__item, [class*="product-tile"], article');
+    }
+
+    console.log(`  [DEBUG] MAC found ${cards.length} cards`);
+
+    // JSON-LD fallback
+    if (cards.length === 0) {
+      const jsonLd = await page.$$eval('script[type="application/ld+json"]', (scripts) =>
+        scripts.map((s) => s.textContent || "")
+      );
+      for (const json of jsonLd) {
+        try {
+          const data = JSON.parse(json);
+          const products = data["@type"] === "ItemList" ? data.itemListElement : Array.isArray(data) ? data : [data];
+          for (const item of products.slice(0, 25)) {
+            const product = item.item || item;
+            if (product["@type"] === "Product" && product.name) {
+              deals.push({
+                store_slug: "mac",
+                store_name: "MAC Cosmetics",
+                campaign_title: product.name,
+                campaign_url: product.url || "https://www.maccosmetics.com.tr",
+                product_name: product.name,
+                brand: "MAC",
+                category: categorize(product.name),
+                sale_price: product.offers?.price ? parseFloat(product.offers.price) : undefined,
+                image_url: product.image,
+                source_type: "scraped",
+              });
+            }
+          }
+        } catch { /* skip */ }
+      }
+    }
+
+    for (const card of cards.slice(0, 25)) {
+      try {
+        const name = await card.$eval('[class*="product-name"], [class*="product-brief__name"], h3, h4', (el) => el.textContent?.trim() || "").catch(() => "");
+        const priceText = await card.$eval('[class*="price"], [class*="Price"]', (el) => el.textContent?.trim() || "").catch(() => "");
+        const link = await card.$("a");
+        const href = link ? await link.getAttribute("href") || "" : "";
+        const img = await card.$("img");
+        const imgSrc = img ? await img.getAttribute("src") || await img.getAttribute("data-src") || "" : "";
+
+        if (!name || name.length < 3) continue;
+
+        const sale = parsePrice(priceText);
+
+        deals.push({
+          store_slug: "mac",
+          store_name: "MAC Cosmetics",
+          campaign_title: name,
+          campaign_url: href.startsWith("http") ? href : `https://www.maccosmetics.com.tr${href}`,
+          product_name: name,
+          brand: "MAC",
+          category: categorize(name),
+          sale_price: sale,
+          image_url: imgSrc ? (imgSrc.startsWith("http") ? imgSrc : `https://www.maccosmetics.com.tr${imgSrc}`) : undefined,
+          source_type: "scraped",
+        });
+      } catch { /* skip */ }
+    }
+
+    return { store_slug: "mac", status: deals.length > 0 ? "success" : "no_deals", deals, duration_ms: Date.now() - start };
+  } catch (err) {
+    return { store_slug: "mac", status: "failed", deals: [], error: err instanceof Error ? err.message : "Unknown", duration_ms: Date.now() - start };
+  }
+}
+
 // ─── Main ───────────────────────────────────────────────────────────
 async function main() {
   console.log("🚀 Starting Playwright deal scraper...");
@@ -352,6 +672,9 @@ async function main() {
 
   // Run scrapers sequentially (to avoid detection)
   const scrapers = [
+    { name: "Gratis", fn: scrapeGratis },
+    { name: "Rossmann", fn: scrapeRossmann },
+    { name: "MAC", fn: scrapeMAC },
     { name: "Watsons", fn: scrapeWatsons },
     { name: "Hepsiburada", fn: scrapeHepsiburada },
     { name: "Sephora", fn: scrapeSephora },
