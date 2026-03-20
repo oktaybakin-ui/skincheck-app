@@ -22,7 +22,7 @@ const pinCategories: PinCategory[] = [
   {
     titleKey: "pin_eye",
     query: "eye makeup tutorial trending",
-    image: "https://images.unsplash.com/photo-1583241800698-e8ab01830e07?w=400&h=300&fit=crop&q=60",
+    image: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=400&h=300&fit=crop&q=60",
     overlay: "from-purple-900/60 via-purple-800/40 to-transparent",
   },
   {
