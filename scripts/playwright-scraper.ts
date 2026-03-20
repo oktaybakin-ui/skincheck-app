@@ -72,10 +72,13 @@ async function scrapeWatsons(page: Page): Promise<ScrapeResult> {
       waitUntil: "networkidle",
       timeout: 30000,
     });
-    await page.waitForTimeout(4000);
+    // Angular SPA needs extra time to hydrate
+    await page.waitForTimeout(6000);
+    // Try waiting for product elements to appear
+    await page.waitForSelector(".product-list-item, h3.product-list-item__name, [class*='product-grid']", { timeout: 10000 }).catch(() => {});
 
     // Product cards use .product-list-item class
-    const cards = await page.$$(".product-list-item, [class*='product-grid'] [class*='product']");
+    const cards = await page.$$(".product-list-item, [class*='product-grid'] [class*='product'], e2-product-list [class*='product']");
 
     for (const card of cards.slice(0, 25)) {
       try {
@@ -127,14 +130,28 @@ async function scrapeHepsiburada(page: Page): Promise<ScrapeResult> {
   const deals: ScrapedDeal[] = [];
 
   try {
+    // Try category page first, fallback to search
     await page.goto("https://www.hepsiburada.com/kozmetik-kisisel-bakim-c-702?siralama=artpirim", {
       waitUntil: "domcontentloaded",
       timeout: 30000,
     });
-    await page.waitForTimeout(5000);
+    await page.waitForTimeout(6000);
+    // Wait for product cards to render
+    await page.waitForSelector('[data-test-id^="title-"], li[type="comfort"], article[class*="productCard"]', { timeout: 10000 }).catch(() => {});
 
     // Product cards: li[type="comfort"] > article or use data-test-id
-    const cards = await page.$$('li[type="comfort"] article, article[class*="productCard"]');
+    let cards = await page.$$('li[type="comfort"] article, article[class*="productCard"]');
+
+    // Fallback: try search URL if category page was blocked
+    if (cards.length === 0) {
+      await page.goto("https://www.hepsiburada.com/ara?q=kozmetik+indirim&siralama=artpirim", {
+        waitUntil: "domcontentloaded",
+        timeout: 30000,
+      });
+      await page.waitForTimeout(6000);
+      await page.waitForSelector('[data-test-id^="title-"], li[type="comfort"]', { timeout: 10000 }).catch(() => {});
+      cards = await page.$$('li[type="comfort"] article, article[class*="productCard"]');
+    }
 
     for (const card of cards.slice(0, 25)) {
       try {
