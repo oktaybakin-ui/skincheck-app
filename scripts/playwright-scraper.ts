@@ -77,6 +77,18 @@ async function scrapeWatsons(page: Page): Promise<ScrapeResult> {
     // Try waiting for product elements to appear
     await page.waitForSelector(".product-list-item, h3.product-list-item__name, [class*='product-grid']", { timeout: 10000 }).catch(() => {});
 
+    // Debug: log page content summary
+    const watsonsTitle = await page.title();
+    const watsonsBodyLen = await page.evaluate(() => document.body.innerHTML.length);
+    const watsonsProductCount = await page.$$eval("*", (els) => els.filter(e => e.className?.toString().includes("product")).length);
+    console.log(`  [DEBUG] Watsons page title: "${watsonsTitle}", body length: ${watsonsBodyLen}, product-like elements: ${watsonsProductCount}`);
+    // Log all unique tag names containing "product" in class
+    const watsonsClasses = await page.evaluate(() => {
+      const els = Array.from(document.querySelectorAll("*")).filter(e => e.className?.toString?.().toLowerCase().includes("product"));
+      return [...new Set(els.map(e => `${e.tagName}.${e.className.toString().split(" ").find(c => c.includes("product"))}`))] .slice(0, 15);
+    });
+    console.log(`  [DEBUG] Watsons product classes: ${JSON.stringify(watsonsClasses)}`);
+
     // Product cards use .product-list-item class
     const cards = await page.$$(".product-list-item, [class*='product-grid'] [class*='product'], e2-product-list [class*='product']");
 
@@ -139,17 +151,34 @@ async function scrapeHepsiburada(page: Page): Promise<ScrapeResult> {
     // Wait for product cards to render
     await page.waitForSelector('[data-test-id^="title-"], li[type="comfort"], article[class*="productCard"]', { timeout: 10000 }).catch(() => {});
 
+    // Debug: log page content summary
+    const hbTitle = await page.title();
+    const hbBodyLen = await page.evaluate(() => document.body.innerHTML.length);
+    const hbArticles = await page.$$eval("article", (els) => els.length);
+    const hbLis = await page.$$eval('li[type="comfort"]', (els) => els.length);
+    const hbTestIds = await page.evaluate(() => {
+      return Array.from(document.querySelectorAll("[data-test-id]"))
+        .map(e => e.getAttribute("data-test-id"))
+        .filter(id => id?.includes("title") || id?.includes("price"))
+        .slice(0, 10);
+    });
+    console.log(`  [DEBUG] HB title: "${hbTitle}", body: ${hbBodyLen}, articles: ${hbArticles}, li[comfort]: ${hbLis}, test-ids: ${JSON.stringify(hbTestIds)}`);
+
     // Product cards: li[type="comfort"] > article or use data-test-id
     let cards = await page.$$('li[type="comfort"] article, article[class*="productCard"]');
 
     // Fallback: try search URL if category page was blocked
     if (cards.length === 0) {
+      console.log("  [DEBUG] HB category page empty, trying search URL...");
       await page.goto("https://www.hepsiburada.com/ara?q=kozmetik+indirim&siralama=artpirim", {
         waitUntil: "domcontentloaded",
         timeout: 30000,
       });
       await page.waitForTimeout(6000);
       await page.waitForSelector('[data-test-id^="title-"], li[type="comfort"]', { timeout: 10000 }).catch(() => {});
+      const hbTitle2 = await page.title();
+      const hbArticles2 = await page.$$eval("article", (els) => els.length);
+      console.log(`  [DEBUG] HB search page title: "${hbTitle2}", articles: ${hbArticles2}`);
       cards = await page.$$('li[type="comfort"] article, article[class*="productCard"]');
     }
 
