@@ -164,64 +164,70 @@ async function scrapeHepsiburada(page: Page): Promise<ScrapeResult> {
         const hbArticles = await page.$$eval("article", (els) => els.length);
         console.log(`  [DEBUG] HB "${hbUrl.split("q=")[1]?.split("&")[0]}" → title: "${hbTitle}", articles: ${hbArticles}`);
 
-        const pageCards = await page.$$('li[type="comfort"] article, article[class*="productCard"]');
-        if (pageCards.length > 0) {
-          // Add cards from this search
-          for (const card of pageCards.slice(0, 15)) {
-            cards.push(card);
+        // Extract products directly from DOM using evaluate for reliability
+        const products = await page.evaluate(() => {
+          const items: Array<{name: string; price: string; oldPrice: string; href: string; img: string}> = [];
+          // Try all possible article/card containers
+          const articles = document.querySelectorAll("article, li[type='comfort'], [class*='productCard']");
+          articles.forEach((article) => {
+            const nameEl = article.querySelector("h3, h2, [data-test-id*='title'], a[title]");
+            const name = nameEl?.textContent?.trim() || (nameEl as HTMLAnchorElement)?.title || "";
+            const priceEls = article.querySelectorAll("[class*='price'], [data-test-id*='price']");
+            let price = "";
+            let oldPrice = "";
+            priceEls.forEach((p) => {
+              const text = p.textContent?.trim() || "";
+              if (text.includes("TL") || /\d/.test(text)) {
+                if (!price) price = text;
+                else if (!oldPrice) oldPrice = text;
+              }
+            });
+            const linkEl = article.querySelector("a[href*='/']") as HTMLAnchorElement;
+            const href = linkEl?.href || "";
+            const imgEl = article.querySelector("img") as HTMLImageElement;
+            const img = imgEl?.src || imgEl?.getAttribute("data-src") || "";
+            if (name && name.length > 3) {
+              items.push({ name, price, oldPrice, href, img });
+            }
+          });
+          return items;
+        });
+
+        console.log(`  [DEBUG] HB evaluate found ${products.length} products`);
+        if (products.length > 0) {
+          console.log(`  [DEBUG] HB sample: ${products[0].name} → ${products[0].price}`);
+        }
+
+        for (const product of products.slice(0, 15)) {
+          // Kozmetik filtresi
+          const nameLower = product.name.toLowerCase();
+          const isCosmetic = /ruj|lip|dudak|fondöten|foundation|allık|blush|far|eyeshadow|rimel|mascara|eyeliner|kapatıcı|concealer|pudra|powder|makyaj|serum|krem|cream|nemlendirici|moistur|tonik|toner|temizleyici|cleanser|peeling|maske|mask|cilt|skin|şampuan|shampoo|saç|hair|parfüm|perfume|deodorant|koku|fragrance|edp|edt|güneş|sun|spf|oje|nail|kirpik|kaş|brow|kontür|contour|highlighter|bronzer|primer|bb|cc|losyon|lotion|jel|gel/.test(nameLower);
+          if (!isCosmetic) {
+            continue;
           }
+
+          const sale = parsePrice(product.price);
+          const original = parsePrice(product.oldPrice);
+          const discount = original && sale && sale < original
+            ? Math.round(((original - sale) / original) * 100)
+            : undefined;
+
+          deals.push({
+            store_slug: "hepsiburada",
+            store_name: "Hepsiburada",
+            campaign_title: product.name,
+            campaign_url: product.href.startsWith("http") ? product.href : `https://www.hepsiburada.com${product.href}`,
+            product_name: product.name,
+            category: categorize(product.name),
+            original_price: original,
+            sale_price: sale,
+            discount_percent: discount,
+            image_url: product.img || undefined,
+            source_type: "scraped",
+          });
         }
       } catch {
         continue;
-      }
-    }
-
-    for (const card of cards.slice(0, 25)) {
-      try {
-        // Title: h2 with data-test-id^="title-"
-        const name = await card.$eval('[data-test-id^="title-"], h2, [class*="product-title"]', (el) => el.textContent?.trim() || "").catch(() => "");
-        // Final price: div with data-test-id^="final-price-"
-        const finalPrice = await card.$eval('[data-test-id^="final-price-"], [class*="finalPrice"]', (el) => el.textContent?.trim() || "").catch(() => "");
-        // Original price: span with class containing "originalPrice"
-        const oldPrice = await card.$eval('[class*="originalPrice"], [class*="old-price"]', (el) => el.textContent?.trim() || "").catch(() => "");
-        // Discount rate
-        const discountText = await card.$eval('[class*="discountRate"], [class*="discount"]', (el) => el.textContent?.trim() || "").catch(() => "");
-        // Link from title
-        const link = await card.$('[data-test-id^="title-"] a, a[class*="productCardLink"], a');
-        const href = link ? await link.getAttribute("href") || "" : "";
-        // Image
-        const img = await card.$("picture img, img[class*='hbImageView'], img");
-        const imgSrc = img ? await img.getAttribute("src") || await img.getAttribute("data-src") || "" : "";
-
-        if (!name || name.length < 3) continue;
-
-        // Sadece kozmetik/güzellik ürünlerini filtrele — kişisel bakım/hijyen ürünlerini atla
-        const nameLower = name.toLowerCase();
-        const isCosmetic = /ruj|lip|dudak|fondöten|foundation|allık|blush|far|eyeshadow|rimel|mascara|eyeliner|kapatıcı|concealer|pudra|powder|makyaj|serum|krem|cream|nemlendirici|moistur|tonik|toner|temizleyici|cleanser|peeling|maske|mask|cilt|skin|şampuan|shampoo|saç|hair|parfüm|perfume|deodorant|koku|fragrance|edp|edt|güneş|sun|spf|oje|nail|kirpik|kaş|brow|kontür|contour|highlighter|bronzer|primer|bb|cc/.test(nameLower);
-        if (!isCosmetic) continue;
-
-        const sale = parsePrice(finalPrice);
-        const original = parsePrice(oldPrice);
-        const discountNum = discountText ? parseInt(discountText.replace(/[^0-9]/g, "")) : undefined;
-        const discount = discountNum || (original && sale && sale < original
-          ? Math.round(((original - sale) / original) * 100)
-          : undefined);
-
-        deals.push({
-          store_slug: "hepsiburada",
-          store_name: "Hepsiburada",
-          campaign_title: name,
-          campaign_url: href.startsWith("http") ? href : `https://www.hepsiburada.com${href}`,
-          product_name: name,
-          category: categorize(name),
-          original_price: original,
-          sale_price: sale,
-          discount_percent: discount,
-          image_url: imgSrc || undefined,
-          source_type: "scraped",
-        });
-      } catch {
-        // Skip
       }
     }
 
@@ -294,136 +300,109 @@ async function scrapeSephora(page: Page): Promise<ScrapeResult> {
 }
 
 // ─── Gratis Scraper ────────────────────────────────────────────────
-// Next.js SSR app — product cards with structured data
+// Next.js app — extract products via __NEXT_DATA__ or DOM evaluate
 async function scrapeGratis(page: Page): Promise<ScrapeResult> {
   const start = Date.now();
   const deals: ScrapedDeal[] = [];
 
   try {
-    await page.goto("https://www.gratis.com/firsatlar", {
-      waitUntil: "domcontentloaded",
-      timeout: 30000,
-    });
-    await page.waitForTimeout(5000);
-
-    const title = await page.title();
-    console.log(`  [DEBUG] Gratis title: "${title}"`);
-
-    // Debug: log all class names containing 'product' to find correct selectors
-    const productClasses = await page.evaluate(() => {
-      const all = document.querySelectorAll("*");
-      const classes = new Set<string>();
-      all.forEach((el) => {
-        el.classList.forEach((c) => {
-          if (c.toLowerCase().includes("product") || c.toLowerCase().includes("card") || c.toLowerCase().includes("item")) {
-            classes.add(c);
-          }
-        });
-      });
-      return Array.from(classes).slice(0, 20);
-    });
-    console.log(`  [DEBUG] Gratis product-related classes: ${JSON.stringify(productClasses)}`);
-
-    // Try broad selectors for products
-    let cards = await page.$$('[class*="product-card"], [class*="ProductCard"], [data-testid*="product"], .product-item, [class*="product_card"], [class*="productCard"]');
-
-    if (cards.length === 0) {
-      // Try links that look like product links
-      const productLinks = await page.$$eval('a[href*="/p/"], a[href*="/urun/"]', (els) => els.length);
-      console.log(`  [DEBUG] Gratis product links: ${productLinks}`);
-      cards = await page.$$('a[href*="/p/"], a[href*="/urun/"]');
-    }
-
     const gratisUrls = [
+      "https://www.gratis.com/firsatlar",
       "https://www.gratis.com/makyaj",
       "https://www.gratis.com/cilt-bakimi",
-      "https://www.gratis.com/arama?q=indirim",
     ];
 
     for (const gUrl of gratisUrls) {
-      if (cards.length > 0) break;
       try {
-        await page.goto(gUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
-        await page.waitForTimeout(5000);
-        const gTitle = await page.title();
-        console.log(`  [DEBUG] Gratis ${gUrl.split(".com")[1]} → "${gTitle}"`);
-        cards = await page.$$('[class*="product-card"], [class*="ProductCard"], [class*="product_card"], [class*="productCard"], a[href*="/p/"]');
-        console.log(`  [DEBUG] Gratis found ${cards.length} cards`);
-      } catch { continue; }
-    }
+        await page.goto(gUrl, { waitUntil: "networkidle", timeout: 30000 });
+        await page.waitForTimeout(8000); // Wait for SPA to render
 
-    console.log(`  [DEBUG] Gratis total cards: ${cards.length}`);
+        const title = await page.title();
+        console.log(`  [DEBUG] Gratis ${gUrl.split(".com")[1]} → "${title}"`);
 
-    // Try extracting from JSON-LD or Next.js data
-    if (cards.length === 0) {
-      const jsonLd = await page.$$eval('script[type="application/ld+json"]', (scripts) =>
-        scripts.map((s) => s.textContent || "")
-      );
-      for (const json of jsonLd) {
-        try {
-          const data = JSON.parse(json);
-          if (data["@type"] === "ItemList" && data.itemListElement) {
-            for (const item of data.itemListElement.slice(0, 25)) {
-              const product = item.item || item;
-              if (product.name) {
+        // Strategy 1: Try __NEXT_DATA__ for Next.js apps
+        const nextData = await page.evaluate(() => {
+          const el = document.getElementById("__NEXT_DATA__");
+          return el?.textContent || "";
+        });
+
+        if (nextData) {
+          try {
+            const parsed = JSON.parse(nextData);
+            // Navigate through Next.js props to find product data
+            const pageProps = parsed?.props?.pageProps;
+            const products = pageProps?.products || pageProps?.items || pageProps?.data?.products || [];
+            console.log(`  [DEBUG] Gratis __NEXT_DATA__ keys: ${Object.keys(pageProps || {}).slice(0, 10).join(", ")}`);
+            if (Array.isArray(products)) {
+              for (const p of products.slice(0, 25)) {
+                const name = p.name || p.title || p.productName || "";
+                if (!name) continue;
                 deals.push({
                   store_slug: "gratis",
                   store_name: "Gratis",
-                  campaign_title: product.name,
-                  campaign_url: product.url || "https://www.gratis.com",
-                  product_name: product.name,
-                  category: categorize(product.name),
-                  sale_price: product.offers?.price ? parseFloat(product.offers.price) : undefined,
-                  image_url: product.image,
+                  campaign_title: name,
+                  campaign_url: p.url || p.slug ? `https://www.gratis.com/${p.slug}` : gUrl,
+                  product_name: name,
+                  brand: p.brand || p.brandName,
+                  category: categorize(name),
+                  original_price: p.originalPrice || p.listPrice,
+                  sale_price: p.price || p.salePrice || p.discountedPrice,
+                  image_url: p.image || p.imageUrl || p.thumbnailUrl,
                   source_type: "scraped",
                 });
               }
             }
-          }
-        } catch { /* skip */ }
-      }
-    }
-
-    for (const card of cards.slice(0, 25)) {
-      try {
-        const name = await card.$eval('[class*="name"], [class*="title"], h3, h4, a', (el) => el.textContent?.trim() || "").catch(() => "");
-        const priceText = await card.$eval('[class*="price"], [class*="Price"]', (el) => el.textContent?.trim() || "").catch(() => "");
-        const link = await card.$("a");
-        const href = link ? await link.getAttribute("href") || "" : "";
-        const img = await card.$("img");
-        const imgSrc = img ? await img.getAttribute("src") || await img.getAttribute("data-src") || "" : "";
-
-        if (!name || name.length < 3) continue;
-
-        // Parse prices — Gratis often shows "149,90 TL 99,90 TL"
-        const prices = priceText.match(/[\d.,]+/g);
-        let original: number | undefined;
-        let sale: number | undefined;
-        if (prices && prices.length >= 2) {
-          original = parsePrice(prices[0]);
-          sale = parsePrice(prices[prices.length - 1]);
-        } else if (prices && prices.length === 1) {
-          sale = parsePrice(prices[0]);
+          } catch { /* skip */ }
         }
 
-        const discount = original && sale && sale < original
-          ? Math.round(((original - sale) / original) * 100)
-          : undefined;
+        if (deals.length > 0) break;
 
-        deals.push({
-          store_slug: "gratis",
-          store_name: "Gratis",
-          campaign_title: name,
-          campaign_url: href.startsWith("http") ? href : `https://www.gratis.com${href}`,
-          product_name: name,
-          category: categorize(name),
-          original_price: original,
-          sale_price: sale,
-          discount_percent: discount,
-          image_url: imgSrc ? (imgSrc.startsWith("http") ? imgSrc : `https://www.gratis.com${imgSrc}`) : undefined,
-          source_type: "scraped",
+        // Strategy 2: Extract all visible product-like elements via DOM
+        const products = await page.evaluate(() => {
+          const items: Array<{name: string; price: string; href: string; img: string}> = [];
+          // Find all links that might be products
+          const allLinks = document.querySelectorAll("a[href]");
+          allLinks.forEach((link) => {
+            const href = (link as HTMLAnchorElement).href;
+            // Look for product-like links (containing /p/ or product paths)
+            if (!href || href === window.location.href) return;
+            const img = link.querySelector("img");
+            const imgSrc = img?.src || img?.getAttribute("data-src") || "";
+            // Get text content — product name is usually near image
+            const texts = Array.from(link.querySelectorAll("span, p, h3, h4, div"))
+              .map((el) => el.textContent?.trim())
+              .filter((t) => t && t.length > 3 && t.length < 200);
+            const priceMatch = texts.find((t) => t && (/TL|₺|\d+[.,]\d{2}/.test(t)));
+            const nameMatch = texts.find((t) => t && t !== priceMatch && !(/^\d/.test(t || "")));
+            if (nameMatch && imgSrc) {
+              items.push({ name: nameMatch, price: priceMatch || "", href, img: imgSrc });
+            }
+          });
+          return items;
         });
-      } catch { /* skip */ }
+
+        console.log(`  [DEBUG] Gratis DOM products: ${products.length}`);
+        if (products.length > 0) {
+          console.log(`  [DEBUG] Gratis sample: ${products[0].name} → ${products[0].price}`);
+        }
+
+        for (const p of products.slice(0, 25)) {
+          const sale = parsePrice(p.price);
+          deals.push({
+            store_slug: "gratis",
+            store_name: "Gratis",
+            campaign_title: p.name,
+            campaign_url: p.href,
+            product_name: p.name,
+            category: categorize(p.name),
+            sale_price: sale,
+            image_url: p.img || undefined,
+            source_type: "scraped",
+          });
+        }
+
+        if (deals.length > 0) break;
+      } catch { continue; }
     }
 
     return { store_slug: "gratis", status: deals.length > 0 ? "success" : "no_deals", deals, duration_ms: Date.now() - start };
@@ -433,54 +412,93 @@ async function scrapeGratis(page: Page): Promise<ScrapeResult> {
 }
 
 // ─── Rossmann Scraper ──────────────────────────────────────────────
+// Cloudflare protected — use domcontentloaded + long wait + DOM evaluate
 async function scrapeRossmann(page: Page): Promise<ScrapeResult> {
   const start = Date.now();
   const deals: ScrapedDeal[] = [];
 
   try {
-    // Rossmann uses Cloudflare — wait longer for challenge to resolve
-    await page.goto("https://www.rossmann.com.tr/kampanyalar", {
-      waitUntil: "networkidle",
-      timeout: 30000,
+    // Navigate and wait for CF challenge to auto-resolve
+    await page.goto("https://www.rossmann.com.tr", {
+      waitUntil: "domcontentloaded",
+      timeout: 45000,
     });
-    // Wait for Cloudflare challenge to pass
-    await page.waitForTimeout(8000);
 
+    // Wait for CF challenge — it auto-resolves in headed mode
     let title = await page.title();
-    console.log(`  [DEBUG] Rossmann title: "${title}"`);
+    console.log(`  [DEBUG] Rossmann initial title: "${title}"`);
 
-    // If still on Cloudflare, wait more
-    if (title.includes("dakika") || title.includes("moment") || title.includes("Checking")) {
-      console.log("  [DEBUG] Rossmann: Cloudflare challenge detected, waiting...");
-      await page.waitForTimeout(10000);
+    // Poll for CF resolution (up to 20 seconds)
+    for (let i = 0; i < 10; i++) {
+      if (!title.includes("dakika") && !title.includes("moment") && !title.includes("Checking") && !title.includes("Just")) break;
+      await page.waitForTimeout(2000);
       title = await page.title();
-      console.log(`  [DEBUG] Rossmann title after wait: "${title}"`);
+    }
+    console.log(`  [DEBUG] Rossmann resolved title: "${title}"`);
+
+    // If CF resolved, navigate to product pages
+    if (!title.includes("dakika") && !title.includes("moment")) {
+      const rossmannUrls = [
+        "https://www.rossmann.com.tr/c/makyaj",
+        "https://www.rossmann.com.tr/c/cilt-bakimi",
+        "https://www.rossmann.com.tr/c/sac-bakimi",
+      ];
+
+      for (const rUrl of rossmannUrls) {
+        if (deals.length >= 20) break;
+        try {
+          await page.goto(rUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
+          await page.waitForTimeout(5000);
+
+          const rTitle = await page.title();
+          console.log(`  [DEBUG] Rossmann ${rUrl.split(".tr")[1]} → "${rTitle}"`);
+
+          // Extract products via evaluate
+          const products = await page.evaluate(() => {
+            const items: Array<{name: string; price: string; href: string; img: string; brand: string}> = [];
+            // Try various product containers
+            const containers = document.querySelectorAll("[class*='product'], article, [class*='card'], [class*='item']");
+            containers.forEach((el) => {
+              const nameEl = el.querySelector("h3, h4, [class*='name'], [class*='title']");
+              const name = nameEl?.textContent?.trim() || "";
+              const priceEl = el.querySelector("[class*='price'], [class*='Price']");
+              const price = priceEl?.textContent?.trim() || "";
+              const linkEl = el.querySelector("a[href]") as HTMLAnchorElement;
+              const href = linkEl?.href || "";
+              const imgEl = el.querySelector("img") as HTMLImageElement;
+              const img = imgEl?.src || "";
+              const brandEl = el.querySelector("[class*='brand']");
+              const brand = brandEl?.textContent?.trim() || "";
+              if (name && name.length > 3 && (price || href)) {
+                items.push({ name, price, href, img, brand });
+              }
+            });
+            return items;
+          });
+
+          console.log(`  [DEBUG] Rossmann evaluate found ${products.length} products`);
+
+          for (const p of products.slice(0, 15)) {
+            const sale = parsePrice(p.price);
+            deals.push({
+              store_slug: "rossmann",
+              store_name: "Rossmann",
+              campaign_title: p.name,
+              campaign_url: p.href || rUrl,
+              product_name: p.name,
+              brand: p.brand || undefined,
+              category: categorize(p.name),
+              sale_price: sale,
+              image_url: p.img || undefined,
+              source_type: "scraped",
+            });
+          }
+        } catch { continue; }
+      }
     }
 
-    let cards = await page.$$('[class*="product-card"], [class*="ProductCard"], .product-item, [class*="campaign"]');
-
-    const rossmannUrls = [
-      "https://www.rossmann.com.tr/c/makyaj",
-      "https://www.rossmann.com.tr/c/cilt-bakimi",
-      "https://www.rossmann.com.tr",
-    ];
-
-    for (const rUrl of rossmannUrls) {
-      if (cards.length > 0) break;
-      try {
-        await page.goto(rUrl, { waitUntil: "networkidle", timeout: 30000 });
-        await page.waitForTimeout(8000);
-        const rTitle = await page.title();
-        console.log(`  [DEBUG] Rossmann ${rUrl.split(".tr")[1]} → "${rTitle}"`);
-        cards = await page.$$('[class*="product-card"], [class*="ProductCard"], .product-item, article, [class*="campaign"]');
-        console.log(`  [DEBUG] Rossmann found ${cards.length} cards`);
-      } catch { continue; }
-    }
-
-    console.log(`  [DEBUG] Rossmann found ${cards.length} cards`);
-
-    // Try JSON-LD approach
-    if (cards.length === 0) {
+    // Fallback: JSON-LD
+    if (deals.length === 0) {
       const jsonLd = await page.$$eval('script[type="application/ld+json"]', (scripts) =>
         scripts.map((s) => s.textContent || "")
       );
@@ -509,47 +527,6 @@ async function scrapeRossmann(page: Page): Promise<ScrapeResult> {
       }
     }
 
-    for (const card of cards.slice(0, 25)) {
-      try {
-        const name = await card.$eval('[class*="name"], [class*="title"], h3, h4, a', (el) => el.textContent?.trim() || "").catch(() => "");
-        const priceText = await card.$eval('[class*="price"], [class*="Price"]', (el) => el.textContent?.trim() || "").catch(() => "");
-        const link = await card.$("a");
-        const href = link ? await link.getAttribute("href") || "" : "";
-        const img = await card.$("img");
-        const imgSrc = img ? await img.getAttribute("src") || await img.getAttribute("data-src") || "" : "";
-
-        if (!name || name.length < 3) continue;
-
-        const prices = priceText.match(/[\d.,]+/g);
-        let original: number | undefined;
-        let sale: number | undefined;
-        if (prices && prices.length >= 2) {
-          original = parsePrice(prices[0]);
-          sale = parsePrice(prices[prices.length - 1]);
-        } else if (prices && prices.length === 1) {
-          sale = parsePrice(prices[0]);
-        }
-
-        const discount = original && sale && sale < original
-          ? Math.round(((original - sale) / original) * 100)
-          : undefined;
-
-        deals.push({
-          store_slug: "rossmann",
-          store_name: "Rossmann",
-          campaign_title: name,
-          campaign_url: href.startsWith("http") ? href : `https://www.rossmann.com.tr${href}`,
-          product_name: name,
-          category: categorize(name),
-          original_price: original,
-          sale_price: sale,
-          discount_percent: discount,
-          image_url: imgSrc ? (imgSrc.startsWith("http") ? imgSrc : `https://www.rossmann.com.tr${imgSrc}`) : undefined,
-          source_type: "scraped",
-        });
-      } catch { /* skip */ }
-    }
-
     return { store_slug: "rossmann", status: deals.length > 0 ? "success" : "no_deals", deals, duration_ms: Date.now() - start };
   } catch (err) {
     return { store_slug: "rossmann", status: "failed", deals: [], error: err instanceof Error ? err.message : "Unknown", duration_ms: Date.now() - start };
@@ -557,94 +534,112 @@ async function scrapeRossmann(page: Page): Promise<ScrapeResult> {
 }
 
 // ─── MAC Cosmetics Scraper ─────────────────────────────────────────
+// Estée Lauder e-commerce — SPA with networkidle + DOM evaluate
 async function scrapeMAC(page: Page): Promise<ScrapeResult> {
   const start = Date.now();
   const deals: ScrapedDeal[] = [];
 
   try {
-    // MAC Turkey — Estée Lauder Companies e-commerce platform
-    await page.goto("https://www.maccosmetics.com.tr/en-cok-satanlar", {
-      waitUntil: "domcontentloaded",
-      timeout: 30000,
-    });
-    await page.waitForTimeout(5000);
+    const macUrls = [
+      "https://www.maccosmetics.com.tr/en-cok-satanlar",
+      "https://www.maccosmetics.com.tr/best-sellers",
+      "https://www.maccosmetics.com.tr/makyaj",
+    ];
 
-    const title = await page.title();
-    console.log(`  [DEBUG] MAC title: "${title}"`);
-
-    let cards = await page.$$('[class*="product-brief"], .product-grid__item, [class*="product-tile"], [class*="ProductCard"]');
-
-    if (cards.length === 0) {
-      await page.goto("https://www.maccosmetics.com.tr/makyaj", { waitUntil: "domcontentloaded", timeout: 30000 });
-      await page.waitForTimeout(5000);
-      cards = await page.$$('[class*="product-brief"], .product-grid__item, [class*="product-tile"], [class*="ProductCard"]');
-    }
-
-    if (cards.length === 0) {
-      // Try best sellers
-      await page.goto("https://www.maccosmetics.com.tr/best-sellers", { waitUntil: "domcontentloaded", timeout: 30000 });
-      await page.waitForTimeout(5000);
-      cards = await page.$$('[class*="product-brief"], .product-grid__item, [class*="product-tile"], article');
-    }
-
-    console.log(`  [DEBUG] MAC found ${cards.length} cards`);
-
-    // JSON-LD fallback
-    if (cards.length === 0) {
-      const jsonLd = await page.$$eval('script[type="application/ld+json"]', (scripts) =>
-        scripts.map((s) => s.textContent || "")
-      );
-      for (const json of jsonLd) {
-        try {
-          const data = JSON.parse(json);
-          const products = data["@type"] === "ItemList" ? data.itemListElement : Array.isArray(data) ? data : [data];
-          for (const item of products.slice(0, 25)) {
-            const product = item.item || item;
-            if (product["@type"] === "Product" && product.name) {
-              deals.push({
-                store_slug: "mac",
-                store_name: "MAC Cosmetics",
-                campaign_title: product.name,
-                campaign_url: product.url || "https://www.maccosmetics.com.tr",
-                product_name: product.name,
-                brand: "MAC",
-                category: categorize(product.name),
-                sale_price: product.offers?.price ? parseFloat(product.offers.price) : undefined,
-                image_url: product.image,
-                source_type: "scraped",
-              });
-            }
-          }
-        } catch { /* skip */ }
-      }
-    }
-
-    for (const card of cards.slice(0, 25)) {
+    for (const mUrl of macUrls) {
+      if (deals.length > 0) break;
       try {
-        const name = await card.$eval('[class*="product-name"], [class*="product-brief__name"], h3, h4', (el) => el.textContent?.trim() || "").catch(() => "");
-        const priceText = await card.$eval('[class*="price"], [class*="Price"]', (el) => el.textContent?.trim() || "").catch(() => "");
-        const link = await card.$("a");
-        const href = link ? await link.getAttribute("href") || "" : "";
-        const img = await card.$("img");
-        const imgSrc = img ? await img.getAttribute("src") || await img.getAttribute("data-src") || "" : "";
+        await page.goto(mUrl, { waitUntil: "networkidle", timeout: 30000 });
+        await page.waitForTimeout(8000); // Wait for SPA to fully render
 
-        if (!name || name.length < 3) continue;
+        const title = await page.title();
+        console.log(`  [DEBUG] MAC ${mUrl.split(".tr")[1]} → "${title}"`);
 
-        const sale = parsePrice(priceText);
+        // Strategy 1: JSON-LD (MAC often has structured data)
+        const jsonLd = await page.$$eval('script[type="application/ld+json"]', (scripts) =>
+          scripts.map((s) => s.textContent || "")
+        );
+        for (const json of jsonLd) {
+          try {
+            const data = JSON.parse(json);
+            const items = data["@type"] === "ItemList" ? data.itemListElement :
+                         data["@type"] === "Product" ? [data] :
+                         Array.isArray(data) ? data : [];
+            for (const item of items.slice(0, 25)) {
+              const product = item.item || item;
+              if (product.name) {
+                deals.push({
+                  store_slug: "mac",
+                  store_name: "MAC Cosmetics",
+                  campaign_title: product.name,
+                  campaign_url: product.url || mUrl,
+                  product_name: product.name,
+                  brand: "MAC",
+                  category: categorize(product.name),
+                  sale_price: product.offers?.price ? parseFloat(product.offers.price) : undefined,
+                  image_url: typeof product.image === "string" ? product.image : product.image?.[0],
+                  source_type: "scraped",
+                });
+              }
+            }
+          } catch { /* skip */ }
+        }
 
-        deals.push({
-          store_slug: "mac",
-          store_name: "MAC Cosmetics",
-          campaign_title: name,
-          campaign_url: href.startsWith("http") ? href : `https://www.maccosmetics.com.tr${href}`,
-          product_name: name,
-          brand: "MAC",
-          category: categorize(name),
-          sale_price: sale,
-          image_url: imgSrc ? (imgSrc.startsWith("http") ? imgSrc : `https://www.maccosmetics.com.tr${imgSrc}`) : undefined,
-          source_type: "scraped",
+        if (deals.length > 0) break;
+
+        // Strategy 2: DOM evaluate — look for product cards with images + text
+        const products = await page.evaluate(() => {
+          const items: Array<{name: string; price: string; href: string; img: string}> = [];
+          // MAC uses various product grid formats
+          const allLinks = document.querySelectorAll("a[href]");
+          allLinks.forEach((link) => {
+            const el = link as HTMLAnchorElement;
+            const href = el.href;
+            if (!href || href === window.location.href) return;
+            // Skip non-product links
+            if (href.includes("login") || href.includes("cart") || href.includes("#")) return;
+
+            const img = link.querySelector("img");
+            if (!img) return;
+            const imgSrc = img.src || img.getAttribute("data-src") || "";
+            if (!imgSrc || imgSrc.includes("logo") || imgSrc.includes("icon")) return;
+
+            // Get all text spans
+            const texts = Array.from(link.querySelectorAll("span, p, h3, h4, div"))
+              .map((t) => t.textContent?.trim())
+              .filter((t) => t && t.length > 2 && t.length < 200);
+
+            const priceMatch = texts.find((t) => t && /TL|₺|\d+[.,]\d{2}/.test(t));
+            const nameMatch = texts.find((t) => t && t !== priceMatch && t.length > 3);
+
+            if (nameMatch) {
+              items.push({ name: nameMatch, price: priceMatch || "", href, img: imgSrc });
+            }
+          });
+          return items;
         });
-      } catch { /* skip */ }
+
+        console.log(`  [DEBUG] MAC DOM products: ${products.length}`);
+        if (products.length > 0) {
+          console.log(`  [DEBUG] MAC sample: ${products[0].name} → ${products[0].price}`);
+        }
+
+        for (const p of products.slice(0, 25)) {
+          const sale = parsePrice(p.price);
+          deals.push({
+            store_slug: "mac",
+            store_name: "MAC Cosmetics",
+            campaign_title: p.name,
+            campaign_url: p.href,
+            product_name: p.name,
+            brand: "MAC",
+            category: categorize(p.name),
+            sale_price: sale,
+            image_url: p.img || undefined,
+            source_type: "scraped",
+          });
+        }
+      } catch { continue; }
     }
 
     return { store_slug: "mac", status: deals.length > 0 ? "success" : "no_deals", deals, duration_ms: Date.now() - start };
