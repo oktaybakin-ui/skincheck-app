@@ -300,14 +300,49 @@ async function main() {
   const totalStart = Date.now();
 
   const browser = await chromium.launch({
-    headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    headless: false, // Use headed mode to avoid headless detection
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-blink-features=AutomationControlled",
+      "--disable-features=IsolateOrigins,site-per-process",
+      "--disable-dev-shm-usage",
+      "--window-size=1280,720",
+    ],
   });
 
   const context = await browser.newContext({
     userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
     locale: "tr-TR",
     viewport: { width: 1280, height: 720 },
+    // Stealth: override navigator properties
+    javaScriptEnabled: true,
+  });
+
+  // Remove webdriver flag to avoid bot detection
+  await context.addInitScript(() => {
+    Object.defineProperty(navigator, "webdriver", { get: () => false });
+    // Override chrome automation properties
+    const originalQuery = window.navigator.permissions.query;
+    window.navigator.permissions.query = (parameters: PermissionDescriptor) =>
+      parameters.name === "notifications"
+        ? Promise.resolve({ state: "denied", onchange: null } as PermissionStatus)
+        : originalQuery(parameters);
+    // Add chrome object
+    Object.defineProperty(window, "chrome", {
+      get: () => ({
+        runtime: {},
+        loadTimes: () => ({}),
+        csi: () => ({}),
+      }),
+    });
+    // Override plugins length
+    Object.defineProperty(navigator, "plugins", {
+      get: () => [1, 2, 3, 4, 5],
+    });
+    Object.defineProperty(navigator, "languages", {
+      get: () => ["tr-TR", "tr", "en-US", "en"],
+    });
   });
 
   const results: ScrapeResult[] = [];
