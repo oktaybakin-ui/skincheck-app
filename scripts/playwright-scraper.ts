@@ -204,6 +204,11 @@ async function scrapeHepsiburada(page: Page): Promise<ScrapeResult> {
 
         if (!name || name.length < 3) continue;
 
+        // Sadece kozmetik/güzellik ürünlerini filtrele — kişisel bakım/hijyen ürünlerini atla
+        const nameLower = name.toLowerCase();
+        const isCosmetic = /ruj|lip|dudak|fondöten|foundation|allık|blush|far|eyeshadow|rimel|mascara|eyeliner|kapatıcı|concealer|pudra|powder|makyaj|serum|krem|cream|nemlendirici|moistur|tonik|toner|temizleyici|cleanser|peeling|maske|mask|cilt|skin|şampuan|shampoo|saç|hair|parfüm|perfume|deodorant|koku|fragrance|edp|edt|güneş|sun|spf|oje|nail|kirpik|kaş|brow|kontür|contour|highlighter|bronzer|primer|bb|cc/.test(nameLower);
+        if (!isCosmetic) continue;
+
         const sale = parsePrice(finalPrice);
         const original = parsePrice(oldPrice);
         const discountNum = discountText ? parseInt(discountText.replace(/[^0-9]/g, "")) : undefined;
