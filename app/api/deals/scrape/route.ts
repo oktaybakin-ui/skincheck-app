@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { scrapeAllStores, getCampaignLinkDeals } from "@/lib/scrapers/scrape-store";
+import { scrapeAllAPIs } from "@/lib/scrapers/api-scrapers";
 import { aiParseDeals } from "@/lib/scrapers/ai-parser";
 import { STORE_CONFIGS } from "@/lib/scrapers/stores";
 import type { ScrapedDeal } from "@/lib/scrapers/types";
@@ -26,14 +27,38 @@ export async function POST(request: Request) {
   const runStart = Date.now();
 
   try {
-    // Step 1: Scrape all stores with cheerio
+    // Step 1a: Scrape stores with API-based scrapers (Rossmann, Trendyol, Gratis)
+    const apiResults = await scrapeAllAPIs();
+    const apiStores = new Set(apiResults.filter(r => r.status === "success").map(r => r.store_slug));
+
+    // Step 1b: Scrape remaining stores with cheerio (skip stores that API already handled)
     const results = await scrapeAllStores();
 
-    // Step 2: For failed scrapes, try AI parser
+    // Step 2: Merge results — API results take priority
     const allDeals: ScrapedDeal[] = [];
     const storeStatuses: Record<string, string> = {};
 
+    // Add API results first
+    for (const apiResult of apiResults) {
+      storeStatuses[apiResult.store_slug] = apiResult.status === "success" ? "api_success" : apiResult.status;
+      if (apiResult.status === "success" && apiResult.deals.length > 0) {
+        allDeals.push(...apiResult.deals);
+      }
+      // Log API scrape run
+      await supabase.from("scrape_runs").insert({
+        store_slug: apiResult.store_slug,
+        status: storeStatuses[apiResult.store_slug],
+        deals_found: apiResult.deals.length,
+        error_message: apiResult.error || null,
+        duration_ms: apiResult.duration_ms,
+      });
+    }
+
+    // Process cheerio results for stores NOT already handled by API
     for (const result of results) {
+      // Skip if API already got data for this store
+      if (apiStores.has(result.store_slug)) continue;
+
       storeStatuses[result.store_slug] = result.status;
 
       if (result.status === "success" && result.deals.length > 0) {
