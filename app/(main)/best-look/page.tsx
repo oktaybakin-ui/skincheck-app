@@ -8,6 +8,7 @@ import { useState } from "react";
 import Link from "next/link";
 import PinterestButton from "@/components/ui/PinterestButton";
 import { Sparkles, Sun, Briefcase, Heart, Crown, Clock, Palette, Eye, Star, ShoppingBag, Camera, Loader2, ExternalLink } from "lucide-react";
+import { useI18n } from "@/lib/i18n/I18nContext";
 
 type LookType = "daily" | "work" | "special" | "date";
 type SkinTone = "warm" | "cool" | "neutral";
@@ -541,6 +542,7 @@ function generateLook(lookType: LookType, tone: SkinTone, face: FaceShape): Look
 }
 
 export default function BestLookPage() {
+  const { t } = useI18n();
   const [step, setStep] = useState<"look" | "tone" | "face" | "result">("look");
   const [lookType, setLookType] = useState<LookType | null>(null);
   const [tone, setTone] = useState<SkinTone | null>(null);
@@ -589,7 +591,7 @@ export default function BestLookPage() {
     const look = generateLook(lookType, tone, faceShape);
     return (
       <>
-        <Header title="En İyi Halin" showBack />
+        <Header title={t.bl_title} showBack />
         <main className="px-4 py-4 space-y-4 pb-28">
           {/* Hero */}
           <div className="bg-gradient-to-br from-secondary/10 to-primary/10 rounded-2xl p-5 text-center">
@@ -598,8 +600,8 @@ export default function BestLookPage() {
             <p className="text-sm text-muted italic mt-1">{look.subtitle}</p>
             <div className="flex justify-center gap-2 mt-3 flex-wrap">
               <Badge variant="primary" size="sm">{LOOK_TYPES.find(l => l.key === lookType)?.label}</Badge>
-              <Badge variant="secondary" size="sm">{tone === "warm" ? "Sıcak Ton" : tone === "cool" ? "Soğuk Ton" : "Nötr Ton"}</Badge>
-              <Badge variant="muted" size="sm">{FACE_SHAPES.find(f => f.key === faceShape)?.label} Yüz</Badge>
+              <Badge variant="secondary" size="sm">{tone === "warm" ? t.bl_warm : tone === "cool" ? t.bl_cool : t.bl_neutral}</Badge>
+              <Badge variant="muted" size="sm">{FACE_SHAPES.find(f => f.key === faceShape)?.label} {t.bl_face}</Badge>
               <Badge variant="info" size="sm"><Clock size={10} className="inline mr-1" />{look.totalTime}</Badge>
             </div>
           </div>
@@ -608,7 +610,7 @@ export default function BestLookPage() {
           <Card>
             <div className="flex items-center gap-2 mb-3">
               <Palette size={16} className="text-primary" />
-              <h3 className="font-bold text-sm">Sana Uygun Renk Paleti</h3>
+              <h3 className="font-bold text-sm">{t.bl_palette}</h3>
             </div>
             <div className="flex gap-3">
               {look.colorPalette.map((c) => (
@@ -622,7 +624,7 @@ export default function BestLookPage() {
 
           {/* Skin Prep */}
           <Card>
-            <h3 className="font-bold text-sm mb-3">Cilt Hazırlığı (Makyaj Öncesi)</h3>
+            <h3 className="font-bold text-sm mb-3">{t.bl_skin_prep}</h3>
             <div className="space-y-2">
               {look.skinPrep.map((s, i) => (
                 <div key={i} className="flex items-start gap-2">
@@ -642,7 +644,7 @@ export default function BestLookPage() {
           <Card>
             <div className="flex items-center gap-2 mb-3">
               <Eye size={16} className="text-primary" />
-              <h3 className="font-bold text-sm">Makyaj Adımları</h3>
+              <h3 className="font-bold text-sm">{t.bl_steps}</h3>
             </div>
             <div className="space-y-4">
               {look.makeup.map((m, i) => (
@@ -703,10 +705,10 @@ export default function BestLookPage() {
 
           {/* Contour Guide */}
           <Card>
-            <h3 className="font-bold text-sm mb-2">Kontur Rehberi ({FACE_SHAPES.find(f => f.key === faceShape)?.label} Yüz)</h3>
+            <h3 className="font-bold text-sm mb-2">{t.bl_contour_guide} ({FACE_SHAPES.find(f => f.key === faceShape)?.label} {t.bl_face})</h3>
             <p className="text-sm text-muted mb-3">{look.contourGuide}</p>
             <div>
-              <p className="text-xs font-semibold mb-1">Highlighter Noktaları:</p>
+              <p className="text-xs font-semibold mb-1">{t.bl_highlight_points}</p>
               <div className="flex flex-wrap gap-1.5">
                 {look.highlightPoints.map(p => (
                   <Badge key={p} variant="info" size="sm">{p}</Badge>
@@ -717,7 +719,7 @@ export default function BestLookPage() {
 
           {/* Hair */}
           <Card>
-            <h3 className="font-bold text-sm mb-3">Saç Önerileri</h3>
+            <h3 className="font-bold text-sm mb-3">{t.bl_hair_tips}</h3>
             <div className="space-y-3">
               {look.hair.map((h, i) => (
                 <div key={i}>
@@ -730,7 +732,7 @@ export default function BestLookPage() {
 
           {/* Accessories & Fragrance */}
           <Card>
-            <h3 className="font-bold text-sm mb-3">Tamamlayıcı Dokunuşlar</h3>
+            <h3 className="font-bold text-sm mb-3">{t.bl_finishing}</h3>
             <ul className="space-y-1.5 mb-3">
               {look.accessories.map((a, i) => (
                 <li key={i} className="flex items-center gap-2 text-sm">
@@ -739,14 +741,14 @@ export default function BestLookPage() {
               ))}
             </ul>
             <div className="bg-secondary/5 rounded-lg p-2.5">
-              <p className="text-xs font-semibold">Parfüm Önerisi</p>
+              <p className="text-xs font-semibold">{t.bl_perfume}</p>
               <p className="text-xs text-muted">{look.fragranceType}</p>
             </div>
           </Card>
 
           {/* Mistakes to Avoid */}
           <Card>
-            <h3 className="font-bold text-sm mb-3">Sık Yapılan Hatalar</h3>
+            <h3 className="font-bold text-sm mb-3">{t.bl_mistakes}</h3>
             <div className="space-y-2">
               {look.mistakeToAvoid.map((m, i) => (
                 <div key={i} className="flex items-start gap-2 bg-danger/5 rounded-lg p-2.5">
@@ -763,7 +765,7 @@ export default function BestLookPage() {
           />
 
           <Button onClick={reset} variant="outline" fullWidth>
-            Farklı Look Dene
+            {t.bl_try_another}
           </Button>
         </main>
       </>
@@ -772,14 +774,14 @@ export default function BestLookPage() {
 
   return (
     <>
-      <Header title="En İyi Halin" showBack />
+      <Header title={t.bl_title} showBack />
       <main className="px-4 py-4 space-y-4">
         {step === "look" && (
           <>
             <div className="text-center">
               <Sparkles size={40} className="mx-auto text-primary" />
-              <h2 className="text-lg font-bold mt-2">En İyi Halini Keşfet</h2>
-              <p className="text-sm text-muted mt-1">Hangi ortam için hazırlanıyorsun?</p>
+              <h2 className="text-lg font-bold mt-2">{t.bl_discover}</h2>
+              <p className="text-sm text-muted mt-1">{t.bl_occasion}</p>
             </div>
             <div className="space-y-3">
               {LOOK_TYPES.map(l => {
@@ -805,51 +807,51 @@ export default function BestLookPage() {
 
         {step === "tone" && (
           <>
-            <h2 className="text-lg font-bold text-center">Alt Tonun Ne?</h2>
+            <h2 className="text-lg font-bold text-center">{t.bl_undertone_q}</h2>
             <p className="text-sm text-muted text-center">
-              Emin değilsen <Link href="/makeup/undertone" className="text-primary underline">Alt Ton Testini</Link> yap
+              Emin değilsen <Link href="/makeup/undertone" className="text-primary underline">{t.bl_undertone_test}</Link> yap
             </p>
             <div className="space-y-3 mt-4">
               {([
-                { key: "warm" as const, label: "Sıcak Ton", desc: "Altın, şeftali, toprak tonları — damarlar yeşilimsi", color: "bg-amber-100" },
-                { key: "cool" as const, label: "Soğuk Ton", desc: "Gümüş, pembe, mavi tonları — damarlar mavimsi", color: "bg-blue-100" },
-                { key: "neutral" as const, label: "Nötr Ton", desc: "Her iki tondan da taşıyabilirsin — damarlar yeşil-mavi karışık", color: "bg-purple-100" },
-              ]).map(t => (
-                <Card key={t.key} hoverable onClick={() => handleTone(t.key)}>
+                { key: "warm" as const, label: t.bl_warm, desc: "Altın, şeftali, toprak tonları — damarlar yeşilimsi", color: "bg-amber-100" },
+                { key: "cool" as const, label: t.bl_cool, desc: "Gümüş, pembe, mavi tonları — damarlar mavimsi", color: "bg-blue-100" },
+                { key: "neutral" as const, label: t.bl_neutral, desc: "Her iki tondan da taşıyabilirsin — damarlar yeşil-mavi karışık", color: "bg-purple-100" },
+              ]).map(tn => (
+                <Card key={tn.key} hoverable onClick={() => handleTone(tn.key)}>
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full ${t.color}`} />
+                    <div className={`w-10 h-10 rounded-full ${tn.color}`} />
                     <div>
-                      <p className="font-semibold">{t.label}</p>
-                      <p className="text-xs text-muted">{t.desc}</p>
+                      <p className="font-semibold">{tn.label}</p>
+                      <p className="text-xs text-muted">{tn.desc}</p>
                     </div>
                   </div>
                 </Card>
               ))}
             </div>
-            <button onClick={() => setStep("look")} className="w-full py-2 text-sm text-muted hover:text-primary">Geri</button>
+            <button onClick={() => setStep("look")} className="w-full py-2 text-sm text-muted hover:text-primary">{t.bl_back}</button>
           </>
         )}
 
         {step === "face" && (
           <>
-            <h2 className="text-lg font-bold text-center">Yüz Şeklin Ne?</h2>
-            <p className="text-sm text-muted text-center">Kontur ve highlight noktaları buna göre belirlenir</p>
+            <h2 className="text-lg font-bold text-center">{t.bl_face_shape_q}</h2>
+            <p className="text-sm text-muted text-center">{t.bl_face_shape_desc}</p>
 
             {/* AI Detection */}
             <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20 mt-4">
               <div className="text-center">
                 <Camera size={28} className="text-primary mx-auto" />
-                <p className="font-semibold text-sm mt-2">AI ile Yüz Şekli Belirle</p>
-                <p className="text-xs text-muted mt-1">Fotoğraf yükle, AI yüz şeklini otomatik tespit etsin</p>
-                <p className="text-[10px] text-muted/60 mt-1">Fotoğrafın anlık olarak değerlendirilir, sunucuda saklanmaz.</p>
+                <p className="font-semibold text-sm mt-2">{t.bl_ai_detect}</p>
+                <p className="text-xs text-muted mt-1">{t.bl_ai_upload_desc}</p>
+                <p className="text-[10px] text-muted/60 mt-1">{t.bl_ai_privacy}</p>
                 <label className={`mt-3 inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium cursor-pointer hover:bg-primary/90 transition-colors ${aiDetecting ? "opacity-50 pointer-events-none" : ""}`}>
                   {aiDetecting ? (
                     <>
-                      <Loader2 size={16} className="animate-spin" /> Analiz ediliyor...
+                      <Loader2 size={16} className="animate-spin" /> {t.bl_analyzing}
                     </>
                   ) : (
                     <>
-                      <Camera size={16} /> Fotoğraf Yükle
+                      <Camera size={16} /> {t.bl_upload_photo}
                     </>
                   )}
                   <input
@@ -873,7 +875,7 @@ export default function BestLookPage() {
                     onClick={() => setStep("result")}
                     className="mt-2 px-4 py-2 bg-safe text-white rounded-xl text-sm font-medium"
                   >
-                    Bu sonuçla devam et
+                    {t.bl_use_result}
                   </button>
                 )}
               </div>
@@ -881,7 +883,7 @@ export default function BestLookPage() {
 
             <div className="flex items-center gap-3 my-3">
               <div className="flex-1 h-px bg-gray-200" />
-              <span className="text-xs text-muted">veya manuel seç</span>
+              <span className="text-xs text-muted">{t.bl_or_manual}</span>
               <div className="flex-1 h-px bg-gray-200" />
             </div>
 
@@ -896,7 +898,7 @@ export default function BestLookPage() {
                 </Card>
               ))}
             </div>
-            <button onClick={() => setStep("tone")} className="w-full py-2 text-sm text-muted hover:text-primary">Geri</button>
+            <button onClick={() => setStep("tone")} className="w-full py-2 text-sm text-muted hover:text-primary">{t.bl_back}</button>
           </>
         )}
       </main>

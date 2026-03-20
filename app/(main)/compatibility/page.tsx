@@ -380,14 +380,14 @@ export default function CompatibilityPage() {
             {(result.routineSuggestion.morning.length > 0 || result.routineSuggestion.evening.length > 0) && (
               <Card>
                 <h4 className="text-sm font-semibold mb-3 flex items-center gap-1.5">
-                  <Clock size={16} className="text-primary" /> Önerilen Rutin Planı
+                  <Clock size={16} className="text-primary" /> {t.compat_routine}
                 </h4>
                 <div className="grid grid-cols-2 gap-3">
                   {/* Morning */}
                   <div className="bg-amber-50 rounded-xl p-3">
                     <div className="flex items-center gap-1.5 mb-2">
                       <Sunrise size={14} className="text-amber-600" />
-                      <span className="text-xs font-semibold text-amber-700">Sabah</span>
+                      <span className="text-xs font-semibold text-amber-700">{t.compat_morning}</span>
                     </div>
                     <div className="space-y-1">
                       {result.routineSuggestion.morning.length > 0 ? (
@@ -398,7 +398,7 @@ export default function CompatibilityPage() {
                           </p>
                         ))
                       ) : (
-                        <p className="text-[11px] text-amber-600 italic">Sabah için uygun içerik yok</p>
+                        <p className="text-[11px] text-amber-600 italic">{t.compat_no_morning}</p>
                       )}
                     </div>
                   </div>
@@ -406,7 +406,7 @@ export default function CompatibilityPage() {
                   <div className="bg-indigo-50 rounded-xl p-3">
                     <div className="flex items-center gap-1.5 mb-2">
                       <Moon size={14} className="text-indigo-600" />
-                      <span className="text-xs font-semibold text-indigo-700">Akşam</span>
+                      <span className="text-xs font-semibold text-indigo-700">{t.compat_evening}</span>
                     </div>
                     <div className="space-y-1">
                       {result.routineSuggestion.evening.length > 0 ? (
@@ -417,7 +417,7 @@ export default function CompatibilityPage() {
                           </p>
                         ))
                       ) : (
-                        <p className="text-[11px] text-indigo-600 italic">Akşam için uygun içerik yok</p>
+                        <p className="text-[11px] text-indigo-600 italic">{t.compat_no_evening}</p>
                       )}
                     </div>
                   </div>

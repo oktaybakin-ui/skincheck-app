@@ -1,25 +1,30 @@
+"use client";
+
 import Header from "@/components/layout/Header";
 import Card from "@/components/ui/Card";
 import Link from "next/link";
 import { Palette, Sparkles, Youtube, ChevronRight, LucideIcon, Scissors, Crown, Camera } from "lucide-react";
-
-const sections: { href: string; icon: LucideIcon; title: string; desc: string }[] = [
-  { href: "/makeup/undertone", icon: Palette, title: "Alt Ton Analizi", desc: "Sıcak, soğuk veya nötr tonunu öğren" },
-  { href: "/makeup/solutions", icon: Sparkles, title: "Sorunlara Çözümler", desc: "Göz altı, akne, gözenek ve daha fazlası" },
-  { href: "/makeup/youtube", icon: Youtube, title: "YouTube Önerileri", desc: "En iyi makyaj kanalları ve videolar" },
-  { href: "/hair", icon: Scissors, title: "Saç Bakım Rehberi", desc: "Saç tipine özel bakım önerileri" },
-  { href: "/best-look", icon: Crown, title: "En İyi Halin", desc: "Kişiselleştirilmiş güzellik rehberi" },
-  { href: "/routine-builder", icon: Camera, title: "AI Rutin Oluşturucu", desc: "Ürünlerini fotoğrafla, AI rutin oluştursun" },
-];
+import { useI18n } from "@/lib/i18n/I18nContext";
 
 export default function MakeupPage() {
+  const { t } = useI18n();
+
+  const sections: { href: string; icon: LucideIcon; title: string; desc: string }[] = [
+    { href: "/makeup/undertone", icon: Palette, title: t.makeup_undertone, desc: t.makeup_undertone_desc },
+    { href: "/makeup/solutions", icon: Sparkles, title: t.makeup_solutions_link, desc: t.makeup_solutions_link_desc },
+    { href: "/makeup/youtube", icon: Youtube, title: t.makeup_youtube_link, desc: t.makeup_youtube_link_desc },
+    { href: "/hair", icon: Scissors, title: t.makeup_hair_link, desc: t.makeup_hair_link_desc },
+    { href: "/best-look", icon: Crown, title: t.makeup_bestlook_link, desc: t.makeup_bestlook_link_desc },
+    { href: "/routine-builder", icon: Camera, title: t.makeup_routine_link, desc: t.makeup_routine_link_desc },
+  ];
+
   return (
     <>
-      <Header title="Makyaj" />
+      <Header title={t.makeup_title} />
       <main className="px-4 py-4 space-y-4">
         <div className="bg-gradient-to-br from-secondary to-primary rounded-3xl p-6 text-white">
-          <h2 className="text-xl font-bold mb-1">Makyaj Rehberin</h2>
-          <p className="text-white/80 text-sm">Alt tonunu keşfet, sana yakışan renkleri bul</p>
+          <h2 className="text-xl font-bold mb-1">{t.makeup_guide}</h2>
+          <p className="text-white/80 text-sm">{t.makeup_guide_desc}</p>
         </div>
 
         <div className="space-y-3">

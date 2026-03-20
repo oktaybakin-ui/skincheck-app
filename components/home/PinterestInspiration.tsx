@@ -1,9 +1,10 @@
 "use client";
 
 import { ChevronRight, ExternalLink } from "lucide-react";
+import { useI18n } from "@/lib/i18n/I18nContext";
 
 interface PinCategory {
-  title: string;
+  titleKey: string;
   query: string;
   image: string;
   overlay: string;
@@ -12,39 +13,39 @@ interface PinCategory {
 
 const pinCategories: PinCategory[] = [
   {
-    title: "Doğal Makyaj",
+    titleKey: "pin_natural",
     query: "natural makeup looks everyday",
     image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=500&fit=crop&q=60",
     overlay: "from-rose-900/60 via-rose-800/40 to-transparent",
     tall: true,
   },
   {
-    title: "Göz Makyajı",
+    titleKey: "pin_eye",
     query: "eye makeup tutorial trending",
     image: "https://images.unsplash.com/photo-1583241800698-e8ab01830e07?w=400&h=300&fit=crop&q=60",
     overlay: "from-purple-900/60 via-purple-800/40 to-transparent",
   },
   {
-    title: "Dudak Renkleri",
+    titleKey: "pin_lip",
     query: "lip color trends 2025",
     image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400&h=300&fit=crop&q=60",
     overlay: "from-red-900/60 via-red-800/40 to-transparent",
   },
   {
-    title: "Kontur & Aydınlatıcı",
+    titleKey: "pin_contour",
     query: "contour highlight tutorial",
     image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=500&fit=crop&q=60",
     overlay: "from-amber-900/60 via-amber-800/40 to-transparent",
     tall: true,
   },
   {
-    title: "Cilt Bakımı",
+    titleKey: "pin_skincare",
     query: "skincare routine glass skin",
     image: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=300&fit=crop&q=60",
     overlay: "from-teal-900/60 via-teal-800/40 to-transparent",
   },
   {
-    title: "Saç Modelleri",
+    titleKey: "pin_hair",
     query: "hair styling trends 2025",
     image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&h=300&fit=crop&q=60",
     overlay: "from-orange-900/60 via-orange-800/40 to-transparent",
@@ -58,12 +59,14 @@ const PinterestIcon = ({ size = 20, className = "" }: { size?: number; className
 );
 
 export default function PinterestInspiration() {
+  const { t } = useI18n();
+
   return (
     <section>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <PinterestIcon size={20} className="text-[#E60023]" />
-          <h3 className="text-lg font-bold">Makyaj İlhamı</h3>
+          <h3 className="text-lg font-bold">{t.pin_title}</h3>
         </div>
         <a
           href="https://pinterest.com/search/pins/?q=makeup+trends+2025"
@@ -71,7 +74,7 @@ export default function PinterestInspiration() {
           rel="noopener noreferrer"
           className="text-[#E60023] text-sm font-medium flex items-center gap-0.5"
         >
-          Tümü <ChevronRight size={14} />
+          {t.pin_all} <ChevronRight size={14} />
         </a>
       </div>
 
@@ -79,7 +82,7 @@ export default function PinterestInspiration() {
       <div className="grid grid-cols-2 gap-2.5 auto-rows-[80px]">
         {pinCategories.map((cat) => (
           <a
-            key={cat.title}
+            key={cat.titleKey}
             href={`https://pinterest.com/search/pins/?q=${encodeURIComponent(cat.query)}`}
             target="_blank"
             rel="noopener noreferrer"
@@ -87,32 +90,23 @@ export default function PinterestInspiration() {
               transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]
               ${cat.tall ? "row-span-2" : "row-span-1"}`}
           >
-            {/* Background Image */}
             <img
               src={cat.image}
-              alt={cat.title}
+              alt={t[cat.titleKey as keyof typeof t]}
               className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-55 transition-opacity duration-500 group-hover:scale-105"
               loading="lazy"
             />
-
-            {/* Gradient Overlay */}
             <div className={`absolute inset-0 bg-gradient-to-t ${cat.overlay}`} />
-
-            {/* Soft color base behind image */}
             <div className="absolute inset-0 bg-white/30 -z-10" />
-
-            {/* Content */}
             <div className="absolute inset-0 flex flex-col items-center justify-center p-3 z-10">
               <p className="text-sm font-bold text-white text-center leading-tight drop-shadow-md">
-                {cat.title}
+                {t[cat.titleKey as keyof typeof t]}
               </p>
               <div className="flex items-center gap-1 mt-1.5 opacity-70 group-hover:opacity-100 transition-opacity duration-300">
                 <ExternalLink size={10} className="text-white/90" />
-                <span className="text-[10px] text-white/90 font-medium">Keşfet</span>
+                <span className="text-[10px] text-white/90 font-medium">{t.pin_explore}</span>
               </div>
             </div>
-
-            {/* Pinterest Badge */}
             <div className="absolute top-1.5 right-1.5 bg-white/80 backdrop-blur-sm rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
               <PinterestIcon size={10} className="text-[#E60023]" />
             </div>

@@ -6,6 +6,7 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import { useState } from "react";
 import PinterestButton from "@/components/ui/PinterestButton";
+import { useI18n } from "@/lib/i18n/I18nContext";
 import { Scissors, Droplets, Wind, Sparkles, AlertTriangle, Leaf, Clock, Calendar, Beaker, ShoppingBag, Star, Minus, Waves, RotateCcw, Fingerprint, ExternalLink, Flower, Zap, Sun, Snowflake, CloudRain, TrendingUp, type LucideIcon } from "lucide-react";
 
 type HairType = "straight" | "wavy" | "curly" | "coily";
@@ -517,6 +518,7 @@ function getAdvice(type: HairType, issue: HairIssue): HairAdvice {
 }
 
 export default function HairCarePage() {
+  const { t } = useI18n();
   const [step, setStep] = useState<"type" | "issue" | "result">("type");
   const [hairType, setHairType] = useState<HairType | null>(null);
   const [hairIssue, setHairIssue] = useState<HairIssue | null>(null);
@@ -544,13 +546,13 @@ export default function HairCarePage() {
 
     return (
       <>
-        <Header title="Saç Bakım Rehberi" showBack />
+        <Header title={t.hair_title} showBack />
         <main className="px-4 py-4 space-y-4 pb-28">
           {/* Hero */}
           <div className="bg-gradient-to-br from-secondary/10 to-primary/10 rounded-2xl p-5 text-center">
             {(() => { const HairIcon = HAIR_TYPE_ICONS[hairType!] || Scissors; return <HairIcon size={40} className="mx-auto text-primary" />; })()}
-            <h2 className="text-lg font-bold mt-2">{typeInfo.label} Saç — {issueInfo.label}</h2>
-            <p className="text-xs text-muted mt-1">Sana özel profesyonel bakım rehberin</p>
+            <h2 className="text-lg font-bold mt-2">{typeInfo.label} {t.hair_subtitle}{issueInfo.label}</h2>
+            <p className="text-xs text-muted mt-1">{t.hair_custom_guide}</p>
             <div className="flex justify-center gap-2 mt-2">
               <Badge variant="primary" size="sm">{typeInfo.porosity}</Badge>
             </div>
@@ -560,7 +562,7 @@ export default function HairCarePage() {
           <Card>
             <div className="flex items-center gap-2 mb-3">
               <Clock size={16} className="text-primary" />
-              <h3 className="font-bold text-sm">Günlük Rutin</h3>
+              <h3 className="font-bold text-sm">{t.hair_daily}</h3>
             </div>
             <div className="space-y-3">
               {advice.routine.morning.map((r, i) => (
@@ -584,7 +586,7 @@ export default function HairCarePage() {
           <Card>
             <div className="flex items-center gap-2 mb-3">
               <Calendar size={16} className="text-primary" />
-              <h3 className="font-bold text-sm">Haftalık Bakım</h3>
+              <h3 className="font-bold text-sm">{t.hair_weekly}</h3>
             </div>
             <div className="space-y-3">
               {advice.routine.weekly.map((r, i) => (
@@ -608,7 +610,7 @@ export default function HairCarePage() {
           <Card>
             <div className="flex items-center gap-2 mb-3">
               <ShoppingBag size={16} className="text-primary" />
-              <h3 className="font-bold text-sm">Ürün Önerileri (Marka Bazlı)</h3>
+              <h3 className="font-bold text-sm">{t.hair_products}</h3>
             </div>
             <div className="space-y-3">
               {advice.products.map((p, i) => (
@@ -656,7 +658,7 @@ export default function HairCarePage() {
           <Card>
             <div className="flex items-center gap-2 mb-3">
               <Beaker size={16} className="text-primary" />
-              <h3 className="font-bold text-sm">Araman Gereken İçerikler</h3>
+              <h3 className="font-bold text-sm">{t.hair_ingredients}</h3>
             </div>
             <div className="space-y-2">
               {advice.ingredients.map((ing) => (
@@ -672,7 +674,7 @@ export default function HairCarePage() {
           <Card>
             <div className="flex items-center gap-2 mb-3">
               <Sparkles size={16} className="text-primary" />
-              <h3 className="font-bold text-sm">Uzman İpuçları</h3>
+              <h3 className="font-bold text-sm">{t.hair_expert_tips}</h3>
             </div>
             <ul className="space-y-2">
               {advice.tips.map((t, i) => (
@@ -686,7 +688,7 @@ export default function HairCarePage() {
 
           {/* Avoid */}
           <Card>
-            <h3 className="font-bold text-sm mb-3">Kaçınman Gerekenler</h3>
+            <h3 className="font-bold text-sm mb-3">{t.hair_avoid}</h3>
             <div className="flex flex-wrap gap-2">
               {advice.avoid.map(a => (
                 <Badge key={a} variant="danger" size="md">{a}</Badge>
@@ -698,7 +700,7 @@ export default function HairCarePage() {
           <Card>
             <div className="flex items-center gap-2 mb-3">
               <Star size={16} className="text-primary" />
-              <h3 className="font-bold text-sm">Profesyonel Salon Bakımları</h3>
+              <h3 className="font-bold text-sm">{t.hair_salon}</h3>
             </div>
             <div className="space-y-3">
               {advice.salonTreatments.map((t, i) => (
@@ -715,7 +717,7 @@ export default function HairCarePage() {
 
           {/* DIY Masks */}
           <Card>
-            <h3 className="font-bold text-sm mb-3">Evde Yapabileceğin Maskeler</h3>
+            <h3 className="font-bold text-sm mb-3">{t.hair_diy}</h3>
             <div className="space-y-3">
               {advice.diyMasks.map((m, i) => (
                 <div key={i} className="bg-primary/5 rounded-xl p-3">
@@ -731,7 +733,7 @@ export default function HairCarePage() {
 
           {/* Seasonal Tips */}
           <Card>
-            <h3 className="font-bold text-sm mb-3">Mevsimsel Bakım Takvimi</h3>
+            <h3 className="font-bold text-sm mb-3">{t.hair_seasonal}</h3>
             <div className="space-y-2">
               {advice.seasonal.map((s, i) => {
                 const seasonIcons: Record<string, LucideIcon> = { "İlkbahar": Flower, "Yaz": Sun, "Sonbahar": CloudRain, "Kış": Snowflake };
@@ -758,7 +760,7 @@ export default function HairCarePage() {
           />
 
           <Button onClick={reset} variant="outline" fullWidth>
-            Farklı Saç Tipi Dene
+            {t.hair_try_another}
           </Button>
         </main>
       </>
@@ -767,26 +769,26 @@ export default function HairCarePage() {
 
   return (
     <>
-      <Header title="Saç Bakım Rehberi" showBack />
+      <Header title={t.hair_title} showBack />
       <main className="px-4 py-4 space-y-4">
         {step === "type" && (
           <>
             <div className="text-center">
               <Scissors size={40} className="mx-auto text-primary" />
-              <h2 className="text-lg font-bold mt-2">Saç Tipin Ne?</h2>
-              <p className="text-sm text-muted mt-1">Saç tipini seç, profesyonel bakım rehberin hazırlansın</p>
+              <h2 className="text-lg font-bold mt-2">{t.hair_select_type}</h2>
+              <p className="text-sm text-muted mt-1">{t.hair_select_type_desc}</p>
             </div>
             <div className="space-y-3 mt-4">
-              {HAIR_TYPES.map(t => {
-                const HIcon = HAIR_TYPE_ICONS[t.key] || Scissors;
+              {HAIR_TYPES.map(ht => {
+                const HIcon = HAIR_TYPE_ICONS[ht.key] || Scissors;
                 return (
-                <Card key={t.key} hoverable onClick={() => handleTypeSelect(t.key)}>
+                <Card key={ht.key} hoverable onClick={() => handleTypeSelect(ht.key)}>
                   <div className="flex items-center gap-4">
                     <HIcon size={28} className="text-primary shrink-0" />
                     <div>
-                      <p className="font-semibold">{t.label}</p>
-                      <p className="text-xs text-muted">{t.desc}</p>
-                      <p className="text-[10px] text-primary mt-0.5">{t.porosity}</p>
+                      <p className="font-semibold">{ht.label}</p>
+                      <p className="text-xs text-muted">{ht.desc}</p>
+                      <p className="text-[10px] text-primary mt-0.5">{ht.porosity}</p>
                     </div>
                   </div>
                 </Card>
@@ -799,8 +801,8 @@ export default function HairCarePage() {
         {step === "issue" && (
           <>
             <div className="text-center">
-              <h2 className="text-lg font-bold">En Belirgin Saç Sorunun?</h2>
-              <p className="text-sm text-muted mt-1">Seni en çok rahatsız eden sorunu seç</p>
+              <h2 className="text-lg font-bold">{t.hair_select_issue}</h2>
+              <p className="text-sm text-muted mt-1">{t.hair_select_issue_desc}</p>
             </div>
             <div className="grid grid-cols-2 gap-3 mt-4">
               {HAIR_ISSUES.map(issue => {

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Card from "@/components/ui/Card";
 import { Search } from "lucide-react";
+import { useI18n } from "@/lib/i18n/I18nContext";
 
 const TikTokIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -25,6 +26,7 @@ const YouTubeIcon = () => (
 );
 
 export default function SocialMediaSearchHome() {
+  const { t } = useI18n();
   const [query, setQuery] = useState("");
 
   const searchQuery = query.trim();
@@ -53,7 +55,7 @@ export default function SocialMediaSearchHome() {
 
   return (
     <section>
-      <h3 className="text-lg font-bold mb-3">Sosyal Medyada Ara</h3>
+      <h3 className="text-lg font-bold mb-3">{t.sm_title}</h3>
       <Card>
         <div className="relative mb-3">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
@@ -61,7 +63,7 @@ export default function SocialMediaSearchHome() {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Ürün veya marka adı yaz..."
+            placeholder={t.sm_placeholder}
             className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none text-sm bg-surface"
           />
         </div>
@@ -80,7 +82,7 @@ export default function SocialMediaSearchHome() {
             </a>
           ))}
         </div>
-        <p className="text-[10px] text-muted text-center mt-2">Ürün adını yaz, sosyal medyada gerçek kullanıcı yorumlarını keşfet</p>
+        <p className="text-[10px] text-muted text-center mt-2">{t.sm_desc}</p>
       </Card>
     </section>
   );

@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { SearchX, Camera, CheckCircle, Edit3, Loader2, AlertTriangle, ShieldCheck, CircleDot, FlaskConical, Upload } from "lucide-react";
 import { parseIngredients } from "@/lib/api/openBeautyFacts";
 import { supabase } from "@/lib/supabase";
+import { useI18n } from "@/lib/i18n/I18nContext";
 
 interface KeyIngredient {
   name: string;
@@ -35,6 +36,7 @@ interface PhotoResult {
 }
 
 export default function ScanPage() {
+  const { t } = useI18n();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -78,7 +80,7 @@ export default function ScanPage() {
           category: null,
           ingredients_text: null,
           confidence: "low",
-          description: "Fotoğraf analiz edilemedi. Lütfen tekrar deneyin.",
+          description: t.scan_analyze_error,
         });
       }
       setPhotoAnalyzing(false);
@@ -90,7 +92,7 @@ export default function ScanPage() {
     if (!photoResult?.found) return;
     setLoading(true);
 
-    const name = editingResult ? editName : (photoResult.product_name || "Fotoğrafla tanınan ürün");
+    const name = editingResult ? editName : (photoResult.product_name || t.scan_photo_title);
     const brand = editingResult ? editBrand : photoResult.brand;
     const ingredients = photoResult.ingredients_text
       ? parseIngredients(photoResult.ingredients_text)
@@ -137,10 +139,10 @@ export default function ScanPage() {
   if (loading) {
     return (
       <>
-        <Header title="Ürün Tara" showBack />
+        <Header title={t.scan_photo_title} showBack />
         <main className="px-4 py-20 text-center">
           <div className="w-12 h-12 border-3 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
-          <p className="text-muted mt-4">Ürün kaydediliyor...</p>
+          <p className="text-muted mt-4">{t.scan_saving}</p>
         </main>
       </>
     );
@@ -148,19 +150,19 @@ export default function ScanPage() {
 
   return (
     <>
-      <Header title="Ürün Tara" showBack />
+      <Header title={t.scan_photo_title} showBack />
       <main className="px-4 py-4 space-y-4 pb-28">
         {!photoPreview ? (
           <>
             {/* Hero */}
             <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl p-8 text-center">
               <Camera size={48} className="mx-auto text-primary" />
-              <h3 className="font-bold text-lg mt-3">Ürün Fotoğrafı Çek</h3>
+              <h3 className="font-bold text-lg mt-3">{t.scan_take_photo}</h3>
               <p className="text-sm text-muted mt-1">
-                Kozmetik ürününün fotoğrafını çek, AI tanısın ve içeriğini analiz etsin
+                {t.scan_take_photo_desc}
               </p>
               <p className="text-[10px] text-muted/60 mt-2 flex items-center justify-center gap-1">
-                <ShieldCheck size={10} /> Fotoğrafın anlık olarak değerlendirilir, sunucuda saklanmaz.
+                <ShieldCheck size={10} /> {t.scan_privacy}
               </p>
             </div>
 
@@ -184,11 +186,11 @@ export default function ScanPage() {
             <div className="space-y-3">
               <Button onClick={() => fileInputRef.current?.click()} fullWidth>
                 <Camera size={18} className="mr-2" />
-                Fotoğraf Çek
+                {t.scan_camera_btn}
               </Button>
               <Button variant="outline" onClick={() => galleryInputRef.current?.click()} fullWidth>
                 <Upload size={18} className="mr-2" />
-                Galeriden Seç
+                {t.scan_gallery_btn}
               </Button>
             </div>
           </>
@@ -196,12 +198,12 @@ export default function ScanPage() {
           <>
             {/* Photo Preview */}
             <div className="relative rounded-2xl overflow-hidden">
-              <img src={photoPreview} alt="Ürün fotoğrafı" className="w-full max-h-64 object-contain bg-gray-50" />
+              <img src={photoPreview} alt={t.scan_photo_alt} className="w-full max-h-64 object-contain bg-gray-50" />
               {photoAnalyzing && (
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                   <div className="text-center text-white">
                     <Loader2 size={32} className="animate-spin mx-auto" />
-                    <p className="text-sm mt-2">AI analiz ediyor...</p>
+                    <p className="text-sm mt-2">{t.scan_analyzing}</p>
                   </div>
                 </div>
               )}
@@ -216,12 +218,12 @@ export default function ScanPage() {
                       <CheckCircle size={24} className="text-safe shrink-0 mt-0.5" />
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <p className="font-bold text-sm">Ürün Tanındı!</p>
+                          <p className="font-bold text-sm">{t.scan_recognized}</p>
                           <Badge
                             variant={photoResult.confidence === "high" ? "safe" : photoResult.confidence === "medium" ? "warning" : "danger"}
                             size="sm"
                           >
-                            {photoResult.confidence === "high" ? "Yüksek" : photoResult.confidence === "medium" ? "Orta" : "Düşük"} güven
+                            {photoResult.confidence === "high" ? t.scan_high : photoResult.confidence === "medium" ? t.scan_medium : t.scan_low} {t.scan_confidence}
                           </Badge>
                         </div>
 
@@ -235,21 +237,21 @@ export default function ScanPage() {
                               onClick={() => setEditingResult(true)}
                               className="flex items-center gap-1 text-xs text-primary mt-2"
                             >
-                              <Edit3 size={12} /> Düzenle
+                              <Edit3 size={12} /> {t.edit}
                             </button>
                           </>
                         ) : (
                           <div className="space-y-2 mt-2">
                             <input
                               type="text"
-                              placeholder="Ürün adı"
+                              placeholder={t.scan_product_name}
                               value={editName}
                               onChange={(e) => setEditName(e.target.value)}
                               className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary outline-none text-sm"
                             />
                             <input
                               type="text"
-                              placeholder="Marka"
+                              placeholder={t.scan_brand}
                               value={editBrand}
                               onChange={(e) => setEditBrand(e.target.value)}
                               className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary outline-none text-sm"
@@ -258,7 +260,7 @@ export default function ScanPage() {
                               onClick={() => setEditingResult(false)}
                               className="text-xs text-primary"
                             >
-                              Tamam
+                              {t.done}
                             </button>
                           </div>
                         )}
@@ -270,7 +272,7 @@ export default function ScanPage() {
                     <div className="flex items-start gap-3">
                       <SearchX size={24} className="text-warning shrink-0 mt-0.5" />
                       <div>
-                        <p className="font-bold text-sm">Ürün Tanınamadı</p>
+                        <p className="font-bold text-sm">{t.scan_not_recognized}</p>
                         <p className="text-xs text-muted mt-1">{photoResult.description}</p>
                       </div>
                     </div>
@@ -283,17 +285,17 @@ export default function ScanPage() {
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <FlaskConical size={18} className="text-primary" />
-                        <h4 className="font-bold text-sm">İçerik Analizi</h4>
+                        <h4 className="font-bold text-sm">{t.scan_ingredient_analysis}</h4>
                       </div>
                       <div className="flex gap-1.5">
                         <Badge variant="safe" size="sm">
-                          {photoResult.key_ingredients.filter(i => i.rating === "good").length} iyi
+                          {photoResult.key_ingredients.filter(i => i.rating === "good").length} {t.scan_good}
                         </Badge>
                         <Badge variant="muted" size="sm">
-                          {photoResult.key_ingredients.filter(i => i.rating === "neutral").length} nötr
+                          {photoResult.key_ingredients.filter(i => i.rating === "neutral").length} {t.scan_neutral}
                         </Badge>
                         <Badge variant="danger" size="sm">
-                          {photoResult.key_ingredients.filter(i => i.rating === "caution").length} dikkat
+                          {photoResult.key_ingredients.filter(i => i.rating === "caution").length} {t.scan_caution}
                         </Badge>
                       </div>
                     </div>
@@ -331,7 +333,7 @@ export default function ScanPage() {
                                 <span className={`text-[9px] font-medium ${
                                   ing.concentration_hint === "yüksek" ? "text-primary" : ing.concentration_hint === "orta" ? "text-muted" : "text-muted/60"
                                 }`}>
-                                  {ing.concentration_hint === "yüksek" ? "Yüksek oran" : ing.concentration_hint === "orta" ? "Orta oran" : "Düşük oran"}
+                                  {ing.concentration_hint === "yüksek" ? t.scan_high_conc : ing.concentration_hint === "orta" ? t.scan_medium_conc : t.scan_low_conc}
                                 </span>
                               )}
                             </div>
@@ -352,7 +354,7 @@ export default function ScanPage() {
                     {photoResult.ingredients_text && (
                       <details className="mt-3">
                         <summary className="text-[11px] text-muted cursor-pointer hover:text-primary transition-colors">
-                          Tam INCI Listesi
+                          {t.scan_full_inci}
                         </summary>
                         <p className="text-[10px] text-muted/70 mt-1.5 font-mono leading-relaxed p-2 bg-gray-50 rounded-lg">
                           {photoResult.ingredients_text}
@@ -367,7 +369,7 @@ export default function ScanPage() {
                   <Card className="border-danger/20 bg-danger/5">
                     <div className="flex items-center gap-2 mb-2">
                       <AlertTriangle size={16} className="text-danger" />
-                      <h4 className="font-bold text-sm text-danger">Dikkat Edilmesi Gerekenler</h4>
+                      <h4 className="font-bold text-sm text-danger">{t.scan_warnings}</h4>
                     </div>
                     <div className="space-y-1.5">
                       {photoResult.warnings.map((w, i) => (
@@ -384,7 +386,7 @@ export default function ScanPage() {
                   <Card>
                     <div className="flex items-center gap-2 mb-2">
                       <ShieldCheck size={16} className="text-primary" />
-                      <h4 className="font-bold text-sm">Uygunluk</h4>
+                      <h4 className="font-bold text-sm">{t.scan_suitability}</h4>
                     </div>
                     {photoResult.suitable_for && photoResult.suitable_for.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mb-2">
@@ -407,11 +409,11 @@ export default function ScanPage() {
                 <div className="space-y-2">
                   {photoResult.found && (
                     <Button onClick={handlePhotoSave} fullWidth>
-                      Ürünü Kaydet ve İncele
+                      {t.scan_save_product}
                     </Button>
                   )}
                   <Button variant="outline" onClick={resetPhoto} fullWidth>
-                    Yeni Fotoğraf Çek
+                    {t.scan_new_photo}
                   </Button>
                 </div>
               </>

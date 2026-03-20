@@ -6,8 +6,29 @@ import Badge from "@/components/ui/Badge";
 import { useState } from "react";
 import { SearchX, ExternalLink, Instagram } from "lucide-react";
 import { youtubeChannels as channels } from "@/lib/constants/youtube-channels";
+import { useI18n } from "@/lib/i18n/I18nContext";
 
-const FILTERS = ["Hepsi", "Türkçe", "İngilizce", "Başlangıç", "Orta", "İleri", "Profesyonel", "Cilt Bakımı", "Bilimsel", "Doğal", "Günlük Makyaj", "Teknik"];
+const FILTER_KEYS = [
+  "yt_all", "yt_turkish", "yt_english", "yt_beginner", "yt_intermediate",
+  "yt_advanced", "yt_professional", "yt_skincare", "yt_scientific",
+  "yt_natural", "yt_daily_makeup", "yt_technical",
+] as const;
+
+// Map translation keys to original tag values used in channel data
+const TAG_MAP: Record<string, string> = {
+  yt_all: "Hepsi",
+  yt_turkish: "Türkçe",
+  yt_english: "İngilizce",
+  yt_beginner: "Başlangıç",
+  yt_intermediate: "Orta",
+  yt_advanced: "İleri",
+  yt_professional: "Profesyonel",
+  yt_skincare: "Cilt Bakımı",
+  yt_scientific: "Bilimsel",
+  yt_natural: "Doğal",
+  yt_daily_makeup: "Günlük Makyaj",
+  yt_technical: "Teknik",
+};
 
 function ChannelAvatar({ ch }: { ch: (typeof channels)[number] }) {
   const [error, setError] = useState(false);
@@ -32,34 +53,36 @@ function ChannelAvatar({ ch }: { ch: (typeof channels)[number] }) {
 }
 
 export default function YoutubePage() {
-  const [activeFilter, setActiveFilter] = useState("Hepsi");
+  const { t } = useI18n();
+  const [activeFilterKey, setActiveFilterKey] = useState<string>("yt_all");
 
-  const filtered = activeFilter === "Hepsi"
+  const activeTag = TAG_MAP[activeFilterKey];
+  const filtered = activeTag === "Hepsi"
     ? channels
-    : channels.filter((ch) => ch.tags.includes(activeFilter));
+    : channels.filter((ch) => ch.tags.includes(activeTag));
 
   return (
     <>
-      <Header title="YouTube Önerileri" showBack />
+      <Header title={t.yt_title} showBack />
       <main className="px-4 py-4 space-y-4 pb-28">
         {/* Filters */}
         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-          {FILTERS.map((f) => (
+          {FILTER_KEYS.map((key) => (
             <button
-              key={f}
-              onClick={() => setActiveFilter(f)}
+              key={key}
+              onClick={() => setActiveFilterKey(key)}
               className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
-                activeFilter === f
+                activeFilterKey === key
                   ? "bg-primary text-white"
                   : "bg-gray-100 text-muted hover:bg-gray-200"
               }`}
             >
-              {f}
+              {t[key]}
             </button>
           ))}
         </div>
 
-        <p className="text-xs text-muted">{filtered.length} kanal bulundu</p>
+        <p className="text-xs text-muted">{filtered.length} {t.yt_channels_found}</p>
 
         {/* Channels */}
         <div className="space-y-3">
@@ -79,7 +102,7 @@ export default function YoutubePage() {
                       </a>
                     )}
                   </div>
-                  <p className="text-xs text-muted">{ch.subs} abone</p>
+                  <p className="text-xs text-muted">{ch.subs} {t.yt_subscriber}</p>
                   <p className="text-sm text-muted mt-1">{ch.desc}</p>
                   <div className="flex gap-1.5 mt-2 flex-wrap">
                     {ch.tags.map((tag) => (
@@ -95,7 +118,7 @@ export default function YoutubePage() {
         {filtered.length === 0 && (
           <div className="text-center py-8">
             <SearchX size={40} className="mx-auto text-muted" />
-            <p className="text-muted text-sm mt-2">Bu filtreye uygun kanal bulunamadı</p>
+            <p className="text-muted text-sm mt-2">{t.yt_no_channels}</p>
           </div>
         )}
       </main>

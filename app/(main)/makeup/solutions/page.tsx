@@ -8,11 +8,29 @@ import { MAKEUP_SOLUTIONS } from "@/lib/constants/makeup-solutions";
 import { SOLUTION_ICONS } from "@/lib/constants/icons";
 import { Sparkles } from "lucide-react";
 import { useState } from "react";
+import { useI18n } from "@/lib/i18n/I18nContext";
 
 type DifficultyFilter = "all" | "Kolay" | "Orta" | "İleri";
 type SkinFilter = "all" | "Yağlı" | "Kuru" | "Karma" | "Hassas" | "Olgun";
 
+const DIFF_KEYS: { value: DifficultyFilter; key: string }[] = [
+  { value: "all", key: "sol_all_levels" },
+  { value: "Kolay", key: "sol_easy" },
+  { value: "Orta", key: "sol_medium" },
+  { value: "İleri", key: "sol_hard" },
+];
+
+const SKIN_KEYS: { value: SkinFilter; key: string }[] = [
+  { value: "all", key: "sol_all_skin" },
+  { value: "Yağlı", key: "sol_oily" },
+  { value: "Kuru", key: "sol_dry" },
+  { value: "Karma", key: "sol_combo" },
+  { value: "Hassas", key: "sol_sensitive" },
+  { value: "Olgun", key: "sol_mature" },
+];
+
 export default function SolutionsPage() {
+  const { t } = useI18n();
   const [difficulty, setDifficulty] = useState<DifficultyFilter>("all");
   const [skinType, setSkinType] = useState<SkinFilter>("all");
 
@@ -24,39 +42,39 @@ export default function SolutionsPage() {
 
   return (
     <>
-      <Header title="Makyaj Çözümleri" showBack />
+      <Header title={t.sol_title} showBack />
       <main className="px-4 py-4 space-y-4">
         {/* Difficulty Filter */}
         <div className="flex gap-2 overflow-x-auto no-scrollbar">
-          {(["all", "Kolay", "Orta", "İleri"] as DifficultyFilter[]).map((d) => (
+          {DIFF_KEYS.map((d) => (
             <button
-              key={d}
-              onClick={() => setDifficulty(d)}
+              key={d.value}
+              onClick={() => setDifficulty(d.value)}
               className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
-                difficulty === d ? "bg-primary text-white" : "bg-gray-100 text-muted hover:bg-gray-200"
+                difficulty === d.value ? "bg-primary text-white" : "bg-gray-100 text-muted hover:bg-gray-200"
               }`}
             >
-              {d === "all" ? "Tüm Seviyeler" : d}
+              {t[d.key as keyof typeof t]}
             </button>
           ))}
         </div>
 
         {/* Skin Type Filter */}
         <div className="flex gap-2 overflow-x-auto no-scrollbar">
-          {(["all", "Yağlı", "Kuru", "Karma", "Hassas", "Olgun"] as SkinFilter[]).map((s) => (
+          {SKIN_KEYS.map((s) => (
             <button
-              key={s}
-              onClick={() => setSkinType(s)}
+              key={s.value}
+              onClick={() => setSkinType(s.value)}
               className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
-                skinType === s ? "bg-secondary text-white" : "bg-gray-100 text-muted hover:bg-gray-200"
+                skinType === s.value ? "bg-secondary text-white" : "bg-gray-100 text-muted hover:bg-gray-200"
               }`}
             >
-              {s === "all" ? "Tüm Cilt Tipleri" : s}
+              {t[s.key as keyof typeof t]}
             </button>
           ))}
         </div>
 
-        <p className="text-xs text-muted">{filtered.length} çözüm bulundu</p>
+        <p className="text-xs text-muted">{filtered.length} {t.sol_found}</p>
 
         <div className="space-y-2">
           {filtered.map((s) => {
@@ -87,7 +105,7 @@ export default function SolutionsPage() {
 
         {filtered.length === 0 && (
           <div className="text-center py-8">
-            <p className="text-muted">Bu filtrelere uygun çözüm bulunamadı</p>
+            <p className="text-muted">{t.sol_no_results}</p>
           </div>
         )}
       </main>

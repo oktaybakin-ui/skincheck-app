@@ -7,6 +7,7 @@ import Badge from "@/components/ui/Badge";
 import PinterestButton from "@/components/ui/PinterestButton";
 import { useState, useRef, useCallback } from "react";
 import { Leaf, Snowflake, Flower, LucideIcon, Camera, ClipboardList, Sparkles, RotateCcw, Upload, SwitchCamera, Info, Eye, Palette, Gem, X } from "lucide-react";
+import { useI18n } from "@/lib/i18n/I18nContext";
 
 // ─── Quiz Data ───────────────────────────────────────────
 const questions = [
@@ -251,6 +252,7 @@ interface AIAnalysisResult {
 
 // ─── Main Component ──────────────────────────────────────
 export default function UndertonePage() {
+  const { t } = useI18n();
   const [mode, setMode] = useState<"select" | "quiz" | "ai">("select");
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
@@ -300,9 +302,9 @@ export default function UndertonePage() {
       }
       setShowCamera(true);
     } catch {
-      alert("Kamera erişimi reddedildi. Lütfen tarayıcı ayarlarından kamera iznini verin.");
+      alert(t.ut_camera_denied);
     }
-  }, [facingMode]);
+  }, [facingMode, t]);
 
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
@@ -354,16 +356,16 @@ export default function UndertonePage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setAiResult({ success: false, error: data.error || "Analiz başarısız oldu" });
+        setAiResult({ success: false, error: data.error || t.ut_analysis_failed });
       } else {
         setAiResult(data);
       }
     } catch {
-      setAiResult({ success: false, error: "Bağlantı hatası. Lütfen tekrar deneyin." });
+      setAiResult({ success: false, error: t.ut_connection_error });
     } finally {
       setAiLoading(false);
     }
-  }, [capturedImage]);
+  }, [capturedImage, t]);
 
   // ─── Quiz Functions ────────────────────────────────────
   const handleAnswer = (value: string) => {
@@ -398,9 +400,9 @@ export default function UndertonePage() {
   // ─── Confidence Badge ──────────────────────────────────
   const confidenceBadge = (level?: string) => {
     const map: Record<string, { label: string; variant: "safe" | "warning" | "danger" }> = {
-      high: { label: "Yüksek Güven", variant: "safe" },
-      medium: { label: "Orta Güven", variant: "warning" },
-      low: { label: "Düşük Güven", variant: "danger" },
+      high: { label: t.ut_high_confidence, variant: "safe" },
+      medium: { label: t.ut_medium_confidence, variant: "warning" },
+      low: { label: t.ut_low_confidence, variant: "danger" },
     };
     const info = map[level || "low"];
     return <Badge variant={info.variant} size="sm">{info.label}</Badge>;
@@ -414,7 +416,7 @@ export default function UndertonePage() {
 
     return (
       <>
-        <Header title="AI Analiz Sonucu" showBack />
+        <Header title={t.ut_ai_result_title} showBack />
         <main className="px-4 py-6 space-y-5 pb-28">
           {/* Hero */}
           <div className="text-center space-y-2">
@@ -422,11 +424,11 @@ export default function UndertonePage() {
               <Sparkles size={32} className="text-primary" />
             </div>
             <h2 className="text-2xl font-bold">
-              Sen <span className="text-primary">{result.tone} {ai.season || result.season}</span> tonlusun!
+              {t.ut_tone_result.replace("{tone}", result.tone).replace("{season}", ai.season || result.season)}
             </h2>
             <div className="flex justify-center gap-2">
               {confidenceBadge(ai.confidence)}
-              <Badge variant="secondary" size="sm">AI Analiz</Badge>
+              <Badge variant="secondary" size="sm">{t.ut_ai_analysis}</Badge>
             </div>
           </div>
 
@@ -445,26 +447,26 @@ export default function UndertonePage() {
             <Card>
               <h3 className="font-bold mb-3 flex items-center gap-2">
                 <Eye size={18} className="text-primary" />
-                AI Gözlemleri
+                {t.ut_ai_observations}
               </h3>
               <div className="space-y-2.5">
                 <div className="flex justify-between items-start">
-                  <span className="text-sm text-muted">Cilt Tonu</span>
+                  <span className="text-sm text-muted">{t.ut_skin_tone}</span>
                   <span className="text-sm font-medium text-right max-w-[60%]">{ai.analysis.skin_tone}</span>
                 </div>
                 <div className="h-px bg-gray-100" />
                 <div className="flex justify-between items-start">
-                  <span className="text-sm text-muted">Damar Rengi</span>
+                  <span className="text-sm text-muted">{t.ut_vein_color}</span>
                   <span className="text-sm font-medium text-right max-w-[60%]">{ai.analysis.vein_observation}</span>
                 </div>
                 <div className="h-px bg-gray-100" />
                 <div className="flex justify-between items-start">
-                  <span className="text-sm text-muted">Yüzey Tonu</span>
+                  <span className="text-sm text-muted">{t.ut_surface_tone}</span>
                   <span className="text-sm font-medium text-right max-w-[60%]">{ai.analysis.surface_tone}</span>
                 </div>
                 <div className="h-px bg-gray-100" />
                 <div className="flex justify-between items-start">
-                  <span className="text-sm text-muted">Genel Değerlendirme</span>
+                  <span className="text-sm text-muted">{t.ut_overall_assessment}</span>
                   <span className="text-sm font-medium text-right max-w-[60%]">{ai.analysis.overall_warmth}</span>
                 </div>
               </div>
@@ -477,11 +479,11 @@ export default function UndertonePage() {
               <Card>
                 <h3 className="font-bold mb-3 flex items-center gap-2">
                   <Palette size={18} className="text-primary" />
-                  AI Renk Önerileri
+                  {t.ut_ai_color_recommendations}
                 </h3>
                 <div className="space-y-3">
                   <div>
-                    <span className="text-xs text-muted uppercase tracking-wide">Yakışan Renkler</span>
+                    <span className="text-xs text-muted uppercase tracking-wide">{t.ut_matching_colors}</span>
                     <div className="flex flex-wrap gap-1.5 mt-1.5">
                       {ai.recommendations.best_colors.map((c) => (
                         <Badge key={c} variant="safe" size="sm">{c}</Badge>
@@ -489,7 +491,7 @@ export default function UndertonePage() {
                     </div>
                   </div>
                   <div>
-                    <span className="text-xs text-muted uppercase tracking-wide">Kaçınılacak Renkler</span>
+                    <span className="text-xs text-muted uppercase tracking-wide">{t.ut_avoid_colors}</span>
                     <div className="flex flex-wrap gap-1.5 mt-1.5">
                       {ai.recommendations.avoid_colors.map((c) => (
                         <Badge key={c} variant="danger" size="sm">{c}</Badge>
@@ -502,23 +504,23 @@ export default function UndertonePage() {
               <Card>
                 <h3 className="font-bold mb-3 flex items-center gap-2">
                   <Gem size={18} className="text-primary" />
-                  Kişiselleştirilmiş İpuçları
+                  {t.ut_personalized_tips}
                 </h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex gap-2">
-                    <span className="text-muted shrink-0">Fondöten:</span>
+                    <span className="text-muted shrink-0">{t.ut_foundation_label}</span>
                     <span>{ai.recommendations.foundation_tone}</span>
                   </div>
                   <div className="flex gap-2">
-                    <span className="text-muted shrink-0">Ruj:</span>
+                    <span className="text-muted shrink-0">{t.ut_lipstick_label}</span>
                     <span>{ai.recommendations.lip_tip}</span>
                   </div>
                   <div className="flex gap-2">
-                    <span className="text-muted shrink-0">Allık:</span>
+                    <span className="text-muted shrink-0">{t.ut_blush_label}</span>
                     <span>{ai.recommendations.blush_tip}</span>
                   </div>
                   <div className="flex gap-2">
-                    <span className="text-muted shrink-0">Takı:</span>
+                    <span className="text-muted shrink-0">{t.ut_jewelry_label}</span>
                     <span>{ai.recommendations.metal}</span>
                   </div>
                 </div>
@@ -528,7 +530,7 @@ export default function UndertonePage() {
 
           {/* Standard Color Swatches from result data */}
           <Card>
-            <h3 className="font-bold mb-3">Sana Yakışan Renk Paleti</h3>
+            <h3 className="font-bold mb-3">{t.ut_color_palette}</h3>
             <div className="flex gap-2 flex-wrap">
               {result.colors.map((c, i) => (
                 <div key={c} className="flex flex-col items-center gap-1">
@@ -541,7 +543,7 @@ export default function UndertonePage() {
 
           {/* Lip / Eye / Blush from result */}
           <Card>
-            <h3 className="font-bold mb-3">Ruj Tonları</h3>
+            <h3 className="font-bold mb-3">{t.ut_lip_shades}</h3>
             <div className="grid grid-cols-2 gap-3">
               {result.lipColors.map((l) => (
                 <div key={l.name} className="flex items-center gap-2">
@@ -553,7 +555,7 @@ export default function UndertonePage() {
           </Card>
 
           <Card>
-            <h3 className="font-bold mb-3">Far Tonları</h3>
+            <h3 className="font-bold mb-3">{t.ut_eye_shades}</h3>
             <div className="grid grid-cols-2 gap-3">
               {result.eyeColors.map((e) => (
                 <div key={e.name} className="flex items-center gap-2">
@@ -566,7 +568,7 @@ export default function UndertonePage() {
 
           {/* Brand Examples */}
           <Card>
-            <h3 className="font-bold mb-3">Fondöten Önerileri (Marka Bazlı)</h3>
+            <h3 className="font-bold mb-3">{t.ut_foundation_recommendations}</h3>
             <div className="space-y-3">
               {result.brandExamples.foundation.map((f) => (
                 <div key={f.brand} className="flex items-start gap-2">
@@ -581,7 +583,7 @@ export default function UndertonePage() {
           </Card>
 
           <Card>
-            <h3 className="font-bold mb-3">Ruj Önerileri (Marka Bazlı)</h3>
+            <h3 className="font-bold mb-3">{t.ut_lipstick_recommendations}</h3>
             <div className="space-y-3">
               {result.brandExamples.lipstick.map((l) => (
                 <div key={l.brand} className="flex items-start gap-2">
@@ -599,7 +601,7 @@ export default function UndertonePage() {
 
           <Button onClick={resetAll} variant="outline" fullWidth>
             <RotateCcw size={16} className="inline mr-2" />
-            Baştan Başla
+            {t.ut_start_over}
           </Button>
         </main>
       </>
@@ -613,18 +615,18 @@ export default function UndertonePage() {
 
     return (
       <>
-        <Header title="Sonucun" showBack />
+        <Header title={t.ut_result_title} showBack />
         <main className="px-4 py-6 space-y-6 pb-28">
           <div className="text-center">
             <result.icon size={56} className="mx-auto text-primary" />
             <h2 className="text-2xl font-bold mt-2">
-              Sen <span className="text-primary">{result.tone} {result.season}</span> tonlusun!
+              {t.ut_tone_result.replace("{tone}", result.tone).replace("{season}", result.season)}
             </h2>
-            <Badge variant="secondary" size="sm" className="mt-2">Quiz Sonucu</Badge>
+            <Badge variant="secondary" size="sm" className="mt-2">{t.ut_quiz_result}</Badge>
           </div>
 
           <Card>
-            <h3 className="font-bold mb-3">Sana Yakışan Renkler</h3>
+            <h3 className="font-bold mb-3">{t.ut_your_matching_colors}</h3>
             <div className="flex gap-2 flex-wrap">
               {result.colors.map((c, i) => (
                 <div key={c} className="flex flex-col items-center gap-1">
@@ -636,7 +638,7 @@ export default function UndertonePage() {
           </Card>
 
           <Card>
-            <h3 className="font-bold mb-3">Ruj Tonları</h3>
+            <h3 className="font-bold mb-3">{t.ut_lip_shades}</h3>
             <div className="grid grid-cols-2 gap-3">
               {result.lipColors.map((l) => (
                 <div key={l.name} className="flex items-center gap-2">
@@ -648,7 +650,7 @@ export default function UndertonePage() {
           </Card>
 
           <Card>
-            <h3 className="font-bold mb-3">Far Tonları</h3>
+            <h3 className="font-bold mb-3">{t.ut_eye_shades}</h3>
             <div className="grid grid-cols-2 gap-3">
               {result.eyeColors.map((e) => (
                 <div key={e.name} className="flex items-center gap-2">
@@ -660,7 +662,7 @@ export default function UndertonePage() {
           </Card>
 
           <Card>
-            <h3 className="font-bold mb-3">Allık Tonları</h3>
+            <h3 className="font-bold mb-3">{t.ut_blush_shades}</h3>
             <div className="flex gap-3">
               {result.blushColors.map((b) => (
                 <div key={b.name} className="flex flex-col items-center gap-1">
@@ -672,7 +674,7 @@ export default function UndertonePage() {
           </Card>
 
           <Card>
-            <h3 className="font-bold mb-3">Fondöten Önerileri (Marka Bazlı)</h3>
+            <h3 className="font-bold mb-3">{t.ut_foundation_recommendations}</h3>
             <div className="space-y-3">
               {result.brandExamples.foundation.map((f) => (
                 <div key={f.brand} className="flex items-start gap-2">
@@ -688,7 +690,7 @@ export default function UndertonePage() {
           </Card>
 
           <Card>
-            <h3 className="font-bold mb-3">Ruj Önerileri (Marka Bazlı)</h3>
+            <h3 className="font-bold mb-3">{t.ut_lipstick_recommendations}</h3>
             <div className="space-y-3">
               {result.brandExamples.lipstick.map((l) => (
                 <div key={l.brand} className="flex items-start gap-2">
@@ -703,12 +705,12 @@ export default function UndertonePage() {
           </Card>
 
           <Card>
-            <h3 className="font-bold mb-3">Takı Önerisi</h3>
+            <h3 className="font-bold mb-3">{t.ut_jewelry_recommendation}</h3>
             <p className="text-sm text-muted leading-relaxed">{result.jewelryTip}</p>
           </Card>
 
           <Card>
-            <h3 className="font-bold mb-3">Kaçınılacak Tonlar</h3>
+            <h3 className="font-bold mb-3">{t.ut_avoid_tones}</h3>
             <div className="flex flex-wrap gap-2">
               {result.avoid.map((a) => (
                 <Badge key={a} variant="danger" size="md">{a}</Badge>
@@ -720,7 +722,7 @@ export default function UndertonePage() {
 
           <Button onClick={resetAll} variant="outline" fullWidth>
             <RotateCcw size={16} className="inline mr-2" />
-            Baştan Başla
+            {t.ut_start_over}
           </Button>
         </main>
       </>
@@ -731,7 +733,7 @@ export default function UndertonePage() {
   if (mode === "quiz") {
     return (
       <>
-        <Header title="Alt Ton Analizi" showBack />
+        <Header title={t.ut_page_title} showBack />
         <main className="px-4 py-6 space-y-6">
           <div className="text-center">
             <p className="text-sm text-muted">{currentQ + 1} / {questions.length}</p>
@@ -754,7 +756,7 @@ export default function UndertonePage() {
           </div>
 
           <Button onClick={resetAll} variant="ghost" fullWidth size="sm">
-            Geri Dön
+            {t.ut_go_back}
           </Button>
         </main>
       </>
@@ -765,7 +767,7 @@ export default function UndertonePage() {
   if (mode === "ai") {
     return (
       <>
-        <Header title="AI Alt Ton Analizi" showBack />
+        <Header title={t.ut_ai_page_title} showBack />
         <main className="px-4 py-6 space-y-5 pb-28">
 
           {/* Camera View */}
@@ -810,7 +812,7 @@ export default function UndertonePage() {
             <div className="space-y-4">
               <div className="relative rounded-2xl overflow-hidden bg-gray-100">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={capturedImage} alt="Çekilen fotoğraf" className="w-full" />
+                <img src={capturedImage} alt={t.ut_captured_photo_alt} className="w-full" />
               </div>
 
               {/* AI Error */}
@@ -828,17 +830,17 @@ export default function UndertonePage() {
                   size="lg"
                 >
                   <Sparkles size={18} className="inline mr-2" />
-                  {aiLoading ? "Analiz Ediliyor..." : "AI ile Analiz Et"}
+                  {aiLoading ? t.ut_analyzing : t.ut_analyze_with_ai}
                 </Button>
               </div>
 
               <div className="flex gap-3">
                 <Button onClick={() => { setCapturedImage(null); startCamera(); }} variant="outline" fullWidth size="sm">
                   <Camera size={16} className="inline mr-2" />
-                  Yeniden Çek
+                  {t.ut_retake}
                 </Button>
                 <Button onClick={() => { setCapturedImage(null); setAiResult(null); setMode("select"); }} variant="ghost" fullWidth size="sm">
-                  Geri Dön
+                  {t.ut_go_back}
                 </Button>
               </div>
             </div>
@@ -851,38 +853,38 @@ export default function UndertonePage() {
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-purple-100 flex items-center justify-center mx-auto">
                   <Sparkles size={36} className="text-primary" />
                 </div>
-                <h2 className="text-xl font-bold">AI Alt Ton Analizi</h2>
+                <h2 className="text-xl font-bold">{t.ut_ai_page_title}</h2>
                 <p className="text-sm text-muted leading-relaxed max-w-xs mx-auto">
-                  Yapay zeka, fotoğrafından cilt alt tonunu analiz ederek sana en uygun renkleri önerir.
+                  {t.ut_ai_desc}
                 </p>
-                <p className="text-[10px] text-muted/60 mt-1">Fotoğrafın anlık olarak değerlendirilir, sunucuda saklanmaz.</p>
+                <p className="text-[10px] text-muted/60 mt-1">{t.ut_ai_privacy}</p>
               </div>
 
               {/* Tips */}
               <Card className="bg-amber-50 border-amber-200">
-                <h3 className="font-semibold text-sm mb-2">En iyi sonuç için:</h3>
+                <h3 className="font-semibold text-sm mb-2">{t.ut_best_result_title}</h3>
                 <ul className="text-xs text-muted space-y-1.5">
-                  <li className="flex gap-2"><span>1.</span> Doğal ışıkta fotoğraf çekin</li>
-                  <li className="flex gap-2"><span>2.</span> Makyajsız veya minimal makyajla çekin</li>
-                  <li className="flex gap-2"><span>3.</span> Bileğinizin iç kısmını veya yüzünüzü çekin</li>
-                  <li className="flex gap-2"><span>4.</span> Flaş kullanmayın, doğal gün ışığı tercih edin</li>
+                  <li className="flex gap-2"><span>1.</span> {t.ut_best_result_1}</li>
+                  <li className="flex gap-2"><span>2.</span> {t.ut_best_result_2}</li>
+                  <li className="flex gap-2"><span>3.</span> {t.ut_best_result_3}</li>
+                  <li className="flex gap-2"><span>4.</span> {t.ut_best_result_4}</li>
                 </ul>
               </Card>
 
               <Button onClick={() => startCamera()} fullWidth size="lg">
                 <Camera size={20} className="inline mr-2" />
-                Kamerayı Aç
+                {t.ut_open_camera}
               </Button>
 
               <div className="relative flex items-center gap-3">
                 <div className="flex-1 h-px bg-gray-200" />
-                <span className="text-xs text-muted">veya</span>
+                <span className="text-xs text-muted">{t.ut_or}</span>
                 <div className="flex-1 h-px bg-gray-200" />
               </div>
 
               <Button onClick={() => fileInputRef.current?.click()} variant="outline" fullWidth>
                 <Upload size={18} className="inline mr-2" />
-                Galeriden Fotoğraf Seç
+                {t.ut_pick_from_gallery}
               </Button>
 
               <input
@@ -894,7 +896,7 @@ export default function UndertonePage() {
               />
 
               <Button onClick={() => setMode("select")} variant="ghost" fullWidth size="sm">
-                Geri Dön
+                {t.ut_go_back}
               </Button>
             </div>
           )}
@@ -908,13 +910,12 @@ export default function UndertonePage() {
   // ─── Mode Selection (Default) ──────────────────────────
   return (
     <>
-      <Header title="Alt Ton Analizi" showBack />
+      <Header title={t.ut_page_title} showBack />
       <main className="px-4 py-6 space-y-6">
         <div className="text-center space-y-2">
-          <h2 className="text-xl font-bold">Alt Tonunu Keşfet</h2>
+          <h2 className="text-xl font-bold">{t.ut_discover}</h2>
           <p className="text-sm text-muted leading-relaxed">
-            Cilt alt tonunu belirlemek, sana en yakışan makyaj renklerini,
-            kıyafet tonlarını ve takı metalini bulmana yardımcı olur.
+            {t.ut_discover_desc}
           </p>
         </div>
 
@@ -928,16 +929,15 @@ export default function UndertonePage() {
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-lg">AI Fotoğraf Analizi</h3>
-                  <Badge variant="primary" size="sm">Yeni</Badge>
+                  <h3 className="font-bold text-lg">{t.ut_ai_photo_analysis}</h3>
+                  <Badge variant="primary" size="sm">{t.ut_new}</Badge>
                 </div>
                 <p className="text-sm text-muted mt-1 leading-relaxed">
-                  Yapay zeka fotoğrafından cilt alt tonunu analiz eder. En doğru sonuç
-                  doğal ışıkta, makyajsız fotoğrafla alınır.
+                  {t.ut_ai_photo_desc}
                 </p>
                 <div className="flex items-center gap-1.5 mt-2 text-xs text-primary font-medium">
                   <Sparkles size={14} />
-                  <span>Claude Vision ile analiz</span>
+                  <span>{t.ut_claude_vision}</span>
                 </div>
               </div>
             </div>
@@ -950,14 +950,13 @@ export default function UndertonePage() {
                 <ClipboardList size={26} className="text-white" />
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-lg">Quiz ile Analiz</h3>
+                <h3 className="font-bold text-lg">{t.ut_quiz_analysis}</h3>
                 <p className="text-sm text-muted mt-1 leading-relaxed">
-                  8 soruyla cilt alt tonunu belirle. Damar rengi, güneş tepkisi
-                  ve renk tercihlerini değerlendirir.
+                  {t.ut_quiz_desc}
                 </p>
                 <div className="flex items-center gap-1.5 mt-2 text-xs text-emerald-600 font-medium">
                   <ClipboardList size={14} />
-                  <span>8 soru, ~2 dakika</span>
+                  <span>{t.ut_quiz_duration}</span>
                 </div>
               </div>
             </div>
@@ -968,13 +967,10 @@ export default function UndertonePage() {
         <Card className="bg-gray-50 border-gray-200">
           <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
             <Info size={16} className="text-primary" />
-            Alt ton nedir?
+            {t.ut_what_is_undertone}
           </h4>
           <p className="text-xs text-muted leading-relaxed">
-            Alt ton (undertone), cildin yüzeyinin altındaki doğal renk tonudur.
-            Sıcak (sarı/altın bazlı), soğuk (pembe/mavi bazlı) veya nötr (karışım)
-            olabilir. Doğru alt tonu bilmek, fondöten seçiminden kıyafet rengine
-            kadar her şeyde fark yaratır.
+            {t.ut_what_is_undertone_desc}
           </p>
         </Card>
       </main>
