@@ -75,6 +75,7 @@ const STORE_LOGOS: Record<string, string> = {
   sephora: "/logos/sephora.svg",
   flormar: "/logos/flormar.svg",
   mac: "/logos/mac.svg",
+  akakce: "/logos/akakce.svg",
 };
 
 const STORE_COLORS: Record<string, string> = {
@@ -86,6 +87,7 @@ const STORE_COLORS: Record<string, string> = {
   sephora: "from-gray-800/20 to-gray-900/5 border-gray-700/30",
   flormar: "from-purple-500/20 to-purple-600/5 border-purple-500/30",
   mac: "from-gray-700/20 to-gray-800/5 border-gray-600/30",
+  akakce: "from-blue-600/20 to-blue-700/5 border-blue-600/30",
 };
 
 function timeAgo(dateStr: string | null): string {

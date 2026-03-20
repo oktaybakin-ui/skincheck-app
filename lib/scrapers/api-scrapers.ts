@@ -211,16 +211,154 @@ function categorizeProduct(text: string): string | undefined {
   return undefined;
 }
 
+// ─── Akakçe (api6.akakce.com — open JSON API) ──────────────────────
+export async function scrapeAkakceAPI(): Promise<ScraperResult> {
+  const start = Date.now();
+  const deals: ScrapedDeal[] = [];
+  const seen = new Set<string>();
+
+  try {
+    // 1) Last discounts endpoint — trending discounted products
+    const discountsText = await safeFetch("https://api6.akakce.com/home/v3/lastDiscounts");
+    if (discountsText) {
+      try {
+        const discounts = JSON.parse(discountsText);
+        const items = Array.isArray(discounts) ? discounts : discounts.products || discounts.items || discounts.result || [];
+
+        for (const p of items.slice(0, 40)) {
+          const name = p.name || p.title || p.productName;
+          if (!name) continue;
+
+          const lowerName = name.toLowerCase();
+          // Filter to beauty/cosmetics products only
+          if (!isBeautyProduct(lowerName)) continue;
+          if (seen.has(lowerName)) continue;
+          seen.add(lowerName);
+
+          const price = parseFloat(p.price || p.currentPrice || p.salePrice) || undefined;
+          const originalPrice = parseFloat(p.oldPrice || p.originalPrice || p.listPrice) || undefined;
+          const discount = p.discountRatio || p.discount
+            ? Math.round(parseFloat(p.discountRatio || p.discount))
+            : (originalPrice && price && price < originalPrice)
+              ? Math.round(((originalPrice - price) / originalPrice) * 100)
+              : undefined;
+
+          if (!price) continue;
+
+          const brand = p.mkName || p.brand || p.brandName || extractBrand(name);
+          const productUrl = p.url || p.link || p.productUrl;
+          const fullUrl = productUrl
+            ? (productUrl.startsWith("http") ? productUrl : `https://www.akakce.com${productUrl.startsWith("/") ? "" : "/"}${productUrl}`)
+            : "https://www.akakce.com";
+
+          deals.push({
+            store_slug: "akakce",
+            store_name: "Akakçe",
+            campaign_title: name,
+            campaign_url: fullUrl,
+            product_name: name,
+            brand: brand || undefined,
+            category: categorizeProduct(name),
+            original_price: originalPrice,
+            sale_price: price,
+            discount_percent: discount,
+            image_url: p.image || p.imageUrl || p.img || undefined,
+            source_type: "api",
+          });
+        }
+      } catch {
+        // Skip parse errors for discounts
+      }
+    }
+
+    // 2) Autocomplete search for beauty-specific queries
+    const queries = ["serum", "krem", "şampuan", "parfüm", "ruj", "fondöten", "maske", "güneş kremi"];
+    for (const q of queries) {
+      if (deals.length >= 50) break;
+
+      const searchText = await safeFetch(`https://api6.akakce.com/autocomplete?q=${encodeURIComponent(q)}`);
+      if (!searchText) continue;
+
+      try {
+        const searchData = JSON.parse(searchText);
+        // Autocomplete returns product suggestions
+        const products = searchData.products || searchData.items || searchData.result || [];
+
+        for (const p of products.slice(0, 8)) {
+          const name = p.name || p.title || p.label;
+          if (!name) continue;
+
+          const lowerName = name.toLowerCase();
+          if (seen.has(lowerName)) continue;
+          seen.add(lowerName);
+
+          const price = parseFloat(p.price || p.currentPrice) || undefined;
+          const productUrl = p.url || p.link || p.code;
+          const fullUrl = productUrl
+            ? (productUrl.startsWith("http") ? productUrl : `https://www.akakce.com${productUrl.startsWith("/") ? "" : "/"}${productUrl}`)
+            : `https://www.akakce.com/arama/?q=${encodeURIComponent(q)}`;
+
+          deals.push({
+            store_slug: "akakce",
+            store_name: "Akakçe",
+            campaign_title: name,
+            campaign_url: fullUrl,
+            product_name: name,
+            brand: p.mkName || p.brand || extractBrand(name) || undefined,
+            category: categorizeProduct(name) || categorizeProduct(q),
+            sale_price: price,
+            image_url: p.image || p.imageUrl || undefined,
+            source_type: "api",
+          });
+        }
+      } catch {
+        // Skip parse errors
+      }
+    }
+
+    return {
+      store_slug: "akakce",
+      status: deals.length > 0 ? "success" : "failed",
+      deals,
+      duration_ms: Date.now() - start,
+    };
+  } catch (err) {
+    return {
+      store_slug: "akakce",
+      status: "failed",
+      deals: [],
+      error: err instanceof Error ? err.message : "Parse error",
+      duration_ms: Date.now() - start,
+    };
+  }
+}
+
+// ─── Helper: check if product is beauty/cosmetics related ─────────
+function isBeautyProduct(text: string): boolean {
+  return /ruj|lip|dudak|fondöten|foundation|allık|blush|far|eyeshadow|rimel|mascara|eyeliner|kapatıcı|concealer|pudra|powder|makyaj|serum|krem|cream|nemlendirici|moistur|tonik|toner|temizleyici|cleanser|peeling|maske|mask|cilt|skin|şampuan|shampoo|saç|hair|parfüm|perfume|deodorant|koku|fragrance|edp|edt|güneş|sun|spf|kozmetik|bakım|beauty|losyon|lotion|jel|gel|yağ|oil|retinol|hyaluron|niacinamide|vitamin|kolajen|collagen/.test(text);
+}
+
+// ─── Helper: extract brand from product name ──────────────────────
+function extractBrand(name: string): string | undefined {
+  // Akakce often starts product names with brand
+  const parts = name.split(/\s+/);
+  if (parts.length >= 2) {
+    return parts[0];
+  }
+  return undefined;
+}
+
 // ─── Run all API scrapers ──────────────────────────────────────────
 export async function scrapeAllAPIs(): Promise<ScraperResult[]> {
   const results = await Promise.allSettled([
     scrapeRossmannAPI(),
     scrapeTrendyolAPI(),
     scrapeGratisAPI(),
+    scrapeAkakceAPI(),
   ]);
 
   return results.map((r, i) => {
-    const slugs = ["rossmann", "trendyol", "gratis"];
+    const slugs = ["rossmann", "trendyol", "gratis", "akakce"];
     return r.status === "fulfilled"
       ? r.value
       : { store_slug: slugs[i], status: "failed" as const, deals: [], error: r.reason?.message, duration_ms: 0 };

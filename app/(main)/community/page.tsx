@@ -118,7 +118,7 @@ export default function CommunityPage() {
   const { user, profile } = useAuthContext();
   const { t, locale } = useI18n();
   const { reviews, loading, fetchReviews, addReview } = useCommunity();
-  const [tab, setTab] = useState<Tab>("discover");
+  const [tab, setTab] = useState<Tab>("experts");
   const [showWriteReview, setShowWriteReview] = useState(false);
   const [reviewForm, setReviewForm] = useState({ product_id: "", rating: 5, comment: "", pros: "", cons: "" });
   const [submitting, setSubmitting] = useState(false);
@@ -152,11 +152,13 @@ export default function CommunityPage() {
     }
   }, [tab]);
 
+  const disabledTabs: Tab[] = ["discover", "following", "similar"];
+
   const tabs: { key: Tab; label: string }[] = [
+    { key: "experts", label: t.experts },
     { key: "discover", label: t.discover },
     { key: "following", label: t.following },
     { key: "similar", label: t.similar_skin },
-    { key: "experts", label: t.experts },
   ];
 
   const handleSubmitReview = async () => {
@@ -179,18 +181,31 @@ export default function CommunityPage() {
       <Header title={t.community_title} />
       <main className="px-4 py-4 space-y-4 pb-28">
         {/* Tabs */}
-        <div className="flex gap-2">
-          {tabs.map((tabItem) => (
-            <button
-              key={tabItem.key}
-              onClick={() => setTab(tabItem.key)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                tab === tabItem.key ? "bg-primary text-white" : "bg-gray-100 text-muted"
-              }`}
-            >
-              {tabItem.label}
-            </button>
-          ))}
+        <div className="flex gap-2 overflow-x-auto no-scrollbar">
+          {tabs.map((tabItem) => {
+            const isDisabled = disabledTabs.includes(tabItem.key);
+            return (
+              <button
+                key={tabItem.key}
+                onClick={() => !isDisabled && setTab(tabItem.key)}
+                disabled={isDisabled}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap relative ${
+                  isDisabled
+                    ? "bg-gray-100 text-muted/50 cursor-not-allowed"
+                    : tab === tabItem.key
+                      ? "bg-primary text-white"
+                      : "bg-gray-100 text-muted"
+                }`}
+              >
+                {tabItem.label}
+                {isDisabled && (
+                  <span className="ml-1.5 text-[9px] bg-warning/20 text-warning px-1.5 py-0.5 rounded-full font-semibold">
+                    Yakında
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {/* Write Review Button */}
