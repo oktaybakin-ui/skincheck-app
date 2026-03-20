@@ -67,30 +67,33 @@ async function scrapeWatsons(page: Page): Promise<ScrapeResult> {
   const deals: ScrapedDeal[] = [];
 
   try {
-    // Product listing page (not /kampanyalar which is just banners)
-    await page.goto("https://www.watsons.com.tr/tum-urunler/c/50110?sort=topRated", {
-      waitUntil: "networkidle",
-      timeout: 30000,
-    });
-    // Angular SPA needs extra time to hydrate
-    await page.waitForTimeout(6000);
-    // Try waiting for product elements to appear
-    await page.waitForSelector(".product-list-item, h3.product-list-item__name, [class*='product-grid']", { timeout: 10000 }).catch(() => {});
+    // Try multiple Watsons URLs — Cloudflare blocks aggressively
+    const watsonsUrls = [
+      "https://www.watsons.com.tr/cilt-bakimi/c/11030?sort=topRated",
+      "https://www.watsons.com.tr/makyaj/c/11020?sort=topRated",
+      "https://www.watsons.com.tr/tum-urunler/c/50110?sort=topRated",
+    ];
 
-    // Debug: log page content summary
-    const watsonsTitle = await page.title();
-    const watsonsBodyLen = await page.evaluate(() => document.body.innerHTML.length);
-    const watsonsProductCount = await page.$$eval("*", (els) => els.filter(e => e.className?.toString().includes("product")).length);
-    console.log(`  [DEBUG] Watsons page title: "${watsonsTitle}", body length: ${watsonsBodyLen}, product-like elements: ${watsonsProductCount}`);
-    // Log all unique tag names containing "product" in class
-    const watsonsClasses = await page.evaluate(() => {
-      const els = Array.from(document.querySelectorAll("*")).filter(e => e.className?.toString?.().toLowerCase().includes("product"));
-      return [...new Set(els.map(e => `${e.tagName}.${e.className.toString().split(" ").find(c => c.includes("product"))}`))] .slice(0, 15);
-    });
-    console.log(`  [DEBUG] Watsons product classes: ${JSON.stringify(watsonsClasses)}`);
+    let cards: Awaited<ReturnType<Page["$$"]>> = [];
 
-    // Product cards use .product-list-item class
-    const cards = await page.$$(".product-list-item, [class*='product-grid'] [class*='product'], e2-product-list [class*='product']");
+    for (const wUrl of watsonsUrls) {
+      try {
+        await page.goto(wUrl, { waitUntil: "domcontentloaded", timeout: 15000 });
+        await page.waitForTimeout(5000);
+
+        const title = await page.title();
+        console.log(`  [DEBUG] Watsons trying: ${wUrl} → "${title}"`);
+
+        if (title.includes("Access Denied") || title.includes("Just a moment")) continue;
+
+        await page.waitForSelector(".product-list-item, h3[class*='product'], [class*='product-grid']", { timeout: 8000 }).catch(() => {});
+        cards = await page.$$(".product-list-item, [class*='product-grid'] [class*='product'], e2-product-list [class*='product']");
+        console.log(`  [DEBUG] Watsons found ${cards.length} cards`);
+        if (cards.length > 0) break;
+      } catch {
+        continue;
+      }
+    }
 
     for (const card of cards.slice(0, 25)) {
       try {
