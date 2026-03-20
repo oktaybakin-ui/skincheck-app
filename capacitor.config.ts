@@ -7,6 +7,10 @@ const config: CapacitorConfig = {
   server: {
     url: "https://skin-okos-projects-11372c09.vercel.app",
     cleartext: false,
+    androidScheme: "https",
+  },
+  android: {
+    webContentsDebuggingEnabled: true,
   },
   plugins: {
     SplashScreen: {
