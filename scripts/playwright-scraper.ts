@@ -703,12 +703,13 @@ async function main() {
 
   // Run scrapers sequentially (to avoid detection)
   const scrapers = [
-    { name: "Gratis", fn: scrapeGratis },
-    { name: "Rossmann", fn: scrapeRossmann },
     { name: "MAC", fn: scrapeMAC },
     { name: "Watsons", fn: scrapeWatsons },
     { name: "Hepsiburada", fn: scrapeHepsiburada },
     { name: "Sephora", fn: scrapeSephora },
+    // Gratis ve Rossmann devre dışı — CF/SPA engelliyor, kampanya linki olarak kalıyor
+    // { name: "Gratis", fn: scrapeGratis },
+    // { name: "Rossmann", fn: scrapeRossmann },
   ];
 
   for (const scraper of scrapers) {
