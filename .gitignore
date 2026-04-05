@@ -38,7 +38,6 @@ yarn-error.log*
 
 # capacitor
 /android/
-/ios/
 
 # typescript
 *.tsbuildinfo

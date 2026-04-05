@@ -9,6 +9,11 @@ const config: CapacitorConfig = {
     cleartext: false,
     androidScheme: "https",
   },
+  ios: {
+    contentInset: "always",
+    scheme: "Beauty Check",
+    preferredContentMode: "mobile",
+  },
   android: {
     webContentsDebuggingEnabled: true,
   },
