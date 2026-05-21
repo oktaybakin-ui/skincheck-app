@@ -1,16 +1,20 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder";
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-export function createServerClient() {
-  return createClient(
-    supabaseUrl,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+// Build-time guard: env eksikse sessizce "placeholder.supabase.co"ya düşüp
+// bozuk bir build üretmek yerine derlemeyi açıkça durdur.
+// (App Store 2.1(a) reddinin asıl sebebi buydu: kayıt isteği placeholder
+// adrese gidip "An error occurred while signing up" hatası veriyordu.)
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error(
+    "[supabase] NEXT_PUBLIC_SUPABASE_URL veya NEXT_PUBLIC_SUPABASE_ANON_KEY tanımlı değil. " +
+      ".env.local dosyasını kontrol edip build'i tekrar alın."
   );
 }
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Types
 export interface Profile {
