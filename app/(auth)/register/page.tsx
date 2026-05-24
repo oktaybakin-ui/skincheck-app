@@ -11,6 +11,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuthContext();
   const router = useRouter();
@@ -18,22 +19,41 @@ export default function RegisterPage() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setInfo("");
     if (password.length < 6) {
       setError("Şifre en az 6 karakter olmalı");
       return;
     }
     setLoading(true);
-    const { error } = await signUp(email, password, name);
+    const { data, error } = await signUp(email, password, name);
     setLoading(false);
     if (error) {
       setError(error.message);
-    } else {
+    } else if (data?.session) {
+      // Oturum açıldı (email onayı kapalı) → kuruluma geç
       router.push("/profile-setup");
+    } else {
+      // Email onayı açıksa oturum gelmez; kullanıcıyı boş sayfada bırakma, bilgilendir
+      setInfo(
+        "Hesabın oluşturuldu! Lütfen e-postana gönderilen doğrulama bağlantısına tıkla, ardından giriş yap."
+      );
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6">
+      <button
+        type="button"
+        onClick={() => {
+          if (typeof window !== "undefined" && window.history.length > 1) router.back();
+          else router.push("/");
+        }}
+        aria-label="Geri"
+        className="absolute left-5 w-10 h-10 flex items-center justify-center rounded-full bg-surface border border-gray-200 text-foreground text-xl"
+        style={{ top: "calc(env(safe-area-inset-top, 0px) + 1rem)" }}
+      >
+        ←
+      </button>
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
           <img src="/icons/logo-full.svg" alt="Beauty Check" className="h-24 mx-auto" />
@@ -43,6 +63,9 @@ export default function RegisterPage() {
         <form onSubmit={handleRegister} className="space-y-4">
           {error && (
             <div className="bg-danger/10 text-danger text-sm p-3 rounded-xl">{error}</div>
+          )}
+          {info && (
+            <div className="bg-primary/10 text-primary text-sm p-3 rounded-xl">{info}</div>
           )}
           <input
             type="text"

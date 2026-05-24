@@ -29,6 +29,18 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6">
+      <button
+        type="button"
+        onClick={() => {
+          if (typeof window !== "undefined" && window.history.length > 1) router.back();
+          else router.push("/");
+        }}
+        aria-label="Geri"
+        className="absolute left-5 w-10 h-10 flex items-center justify-center rounded-full bg-surface border border-gray-200 text-foreground text-xl"
+        style={{ top: "calc(env(safe-area-inset-top, 0px) + 1rem)" }}
+      >
+        ←
+      </button>
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
           <img src="/icons/logo-full.svg" alt="Beauty Check" className="h-24 mx-auto" />

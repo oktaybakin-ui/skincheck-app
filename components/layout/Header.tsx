@@ -22,7 +22,10 @@ export default function Header({ title = "Beauty Check", showBack = false, showS
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-gray-100">
+    <header
+      className="sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-gray-100"
+      style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
+    >
       <div className="flex items-center justify-between h-14 px-4 max-w-lg mx-auto">
         <div className="flex items-center gap-3">
           {showBack && (

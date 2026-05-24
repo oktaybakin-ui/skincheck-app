@@ -134,7 +134,7 @@ export default function CommunityPage() {
   const fetchExpertTips = async () => {
     setExpertLoading(true);
     try {
-      const res = await fetch(`/api/expert-tips?locale=${locale}`);
+      const res = await fetch(`https://einypelxufqmqwuzmped.supabase.co/functions/v1/expert-tips?locale=${locale}`);
       const data = await res.json();
       if (data.tips && data.tips.length > 0) {
         setExpertTips(data.tips);

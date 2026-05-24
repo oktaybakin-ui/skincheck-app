@@ -566,7 +566,7 @@ export default function BestLookPage() {
         reader.readAsDataURL(file);
       });
 
-      const res = await fetch("/api/ai/face-shape", {
+      const res = await fetch("https://einypelxufqmqwuzmped.supabase.co/functions/v1/ai-face-shape", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ image: base64 }),

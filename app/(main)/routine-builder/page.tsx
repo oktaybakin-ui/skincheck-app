@@ -68,7 +68,7 @@ export default function RoutineBuilderPage() {
     if (photos.length === 0) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/ai/routine", {
+      const res = await fetch("https://einypelxufqmqwuzmped.supabase.co/functions/v1/ai-routine", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ images: photos }),

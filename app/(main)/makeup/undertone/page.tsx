@@ -5,7 +5,7 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import PinterestButton from "@/components/ui/PinterestButton";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Leaf, Snowflake, Flower, LucideIcon, Camera, ClipboardList, Sparkles, RotateCcw, Upload, SwitchCamera, Info, Eye, Palette, Gem, X } from "lucide-react";
 import { useI18n } from "@/lib/i18n/I18nContext";
 
@@ -306,6 +306,16 @@ export default function UndertonePage() {
     }
   }, [facingMode, t]);
 
+  // İlk açılışta <video> henüz DOM'da olmadığından stream bağlanamıyordu
+  // (kamera ilk denemede açılmıyordu). showCamera açılıp video mount edilince
+  // stream'i bağla ve oynat.
+  useEffect(() => {
+    if (showCamera && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+      videoRef.current.play().catch(() => {});
+    }
+  }, [showCamera]);
+
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop());
@@ -349,7 +359,7 @@ export default function UndertonePage() {
     setAiLoading(true);
     setAiResult(null);
     try {
-      const res = await fetch("/api/analyze-undertone", {
+      const res = await fetch("https://einypelxufqmqwuzmped.supabase.co/functions/v1/analyze-undertone", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ image: capturedImage }),

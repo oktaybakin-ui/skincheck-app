@@ -1,16 +1,11 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "com.beautycheck.app",
+  appId: "com.oktaybakin.beautycheck",
   appName: "Beauty Check",
   webDir: "out",
-  server: {
-    url: "https://skin-okos-projects-11372c09.vercel.app",
-    cleartext: false,
-    androidScheme: "https",
-  },
   ios: {
-    contentInset: "always",
+    contentInset: "never",
     scheme: "Beauty Check",
     preferredContentMode: "mobile",
   },

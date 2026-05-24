@@ -118,7 +118,7 @@ export default function DealsPage() {
       if (activeStore) params.set("store", activeStore);
       if (activeCategory) params.set("category", activeCategory);
 
-      const res = await fetch(`/api/deals?${params.toString()}`);
+      const res = await fetch(`https://einypelxufqmqwuzmped.supabase.co/functions/v1/deals?${params.toString()}`);
       const data = await res.json();
 
       setDeals(data.deals || []);
@@ -139,7 +139,7 @@ export default function DealsPage() {
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
-      await fetch("/api/deals/scrape", { method: "POST" });
+      // Kampanyalar arka planda (sunucu tarafı) güncellenir; burada sadece en güncel veriyi yeniden çekiyoruz.
       await fetchDeals();
     } catch {
       // silently fail

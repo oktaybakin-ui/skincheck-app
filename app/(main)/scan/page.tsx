@@ -61,7 +61,7 @@ export default function ScanPage() {
       setPhotoAnalyzing(true);
 
       try {
-        const res = await fetch("/api/recognize-product", {
+        const res = await fetch("https://einypelxufqmqwuzmped.supabase.co/functions/v1/recognize-product", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ image: dataUrl }),

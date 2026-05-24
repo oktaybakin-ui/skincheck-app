@@ -61,7 +61,7 @@ export default function ProductSatisfaction() {
     setData(null);
 
     try {
-      const res = await fetch("/api/ai/satisfaction", {
+      const res = await fetch("https://einypelxufqmqwuzmped.supabase.co/functions/v1/ai-satisfaction", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: q }),
