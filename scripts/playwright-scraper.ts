@@ -1,5 +1,11 @@
 import { chromium, type Page } from "playwright";
 import { createClient } from "@supabase/supabase-js";
+import {
+  scrapeRossmannAPI,
+  scrapeTrendyolAPI,
+  scrapeGratisAPI,
+  scrapeAkakceAPI,
+} from "../lib/scrapers/api-scrapers";
 
 // ─── Supabase Setup ─────────────────────────────────────────────────
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -739,12 +745,36 @@ async function main() {
 
   await browser.close();
 
+  // ─── API tabanlı scraper'lar (Trendyol, Rossmann, Gratis, Akakçe) ──
+  // Playwright gerektirmiyor, fetch tabanlı, paralel çalışır.
+  console.log("\n🌐 Running API scrapers (Trendyol, Rossmann, Gratis, Akakçe)...");
+  const apiResults = await Promise.allSettled([
+    scrapeTrendyolAPI(),
+    scrapeRossmannAPI(),
+    scrapeGratisAPI(),
+    scrapeAkakceAPI(),
+  ]);
+  const apiSlugs = ["trendyol", "rossmann", "gratis", "akakce"];
+  for (let i = 0; i < apiResults.length; i++) {
+    const r = apiResults[i];
+    const slug = apiSlugs[i];
+    if (r.status === "fulfilled") {
+      results.push(r.value);
+      console.log(`  ✅ ${slug}: ${r.value.status} — ${r.value.deals.length} deals (${r.value.duration_ms}ms)`);
+      if (r.value.error) console.log(`  ⚠️ Error: ${r.value.error}`);
+    } else {
+      const err = r.reason instanceof Error ? r.reason.message : "Unknown";
+      console.log(`  ❌ ${slug} crashed: ${err}`);
+      results.push({ store_slug: slug, status: "crashed", deals: [], error: err, duration_ms: 0 });
+    }
+  }
+
   // ─── Save to Supabase ───────────────────────────────────────────
   const allDeals = results.flatMap((r) => r.deals);
   console.log(`\n💾 Saving ${allDeals.length} deals to Supabase...`);
 
   if (allDeals.length > 0) {
-    // Only deactivate deals from stores we just scraped
+    // Only deactivate deals from stores we just scraped successfully
     const scrapedSlugs = results.filter((r) => r.deals.length > 0).map((r) => r.store_slug);
 
     if (scrapedSlugs.length > 0) {
@@ -756,6 +786,10 @@ async function main() {
     }
 
     // Insert new deals
+    // NOT: UI tarafı (app/(main)/deals/page.tsx) sadece source_type === "scraped"
+    // olan deal'leri ürün olarak gösteriyor. API scraper'ların "api" source_type'ı
+    // da kullanıcıya gözüksün diye burada "scraped" olarak normalize ediyoruz.
+    // "campaign_link" (sadece mağaza kartı içeriği) ayrı tutulur.
     const dealsToInsert = allDeals.map((deal) => ({
       store_slug: deal.store_slug,
       store_name: deal.store_name,
@@ -768,7 +802,7 @@ async function main() {
       sale_price: deal.sale_price || null,
       discount_percent: deal.discount_percent || null,
       image_url: deal.image_url || null,
-      source_type: deal.source_type,
+      source_type: deal.source_type === "campaign_link" ? "campaign_link" : "scraped",
       last_scraped_at: new Date().toISOString(),
       is_active: true,
     }));
@@ -779,6 +813,23 @@ async function main() {
     } else {
       console.log(`✅ ${dealsToInsert.length} deals inserted`);
     }
+  }
+
+  // ─── Global stale cleanup ──────────────────────────────────────
+  // Hiçbir scraper tarafından güncellenmeyen mağazaların eski deal'leri
+  // burada pasif yapılır. Aksi halde scraper'dan çıkarılan/başarısız olan
+  // mağazaların 24+ saatlik veriler "aktif" görünmeye devam eder.
+  const STALE_AFTER_DAYS = 7;
+  const staleCutoff = new Date(Date.now() - STALE_AFTER_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  const { error: staleErr, count: staleCount } = await supabase
+    .from("deals")
+    .update({ is_active: false }, { count: "exact" })
+    .eq("is_active", true)
+    .lt("last_scraped_at", staleCutoff);
+  if (staleErr) {
+    console.error("⚠️ Stale cleanup error:", staleErr.message);
+  } else if (staleCount && staleCount > 0) {
+    console.log(`🧹 Stale cleanup: ${staleCount} deal(s) older than ${STALE_AFTER_DAYS}d marked inactive`);
   }
 
   // Log scrape runs
